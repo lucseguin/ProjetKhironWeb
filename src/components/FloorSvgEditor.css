@@ -1,0 +1,59 @@
+body {
+    background: #222;
+  }
+  
+  .canvas {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+  }
+  
+  .canvas-hidden {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display:none;
+}
+
+  .canvas svg {
+    background: #fff;
+  }
+
+  .hidden {
+    display:none;
+  }
+  /* .canvas bed {
+    cursor: move
+  }
+
+  .canvas rect.nerotate{
+    cursor:url("../assets/images/rotate_NE.png"),auto;
+  }
+  .canvas rect.nwrotate{
+    cursor:url("../assets/images/rotate_NE.png"),auto;
+  }
+  .canvas rect.nsrotate{
+    cursor:url("../assets/images/rotate_NE.png"),auto;
+  }
+  .canvas rect.swrotate{
+    cursor:url("../assets/images/rotate_NE.png"),auto;
+  } */
+  .canvas button.active {
+      background: black;
+      box-shadow: none;
+      position: relative;
+      top: 1px;
+  }
+  
+  .bed:hover * {
+      stroke: dodgerblue;
+      stroke-width: 2px;
+  }
