@@ -11,8 +11,9 @@ import BedConfiguration from "../screens/BedConfiguration"
 import FloorConfigurations from "../screens/FloorConfigurations"
 import SettingsCleaning from "../screens/SettingsCleaning"
 import SettingsStretcherBearer from "../screens/SettingsStretcherBearer"
-import SvgIcon from '@material-ui/core/SvgIcon';
+import GlobalSettings from "../screens/GlobalSettings"
 
+import SvgIcon from '@material-ui/core/SvgIcon';
 import PhoneIcon from '@material-ui/icons/Phone';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import PersonPinIcon from '@material-ui/icons/PersonPin';
@@ -154,10 +155,10 @@ export default function SettingsMenuNavigation() {
          <SettingsCleaning />
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={4}>
-      <SettingsStretcherBearer />
+        <SettingsStretcherBearer />
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={5}>
-        <div></div>
+        <GlobalSettings />
       </SettingsTabPanel>
     </div>
   );

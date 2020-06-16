@@ -11,18 +11,17 @@ import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton'
-import { green } from '@material-ui/core/colors';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 
+import UserAccountStatus from "../components/UserAccountStatus"
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
     maxHeight: 500,
@@ -82,38 +81,31 @@ function createData(userid, status, firstName, lastName, role, email, phone) {
 }
 
 const allUserAccounts = [
-  createData(1234567891, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567892, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567893, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567894, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567895, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567896, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567897, 'online', 'Marc-Antoine', 'Dumont', 'Administrateur', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567898, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567899, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567890, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678911, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678922, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678933, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678944, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678955, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678966, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678977, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678988, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678999, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678912, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678913, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678914, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567891, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567892, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567893, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567894, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567895, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567896, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567897, 'online', 'Marc-Antoine', 'Dumont', 4, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567898, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567899, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(1234567890, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678911, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678922, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678933, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678944, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678955, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678966, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678977, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678988, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678999, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678912, 'offline', 'Luc', 'Seguin',1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678913, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
+  createData(12345678914, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
 ];
 
-function UserAccountStatus(props) {
-  let statusIcon;
-  if (props.account.status === 'online')
-    statusIcon = <FiberManualRecordIcon style={{ color: green[500] }} />;
-  else
-    statusIcon = <FiberManualRecordIcon />;
-  return statusIcon;
-}
+
 function UserAccountsTable(props) {
   const classes = useStyles();
   return (
@@ -139,7 +131,7 @@ function UserAccountsTable(props) {
                 <UserAccountStatus account={row} />
               </TableCell>
               <TableCell >{row.firstName + ' ' + row.lastName}</TableCell>
-              <TableCell >{row.role}</TableCell>
+              <TableCell >{roles.find(item => item.id === row.role).name }</TableCell>
               <TableCell >{row.email}</TableCell>
               <TableCell >{row.phone}</TableCell>
               <TableCell className={classes.iconTableCell}>
@@ -183,25 +175,25 @@ const MODULE_CLEANER_CONFIG = 16384;
 
 const roles = [
   {
-    id: 'Brancardier',
+    id: 1,
     name: 'Brancardier',
     count: 5,
     settings: ROLE_SETTINGS_GEO_FENCED|MODULE_BEARER_VIEW|MODULE_BEARER_UPDATE,
   },
   {
-    id: 'Nettoyeur',
+    id: 2,
     name: 'Nettoyeur',
     count: 5,
     settings: ROLE_SETTINGS_GEO_FENCED|MODULE_CLEANER_VIEW|MODULE_CLEANER_UPDATE,
   },
   {
-    id: 'Administrateur',
+    id: 3,
     name: 'Administrateur',
     count: 5,
     settings: ROLE_SETTINGS_MANAGE_ACCOUNTS|MODULE_BEDS_VIEW|MODULE_BEDS_CONFIG_FLOOR|MODULE_BEDS_CONFIG_BED|MODULE_BEARER_VIEW|MODULE_BEARER_CONFIG|MODULE_CLEANER_VIEW|MODULE_CLEANER_CONFIG,
   },
   {
-    id: 'Gestionnaire',
+    id: 4,
     name: 'Gestionnaire',
     count: 5,
     settings: MODULE_BEDS_VIEW|MODULE_BEARER_VIEW|MODULE_CLEANER_VIEW,
