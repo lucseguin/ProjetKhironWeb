@@ -211,7 +211,7 @@ const roles = [
 function RolesTable(props) {
   const classes = useStyles();
   return (
-    <TableContainer component={Paper} className={classes.rolesRable} size="small">
+    <TableContainer className={classes.rolesRable} size="small">
       <Table className={classes.rolesRable} size="small" aria-label="Roles" height="100%">
         {/* <caption>A basic table example with a caption</caption> */}
         <TableHead>
@@ -685,7 +685,7 @@ export default function Users(props) {
   };
 
   return (
-    <Paper elevation={0} style={{ height: "100vh" }}>
+    <Paper elevation={0} style={{ height: "100%" }}>
       <TableContainer>
         <Table>
           <TableBody>

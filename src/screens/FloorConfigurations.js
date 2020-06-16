@@ -310,7 +310,7 @@ function FloorConfigurations(props) {
   // }
 
   return (
-    <Paper elevation={0} style={{ height: "100vh" }} >
+    <Paper elevation={0} style={{ height: "100%" }} >
       <TableContainer>
         <Table size="small">
           <TableBody>

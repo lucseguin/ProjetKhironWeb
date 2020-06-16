@@ -160,11 +160,11 @@ function BedConfiguration(props) {
 
   const [items, setItems] = useState([
     { id: "1", text: "Patient", type:"5", items :[
-      { id: "2", text: "Dossier", type:"5"},
-      { id: "5", text: "Diagnostique", type:"5", max:0, mandatory:true, mlAlgo:""},
-      { id: "8", text: "Code postal", type:"5"},
-      { id: "8", text: "Medecin Traitant", type:"5"},
-      { id: "8", text: "Specialization Medecin Traitant", type:"5"},
+      { id: "1", text: "Dossier", type:"5"},
+      { id: "2", text: "Diagnostique", type:"5", max:0, mandatory:true, mlAlgo:""},
+      { id: "3", text: "Code postal", type:"5"},
+      { id: "4", text: "Medecin Traitant", type:"5"},
+      { id: "5", text: "Specialization Medecin Traitant", type:"5"},
     ] },
     { id: "3", text: "Assigné le" , type:"3" },
     { id: "4", text: "Estimé du séjour", type:"2", min:0, max:365, mlAlgo:"1" },
@@ -194,7 +194,7 @@ function BedConfiguration(props) {
     { id: "9", text: "Profesionnels requis", type:"4", multi:true, items:[
       { id: "1", text: "Ergo therapeute"},
       { id: "2", text: "Inhalo therapeute"},
-      { id: "2", text: "Physio therapeute"},
+      { id: "3", text: "Physio therapeute"},
     ] },
   ]);
 
@@ -516,7 +516,7 @@ function BedConfiguration(props) {
   // selectedProperty.type==="1"?:null
 
   return (
-    <Paper elevation={0} style={{ height: "100vh", verticalAlign: 'top', alignItems: 'top',
+    <Paper elevation={0} style={{ height: "100%", verticalAlign: 'top', alignItems: 'top',
     justifyContent: 'top', }}>
       <TableContainer>
         <Table size="small">
