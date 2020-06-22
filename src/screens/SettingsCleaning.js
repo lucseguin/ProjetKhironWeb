@@ -1,489 +1,346 @@
-import React, { Component } from "react";
-import styled, { css } from "styled-components";
-import MaterialButtonTransparentHamburger1 from "../components/MaterialButtonTransparentHamburger1";
-import FeatherIcon from "react-native-vector-icons/dist/Feather";
-import MaterialButtonHamburger from "../components/MaterialButtonHamburger";
-import EvilIconsIcon from "react-native-vector-icons/dist/EvilIcons";
-import FontAwesomeIcon from "react-native-vector-icons/dist/FontAwesome";
-import MaterialButtonGrey10 from "../components/MaterialButtonGrey10";
-import MaterialButtonGrey16 from "../components/MaterialButtonGrey16";
-import MaterialButtonGrey12 from "../components/MaterialButtonGrey12";
-import MaterialButtonGrey7 from "../components/MaterialButtonGrey7";
-import MaterialButtonGrey22 from "../components/MaterialButtonGrey22";
-import MaterialButtonPrimary17 from "../components/MaterialButtonPrimary17";
-import MaterialButtonGrey9 from "../components/MaterialButtonGrey9";
-import MaterialButtonPink3 from "../components/MaterialButtonPink3";
-import MaterialButtonPrimary21 from "../components/MaterialButtonPrimary21";
+import React, {useState,useEffect} from "react";
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableRow from '@material-ui/core/TableRow';
+import TextField from '@material-ui/core/TextField';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Grid from '@material-ui/core/Grid';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import PropertyList from "../components/properties/PropertyList"
+import PropertyEditor from "../components/properties/PropertyEditor"
+import PropertiesAccountDetails from '../components/properties/PropertiesAccountDetails'
+import PropertiesAccountsTable from '../components/properties/PropertiesAccountsTable'
 
-function SettingsCleaning(props) {
+const useStyles = makeStyles((theme) => ({
+  tableContainer: {
+    maxHeight: 500,
+  },
+  table: {
+    minWidth: 650,
+  },
+  pageHeader: {
+    fontSize: 20,
+  },
+  searchTextField: {
+    width: '100ch',
+  },
+  iconTableCell: {
+    width: '30px',
+  },
+  tableHeaderCell: {
+    position: "sticky",
+    top: 0,
+    zIndex: 10,
+    backgroundColor: "black"
+  },
+  userDetailSection: {
+    minWidth: 300,
+    height: "100%",
+  },
+  userDetailCell: {
+    borderBottom: 'none',
+    width: "100%"
+  },
+  mainUserTableCell: {
+    alignItems: 'top',
+    justifyContent: 'top',
+    height: 350
+  },
+  userDetailSectionHeader: {
+    fontSize: 18,
+  },
+  rolePropertySections: {
+    padding: theme.spacing(1),
+    textAlign: 'left',
+    color: theme.palette.text.secondary,
+  },
+  checkBoxFont: {
+    fontSize: 14,
+  }
+}));
+
+const allCleanningStaff = [
+  {
+    id:1234567891,
+    status:'offline',
+    firstName: 'Luc',
+    lastName : 'Seguin',
+    phone: '819-123-1234',
+    email: 'luc@test.com',
+    extra : []
+  },
+  {
+    id:1234567892,
+    status:'offline',
+    firstName: 'Marc-Antoine',
+    lastName : 'Dumont',
+    phone: '819-123-1234',
+    email: 'ma@test.com',
+    extra : []
+  }
+];
+
+const cleaningStaffExtraProps = [
+  { id: 1, text: "Specialisations", type:"4", multi: false, items:[
+    { id: 1, text: "COVID"},
+  ]}
+];
+
+export default function SettingsStretcherBearer(props) {
+  const classes = useStyles();
+  const [userFilter, setUserFilter] = useState('');
+  const [selectedAccount, setSelectedAccount] = useState();
+  const [selectedProperty, setSelectedProperty] = useState();
+  const [filteredUserAccounts, setFilteredUserAccounts] = useState([...allCleanningStaff]);
+
+  //TODO:pull from db
+  const [bearerAlgo, setBearerAlgo] = useState('Round-Robin');
+  const [allUserAccounts, setAllUserAccounts] = useState([...allCleanningStaff]);
+  const [extraAccountProps, setExtraAccountProps] = useState(cleaningStaffExtraProps);
+    
+  const handleFilterChange = (event) => {
+    setUserFilter(event.target.value);
+    const lcFilterVal = event.target.value.toLowerCase();
+    if (!event.target.value || 0 === event.target.value.length)
+      setFilteredUserAccounts([...allUserAccounts]);
+    else
+      setFilteredUserAccounts([...allUserAccounts.filter((item) => {
+        //TODO also search additional fields
+        return item.firstName.toLowerCase().includes(lcFilterVal) || 
+               item.lastName.toLowerCase().includes(lcFilterVal) ||
+               item.email.toLowerCase().includes(lcFilterVal) ||
+               item.phone.toLowerCase().includes(lcFilterVal);
+      })]);
+  };
+
+  const refreshUserAccountFilterUpdate = () => {
+    const lcFilterVal = userFilter.toLowerCase();
+
+    if(lcFilterVal && lcFilterVal.value.length > 0) {
+      setFilteredUserAccounts([...allUserAccounts.filter((item) => {
+        //TODO also search additional fields
+        return item.firstName.toLowerCase().includes(lcFilterVal) || 
+              item.lastName.toLowerCase().includes(lcFilterVal) ||
+              item.email.toLowerCase().includes(lcFilterVal) ||
+              item.phone.toLowerCase().includes(lcFilterVal);
+      })]);
+    } else {
+      setFilteredUserAccounts([...allUserAccounts]);
+    }
+  } 
+
+  const handleSetAccountToEdit = (account) => {
+    setSelectedAccount(account);
+    //console.log("***handleSetAccountToEdit account:" + account);
+  };
+
+  const handlePropertyToEdit = (item) => {
+    setSelectedProperty(item);
+    //console.log("***handleSetAccountToEdit account:" + account);
+  };
+
+  const handlePropertyDelete = (item) => {
+    const selectedBedIndex = extraAccountProps.findIndex(o => o.id === item.id);
+    setExtraAccountProps( [
+        ...extraAccountProps.slice(0, selectedBedIndex),
+        ...extraAccountProps.slice(selectedBedIndex + 1)
+      ]);
+  };
+  
+  const handleSavePropItem = (xitem)=> {
+    const idx = extraAccountProps.findIndex(o => o.id === xitem.id);
+    setExtraAccountProps( [
+        ...extraAccountProps.slice(0, idx),
+        {...xitem},
+        ...extraAccountProps.slice(idx + 1)
+    ]);
+  }
+
+  const handleNewProperty = () => {
+    let newId = Math.max(...extraAccountProps.map(o => o.id), 0) + 1;
+    let updatedItems = [...extraAccountProps, { id: newId, text: "Nouvelle Propriétée", type:"1", max:0, mandatory:false, mlAlgo:'' }];
+    setExtraAccountProps(updatedItems); 
+  }
+  const handleSavePropList = () => {
+    //TODO
+    console.log("//TODO:need to persist changes");
+  }
+  
+  const handlePropListReorder = (reorderedList) => {
+    //setItems(reorderedList); 
+    //setItems(reorderedList); 
+  }
+
+  const handleBearerAlgoChange = (event) => {
+    setBearerAlgo(event.target.value);
+    //console.log("***handleSetAccountToEdit account:" + account);
+  };
+  
+  const handleSaveAccountChnage = (account) => {
+    const idx = allUserAccounts.findIndex(o => o.id === account.id);
+    
+    let copyAccnt = {...account};
+
+    let newUserAccountLis = [
+      ...allUserAccounts.slice(0, idx),
+      copyAccnt,
+      ...allUserAccounts.slice(idx + 1)
+    ];
+    setAllUserAccounts( newUserAccountLis);
+   
+    const lcFilterVal = userFilter.toLowerCase();
+    if(lcFilterVal && lcFilterVal.value.length > 0) {
+      setFilteredUserAccounts([...newUserAccountLis.filter((item) => {
+        //TODO also search additional fields
+        return item.firstName.toLowerCase().includes(lcFilterVal) || 
+              item.lastName.toLowerCase().includes(lcFilterVal) ||
+              item.email.toLowerCase().includes(lcFilterVal) ||
+              item.phone.toLowerCase().includes(lcFilterVal);
+      })]);
+    } else {
+      setFilteredUserAccounts([...newUserAccountLis]);
+    }    
+  };
+
   return (
-    <>
-      <Rect2StackRow>
-        <Rect2Stack>
-          <Rect2>
-            <MaterialButtonTransparentHamburger1Row>
-              <MaterialButtonTransparentHamburger1
-                style={{
-                  height: 36,
-                  width: 36
-                }}
-              ></MaterialButtonTransparentHamburger1>
-              <Specialization1>Spécialization</Specialization1>
-              <FeatherIcon
-                name="list"
-                style={{
-                  color: "rgba(128,128,128,1)",
-                  fontSize: 20,
-                  height: 20,
-                  width: 20,
-                  marginLeft: 192,
-                  marginTop: 7
-                }}
-              ></FeatherIcon>
-            </MaterialButtonTransparentHamburger1Row>
-          </Rect2>
-          <svg
-            viewBox="0 0 18 0"
-            style={{
-              width: 18,
-              height: 0,
-              position: "absolute",
-              top: 56,
-              left: 331
-            }}
-          >
-            <path
-              strokeWidth="0"
-              stroke="rgba(0,0,0,1)"
-              type="path"
-              d="M0.00 0.00 L18.00 0.00 Z"
-            ></path>
-          </svg>
-          <svg
-            viewBox="0 0 24.32 0"
-            style={{
-              width: 24,
-              height: 0,
-              position: "absolute",
-              top: 55,
-              left: 326
-            }}
-          >
-            <path
-              strokeWidth="0"
-              stroke="rgba(0,0,0,1)"
-              type="path"
-              d="M5.32 0.00 C24.32 0.00 24.32 0.00 24.32 0.00 Z"
-            ></path>
-          </svg>
-        </Rect2Stack>
-        <MaterialButtonHamburger2Column>
-          <MaterialButtonHamburger
-            captionName="menu"
-            style={{
-              height: 36,
-              width: 36,
-              marginLeft: 1
-            }}
-            caption="plus"
-          ></MaterialButtonHamburger>
-          <Text4>Détail de la propriété capturés</Text4>
-          <Identifiant1Row>
-            <Identifiant1>Identifiant</Identifiant1>
-            <TextInput3 placeholder="Identifiant"></TextInput3>
-          </Identifiant1Row>
-          <Type1Row>
-            <Type1>Type</Type1>
-            <TextInput2 placeholder="Type"></TextInput2>
-          </Type1Row>
-          <Valeurs1Row>
-            <Valeurs1>Valeurs</Valeurs1>
-            <Rect1></Rect1>
-          </Valeurs1Row>
-        </MaterialButtonHamburger2Column>
-        <MaterialButtonHamburger
-          captionName="menu"
-          style={{
-            height: 36,
-            width: 36,
-            marginLeft: 4,
-            marginTop: 118
-          }}
-          caption="plus"
-        ></MaterialButtonHamburger>
-      </Rect2StackRow>
-      <TextInput4Stack>
-        <TextInput4 placeholder="Rechercher"></TextInput4>
-        <EvilIconsIcon
-          name="search"
-          style={{
-            top: 2,
-            left: 631,
-            position: "absolute",
-            color: "rgba(128,128,128,1)",
-            fontSize: 30
-          }}
-        ></EvilIconsIcon>
-      </TextInput4Stack>
-      <Rect3>
-        <Icon3Row>
-          <FontAwesomeIcon
-            name="circle"
-            style={{
-              color: "rgba(128,128,128,1)",
-              fontSize: 20,
-              height: 20,
-              width: 17
-            }}
-          ></FontAwesomeIcon>
-          <AlbertEinstein1>Albert Einstein</AlbertEinstein1>
-          <Text6>819-777-1234</Text6>
-          <Covid1>COVID</Covid1>
-        </Icon3Row>
-      </Rect3>
-      <LoremIpsum>Configuration des équipes de nettoyage</LoremIpsum>
-      <MaterialButtonGrey4StackRow>
-        <MaterialButtonGrey4Stack>
-          <MaterialButtonGrey10
-            style={{
-              height: 36,
-              width: 100,
-              position: "absolute",
-              left: 1,
-              top: 0
-            }}
-            caption="Home"
-          ></MaterialButtonGrey10>
-          <MaterialButtonGrey16
-            style={{
-              height: 36,
-              width: 100,
-              position: "absolute",
-              left: 0,
-              top: 0
-            }}
-            caption="Home"
-          ></MaterialButtonGrey16>
-        </MaterialButtonGrey4Stack>
-        <MaterialButtonGrey12
-          style={{
-            height: 36,
-            width: 100,
-            marginLeft: 3
-          }}
-          caption="Utilisateur"
-        ></MaterialButtonGrey12>
-        <MaterialButtonGrey7
-          style={{
-            height: 36,
-            width: 100,
-            marginLeft: 4
-          }}
-          caption="Étages"
-        ></MaterialButtonGrey7>
-        <MaterialButtonGrey22
-          style={{
-            height: 36,
-            width: 100,
-            marginLeft: 4
-          }}
-          caption="Lits"
-        ></MaterialButtonGrey22>
-        <MaterialButtonPrimary17
-          style={{
-            height: 36,
-            width: 100,
-            marginLeft: 4
-          }}
-          caption="Nettoyage"
-        ></MaterialButtonPrimary17>
-        <MaterialButtonGrey9
-          style={{
-            height: 36,
-            width: 100,
-            marginLeft: 3
-          }}
-          caption="Brancarderie"
-        ></MaterialButtonGrey9>
-      </MaterialButtonGrey4StackRow>
-      <MaterialButtonPink1Row>
-        <MaterialButtonPink3
-          style={{
-            height: 36,
-            width: 100
-          }}
-          caption="Annuler"
-        ></MaterialButtonPink3>
-        <MaterialButtonPrimary21
-          style={{
-            height: 36,
-            width: 100,
-            marginLeft: 6
-          }}
-          caption="Sauvegarder"
-        ></MaterialButtonPrimary21>
-      </MaterialButtonPink1Row>
-      <Text5>Propriété supplémentaires associer au nettoyeur</Text5>
-    </>
+    <Paper elevation={0} style={{ height: "100%", width: "100%" }}>
+      <TableContainer >
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={3} width='100%'>
+                <TableContainer>
+                  <Table style={{ border: 'none', width:'100%' }} size="small">
+                    <TableBody style={{ border: 'none' }}>
+                      <TableRow style={{ borderBottom: 'none' }}>
+                        <TableCell className={classes.pageHeader} style={{ borderBottom: 'none' }}>
+                          Gestion des équipes de nettoyage
+                        </TableCell>
+                        <TableCell style={{ borderBottom: 'none' }}>
+                          <TextField id="input-with-icon-grid" className={classes.searchTextField} label="Recherche" onChange={handleFilterChange} value={userFilter}
+                            InputProps={{
+                              endAdornment: <InputAdornment position="start"><AccountCircle /></InputAdornment>,
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell colSpan={2} className={classes.mainUserTableCell} style={{ verticalAlign: 'top', width:'100%' }} >
+                <PropertiesAccountsTable 
+                  userAccounts={filteredUserAccounts} 
+                  extraProperties={extraAccountProps} 
+                  onSelectedAccountForEdit={handleSetAccountToEdit} />
+              </TableCell>
+              <TableCell  className={classes.mainUserTableCell} style={{ verticalAlign: 'top', minWidth:300, maxWidth:300}} >
+                <PropertiesAccountDetails 
+                  header="Details du nettoyeur"
+                  label="Nettoyeur"
+                  account={selectedAccount} 
+                  extraProperties={extraAccountProps} 
+                  onSave={handleSaveAccountChnage}/>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell  style={{ verticalAlign: 'top' }}>
+                <PropertyList title="Propriétés additionel associer aux brancardiers" 
+                  extraProperties={extraAccountProps} 
+                  onEdit={(item) => handlePropertyToEdit(item)} 
+                  onDelete={(item) => handlePropertyDelete(item)}
+                  onNew={handleNewProperty}
+                  onSave={handleSavePropList}
+                  onReorder={(reorderedList) => handlePropListReorder(reorderedList)}/>
+              </TableCell>
+              <TableCell  style={{ verticalAlign: 'top' }}>
+                <PropertyEditor 
+                  property={selectedProperty}
+                  onSave={(item) => handleSavePropItem(item)}/>
+              </TableCell>
+              <TableCell style={{ verticalAlign: 'top' }}>
+                <Grid
+                    container
+                    direction="column"
+                    justify="flex-start"
+                    alignItems="flex-start"
+                    style={{ padding: 20 }}
+                  >
+                    <Grid item>
+                      <Typography variant="subtitle1"gutterBottom>
+                        Algorithm d'assignation des demandes
+                      </Typography>  
+                    </Grid>
+                    <Grid item>
+                      <Paper>
+                      <RadioGroup aria-label="bearer-algo" name="bearer-algo" value={bearerAlgo} onChange={handleBearerAlgoChange}>
+                        <ExpansionPanel>
+                          <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-label="Expand"
+                            aria-controls="additional-actions1-content"
+                            id="additional-actions1-header"
+                          >
+                            <FormControlLabel
+                              aria-label="Acknowledge"
+                              onClick={(event) => event.stopPropagation()}
+                              onFocus={(event) => event.stopPropagation()}
+                              control={<Radio />}
+                              label="Round-Robin"
+                              value="Round-Robin"
+                            />
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Typography color="textSecondary">
+                              Les demandes vonts être directement assigner au prochain nettoyeurs disponible, selon les conditions de la demande.
+                            </Typography>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                        <ExpansionPanel>
+                          <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-label="Expand"
+                            aria-controls="additional-actions2-content"
+                            id="additional-actions2-header"
+                          >
+                            <FormControlLabel
+                              aria-label="Acknowledge"
+                              onClick={(event) => event.stopPropagation()}
+                              onFocus={(event) => event.stopPropagation()}
+                              control={<Radio />}
+                              label="Notify-Accept"
+                              value="Notify-Accept"
+                            />
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Typography color="textSecondary">
+                              Un notification d'une nouvelle demande sera envoyé à tous les nettoyeurs qui rencontre les conditions de la demande, afin qu'un d'entre eux accepte la demande.
+                            </Typography>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                        </RadioGroup>
+                        </Paper>
+                    </Grid>
+                  </Grid>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
 }
-
-const Rect2 = styled.div`
-  top: 0px;
-  left: 0px;
-  width: 340px;
-  height: 240px;
-  position: absolute;
-  background-color: #E6E6E6;
-  flex-direction: row;
-  display: flex;
-`;
-
-const Specialization1 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  margin-left: 4px;
-  margin-top: 10px;
-`;
-
-const MaterialButtonTransparentHamburger1Row = styled.div`
-  height: 36px;
-  flex-direction: row;
-  display: flex;
-  flex: 1 1 0%;
-  margin-right: 1px;
-`;
-
-const Rect2Stack = styled.div`
-  width: 350px;
-  height: 240px;
-  position: relative;
-`;
-
-const Text4 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 700;
-  color: #121212;
-  margin-top: 16px;
-  margin-left: 1px;
-`;
-
-const Identifiant1 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-`;
-
-const TextInput3 = styled.input`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  width: 220px;
-  height: 16px;
-  background-color: rgba(230, 230, 230,1);
-  margin-left: 65px;
-  border: none;
-  background: transparent;
-`;
-
-const Identifiant1Row = styled.div`
-  height: 16px;
-  flex-direction: row;
-  display: flex;
-  margin-top: 9px;
-  margin-left: 1px;
-`;
-
-const Type1 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  margin-top: 3px;
-`;
-
-const TextInput2 = styled.input`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  width: 220px;
-  height: 16px;
-  background-color: rgba(230, 230, 230,1);
-  margin-left: 98px;
-  border: none;
-  background: transparent;
-`;
-
-const Type1Row = styled.div`
-  height: 19px;
-  flex-direction: row;
-  display: flex;
-  margin-top: 5px;
-`;
-
-const Valeurs1 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  margin-top: 8px;
-`;
-
-const Rect1 = styled.div`
-  width: 220px;
-  height: 80px;
-  background-color: #E6E6E6;
-  margin-left: 80px;
-`;
-
-const Valeurs1Row = styled.div`
-  height: 80px;
-  flex-direction: row;
-  display: flex;
-  margin-left: 1px;
-`;
-
-const MaterialButtonHamburger2Column = styled.div`
-  width: 348px;
-  flex-direction: column;
-  display: flex;
-  margin-left: 2px;
-  margin-top: 1px;
-  margin-bottom: 42px;
-`;
-
-const Rect2StackRow = styled.div`
-  height: 240px;
-  flex-direction: row;
-  display: flex;
-  margin-top: 441px;
-  margin-left: 20px;
-  margin-right: 606px;
-`;
-
-const TextInput4 = styled.input`
-  font-family: Roboto;
-  top: 0px;
-  left: 0px;
-  position: absolute;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  width: 663px;
-  height: 30px;
-  border-width: 1px;
-  border-color: #000000;
-  border-bottom-width: 1px;
-  font-size: 18px;
-  background-color: rgba(230, 230, 230,1);
-  border-style: solid;
-  background: transparent;
-`;
-
-const TextInput4Stack = styled.div`
-  width: 663px;
-  height: 30px;
-  margin-top: -581px;
-  margin-left: 20px;
-  position: relative;
-`;
-
-const Rect3 = styled.div`
-  width: 663px;
-  height: 244px;
-  background-color: #E6E6E6;
-  flex-direction: row;
-  display: flex;
-  margin-top: 11px;
-  margin-left: 20px;
-`;
-
-const AlbertEinstein1 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  margin-left: 9px;
-  margin-top: 1px;
-`;
-
-const Text6 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  margin-left: 54px;
-  margin-top: 1px;
-`;
-
-const Covid1 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: regular;
-  color: #121212;
-  margin-left: 60px;
-  margin-top: 1px;
-`;
-
-const Icon3Row = styled.div`
-  height: 20px;
-  flex-direction: row;
-  display: flex;
-  flex: 1 1 0%;
-  margin-right: 303px;
-  margin-left: 4px;
-  margin-top: 3px;
-`;
-
-const LoremIpsum = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 700;
-  color: #121212;
-  font-size: 24px;
-  width: 565px;
-  height: 25px;
-  margin-top: -313px;
-  margin-left: 20px;
-`;
-
-const MaterialButtonGrey4Stack = styled.div`
-  width: 101px;
-  height: 36px;
-  position: relative;
-`;
-
-const MaterialButtonGrey4StackRow = styled.div`
-  height: 36px;
-  flex-direction: row;
-  display: flex;
-  margin-top: -77px;
-  margin-left: 19px;
-  margin-right: 728px;
-`;
-
-const MaterialButtonPink1Row = styled.div`
-  height: 36px;
-  flex-direction: row;
-  display: flex;
-  margin-top: 634px;
-  margin-left: 154px;
-  margin-right: 1006px;
-`;
-
-const Text5 = styled.span`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 700;
-  color: #121212;
-  margin-top: -305px;
-  margin-left: 21px;
-`;
-
-export default SettingsCleaning;

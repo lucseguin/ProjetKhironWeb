@@ -1,4 +1,5 @@
 import React from 'react';
+import { Switch, Route } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -9,10 +10,12 @@ import BedConfiguration from "../screens/BedConfiguration";
 import FloorConfigurations from "../screens/FloorConfigurations";
 import Main from "../screens/Main";
 import SettingsCleaning from "../screens/SettingsCleaning";
-import SettingsStretcherBearer from "../screens/SettingsStretcherBearer";
+import StretcherBearerStatus from "../screens/StretcherBearerStatus";
 import Users from "../screens/Users";
 import SettingsMenuNavigation from "./SettingsMenuNavigation"
 import Box from '@material-ui/core/Box';
+
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -75,6 +78,7 @@ export default function TopMenuNavigation() {
 
   return (
     <div className={classes.root}>
+      
       <AppBar position="static" color="default">
         <Tabs
           variant="fullWidth"
@@ -84,15 +88,17 @@ export default function TopMenuNavigation() {
           onChange={handleChange}
           aria-label="nav tabs example"
         >
-          <LinkTab label="Acceuil" {...a11yProps(0)} />
-          <LinkTab label="Lits" {...a11yProps(1)} />
-          <LinkTab label="Nettoyage" {...a11yProps(2)} />
-          <LinkTab label="Brancarderie" {...a11yProps(3)} />
-          <LinkTab label="Configuration" {...a11yProps(4)} />
+          <LinkTab label="Acceuil" href="/" {...a11yProps(0)} />
+          <LinkTab label="Lits" href="/beds" {...a11yProps(1)} />
+          <LinkTab label="Nettoyage" href="/cleaning" {...a11yProps(2)} />
+          <LinkTab label="Brancarderie" href="/bearer" {...a11yProps(3)} />
+          <LinkTab label="Configuration" href="/settings" {...a11yProps(4)} />
         </Tabs>
       </AppBar>
+
       <TabPanel value={value} index={0} >
-        <Main />
+        <Main/>
+        {/* <Route path="/" component={Main} />  */}
       </TabPanel>
       <TabPanel value={value} index={1} >
         <div></div>
@@ -101,11 +107,13 @@ export default function TopMenuNavigation() {
         <div></div>
       </TabPanel>
       <TabPanel value={value} index={3} >
-       <div></div>
+       <StretcherBearerStatus />
       </TabPanel>
       <TabPanel value={value} index={4}>
         <SettingsMenuNavigation />
+        {/* <Route path="/settings" exact component={SettingsMenuNavigation} /> */}
       </TabPanel>
+
     </div>
   );
 }

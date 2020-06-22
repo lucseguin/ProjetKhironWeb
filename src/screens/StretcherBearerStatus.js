@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Main(props) {
+function StretcherBearerStatus(props) {
   const classes = useStyles();
 
   return (
@@ -65,57 +65,16 @@ function Main(props) {
         alignItems="flex-start"
         style={{ padding: 20, width: '100%' }}
         spacing={3}>
-        <Grid item xs={4}>
-          <Paper>
-            Floor
-         </Paper>
-        </Grid>
-
         <Grid item xs={8}>
           <Paper>
-            <BearerRequestsSummary requests={bearerRequests}/>
+            <BearerRequestsSummary showGraph requests={bearerRequests} data={data}/>
           </Paper>
         </Grid>
 
         <Grid item xs={4}>
           <Paper>
-            Floor
+            DEmande
          </Paper>
-        </Grid>
-
-        <Grid item xs={8}>
-        <Paper>
-            <Grid container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-              style={{ padding: 20 }}>
-              <Grid item>
-                <Typography variant="h6">
-                  Demande de nettoyage derniers 7 jours
-                </Typography>
-              </Grid>
-              <Grid item>
-                <LineChart
-                    width={600}
-                    height={250}
-                    data={data}
-                    margin={{
-                      top: 5, right: 30, left: 20, bottom: 5,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Legend />
-                    <Line yAxisId="left" type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    <Line yAxisId="right" type="monotone" dataKey="uv" stroke="#82ca9d" />
-                </LineChart>
-              </Grid>
-            </Grid>
-          </Paper>
         </Grid>
 
       </Grid>
@@ -124,4 +83,4 @@ function Main(props) {
 }
 
 
-export default Main;
+export default StretcherBearerStatus;

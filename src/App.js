@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 import "./icons.js";
 import BedConfiguration from "./screens/BedConfiguration";
 import FloorConfigurations from "./screens/FloorConfigurations";
@@ -10,6 +10,7 @@ import Users from "./screens/Users";
 import "./style.css";
 import TopMenuNavigation from "./components/TopMenuNavigation";
 import TopMenuBar from "./components/TopMenuBar";
+import SettingsMenuNavigation from "./components/SettingsMenuNavigation";
 
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
@@ -45,7 +46,9 @@ function App() {
   );
 
   return (
+    <BrowserRouter>
     <ThemeProvider theme={theme}>
+
       <Grid
         container
         direction="column"
@@ -60,25 +63,8 @@ function App() {
           <TopMenuNavigation />
         </Grid>
       </Grid>
-
-      <Router >
-        {/* <Route path="/" exact component={Main} /> */}
-        <Route path="/BedConfiguration/" exact component={BedConfiguration} />
-        <Route
-          path="/FloorConfigurations/"
-          exact
-          component={FloorConfigurations}
-        />
-        <Route path="/Main/" exact component={Main} />
-        <Route path="/SettingsCleaning/" exact component={SettingsCleaning} />
-        <Route
-          path="/SettingsStretcherBearer/"
-          exact
-          component={SettingsStretcherBearer}
-        />
-        <Route path="/Users/" exact component={Users} />
-      </Router>
     </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState,useEffect} from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -10,13 +10,6 @@ import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import TableHead from '@material-ui/core/TableHead';
-import EditIcon from '@material-ui/icons/Edit';
-import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button';
-import UserAccountStatus from "../components/UserAccountStatus"
-import PropertyList from "../components/PropertyList"
-import PropertyEditor from "../components/PropertyEditor"
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -25,7 +18,10 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-
+import PropertyList from "../components/properties/PropertyList"
+import PropertyEditor from "../components/properties/PropertyEditor"
+import PropertiesAccountDetails from '../components/properties/PropertiesAccountDetails'
+import PropertiesAccountsTable from '../components/properties/PropertiesAccountsTable'
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
@@ -75,123 +71,75 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function createData(userid, status, firstName, lastName, role, email, phone) {
-  return { userid, status, firstName, lastName, role, email, phone };
-}
-
-const allUserAccounts = [
-  createData(1234567891, 'offline', 'Luc', 'Seguin', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567892, 'offline', 'Marc-Antoine', 'Dumont', 'Brancardier', 'lseguin@hopital.qc.ca', '819-123-1234'),
-
+const allBearerUsers = [
+  {
+    id:1234567891,
+    status:'offline',
+    firstName: 'Luc',
+    lastName : 'Seguin',
+    phone: '819-123-1234',
+    email: 'luc@test.com',
+    extra : []
+  },
+  {
+    id:1234567892,
+    status:'offline',
+    firstName: 'Marc-Antoine',
+    lastName : 'Dumont',
+    phone: '819-123-1234',
+    email: 'ma@test.com',
+    extra : []
+  }
 ];
 
-
-
-function BearerAccountsTable(props) {
-  const classes = useStyles();
-  return (
-    <Paper style={{ height: "100%", width: "100%" }}>
-    <TableContainer size="small">
-      <Table size="small" aria-label="caption table" height="100%">
-        <TableHead>
-          <TableRow>
-            <TableCell className={classes.tableHeaderCell}></TableCell>
-            <TableCell className={classes.tableHeaderCell} >Nom</TableCell>
-            <TableCell className={classes.tableHeaderCell} >Specialization</TableCell>
-            <TableCell className={classes.tableHeaderCell} >Courriel</TableCell>
-            <TableCell className={classes.tableHeaderCell} >Cellulaire</TableCell>
-            <TableCell className={classes.tableHeaderCell}  ></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {props.userAccounts.map((row) => (
-            <TableRow key={row.userid}>
-              <TableCell component="th" scope="row" className={classes.iconTableCell}>
-                <UserAccountStatus account={row} />
-              </TableCell>
-              <TableCell >{row.firstName + ' ' + row.lastName}</TableCell>
-              <TableCell ><div>erwerwert wer wer wert wert wert wert wert wert wert wert wert wert ewrt wert wert wert wert wert wer t</div></TableCell>
-              <TableCell >{row.email}</TableCell>
-              <TableCell >{row.phone}</TableCell>
-              <TableCell className={classes.iconTableCell}>
-                <IconButton aria-label="edit" size="small" onClick={() => props.onSelectedAccountForEdit(row)} >
-                  <EditIcon />
-                </IconButton >
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    </Paper>
-  );
-}
-
-function BearerAccountDetails(props) {
-  const classes = useStyles();
-
-  const [isModified, setModified] = useState(false);
-
-  return (
-  <Paper style={{ height: "100%", width: "100%" }}>
-    <TableContainer>
-      <Table className={classes.userDetailSection} size="small" aria-label="caption table">
-    <TableHead>
-      <TableRow>
-        <TableCell className={classes.tableHeaderCell}>Details du brancardier</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      <TableRow>
-        <TableCell className={classes.userDetailCell} >
-          <Typography  gutterBottom>
-            Brancardier : {props.account?(props.account.firstName + ' ' + props.account.lastName):null}
-          </Typography>  
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell align='right' >
-          {isModified ?
-            <Button variant="contained" color="primary" >
-              Sauvegarder
-            </Button>
-            :
-            <Button variant="contained" color="primary" disabled >
-              Sauvegarder
-            </Button>
-          }
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  </Table></TableContainer></Paper>
-  );
-}
+const bearerExtraFieldsX = [
+  { id: 1, text: "Specialisations", type:"4", multi: false, items:[
+    { id: 1, text: "COVID"},
+  ]}
+];
 
 export default function SettingsStretcherBearer(props) {
   const classes = useStyles();
   const [userFilter, setUserFilter] = useState('');
   const [selectedAccount, setSelectedAccount] = useState();
   const [selectedProperty, setSelectedProperty] = useState();
+  const [filteredUserAccounts, setFilteredUserAccounts] = useState([...allBearerUsers]);
 
+  //TODO:pull from db
   const [bearerAlgo, setBearerAlgo] = useState('Round-Robin');
-  
-  const [filteredUserAccounts, setFilteredUserAccounts] = useState(allUserAccounts);
-
-  const [items, setItems] = useState([
-    { id: "1", text: "Specialisations", type:"4", multi: false, items:[
-      { id: "1", text: "COVID"},
-    ]},
-  ]);
+  const [allUserAccounts, setAllUserAccounts] = useState([...allBearerUsers]);
+  const [extraAccountProps, setExtraAccountProps] = useState(bearerExtraFieldsX);
     
   const handleFilterChange = (event) => {
     setUserFilter(event.target.value);
+    const lcFilterVal = event.target.value.toLowerCase();
     if (!event.target.value || 0 === event.target.value.length)
-      setFilteredUserAccounts(allUserAccounts)
+      setFilteredUserAccounts([...allUserAccounts]);
     else
-      setFilteredUserAccounts(allUserAccounts.filter((item) => {
-        return item.firstName.includes(event.target.value) || item.lastName.includes(event.target.value);
-      }));
+      setFilteredUserAccounts([...allUserAccounts.filter((item) => {
+        //TODO also search additional fields
+        return item.firstName.toLowerCase().includes(lcFilterVal) || 
+               item.lastName.toLowerCase().includes(lcFilterVal) ||
+               item.email.toLowerCase().includes(lcFilterVal) ||
+               item.phone.toLowerCase().includes(lcFilterVal);
+      })]);
   };
+
+  const refreshUserAccountFilterUpdate = () => {
+    const lcFilterVal = userFilter.toLowerCase();
+
+    if(lcFilterVal && lcFilterVal.value.length > 0) {
+      setFilteredUserAccounts([...allUserAccounts.filter((item) => {
+        //TODO also search additional fields
+        return item.firstName.toLowerCase().includes(lcFilterVal) || 
+              item.lastName.toLowerCase().includes(lcFilterVal) ||
+              item.email.toLowerCase().includes(lcFilterVal) ||
+              item.phone.toLowerCase().includes(lcFilterVal);
+      })]);
+    } else {
+      setFilteredUserAccounts([...allUserAccounts]);
+    }
+  } 
 
   const handleSetAccountToEdit = (account) => {
     setSelectedAccount(account);
@@ -203,16 +151,73 @@ export default function SettingsStretcherBearer(props) {
     //console.log("***handleSetAccountToEdit account:" + account);
   };
 
+  const handlePropertyDelete = (item) => {
+    const selectedBedIndex = extraAccountProps.findIndex(o => o.id === item.id);
+    setExtraAccountProps( [
+        ...extraAccountProps.slice(0, selectedBedIndex),
+        ...extraAccountProps.slice(selectedBedIndex + 1)
+      ]);
+  };
+  
+  const handleSavePropItem = (xitem)=> {
+    const idx = extraAccountProps.findIndex(o => o.id === xitem.id);
+    setExtraAccountProps( [
+        ...extraAccountProps.slice(0, idx),
+        {...xitem},
+        ...extraAccountProps.slice(idx + 1)
+    ]);
+  }
+
+  const handleNewProperty = () => {
+    let newId = Math.max(...extraAccountProps.map(o => o.id), 0) + 1;
+    let updatedItems = [...extraAccountProps, { id: newId, text: "Nouvelle Propriétée", type:"1", max:0, mandatory:false, mlAlgo:'' }];
+    setExtraAccountProps(updatedItems); 
+  }
+  const handleSavePropList = () => {
+    //TODO
+    console.log("//TODO:need to persist changes");
+  }
+  
+  const handlePropListReorder = (reorderedList) => {
+    //setItems(reorderedList); 
+    //setItems(reorderedList); 
+  }
+
   const handleBearerAlgoChange = (event) => {
     setBearerAlgo(event.target.value);
     //console.log("***handleSetAccountToEdit account:" + account);
   };
   
+  const handleSaveAccountChnage = (account) => {
+    const idx = allUserAccounts.findIndex(o => o.id === account.id);
+    
+    let copyAccnt = {...account};
+
+    let newUserAccountLis = [
+      ...allUserAccounts.slice(0, idx),
+      copyAccnt,
+      ...allUserAccounts.slice(idx + 1)
+    ];
+    setAllUserAccounts( newUserAccountLis);
+   
+    const lcFilterVal = userFilter.toLowerCase();
+    if(lcFilterVal && lcFilterVal.value.length > 0) {
+      setFilteredUserAccounts([...newUserAccountLis.filter((item) => {
+        //TODO also search additional fields
+        return item.firstName.toLowerCase().includes(lcFilterVal) || 
+              item.lastName.toLowerCase().includes(lcFilterVal) ||
+              item.email.toLowerCase().includes(lcFilterVal) ||
+              item.phone.toLowerCase().includes(lcFilterVal);
+      })]);
+    } else {
+      setFilteredUserAccounts([...newUserAccountLis]);
+    }    
+  };
 
   return (
     <Paper elevation={0} style={{ height: "100%", width: "100%" }}>
       <TableContainer >
-        <Table >
+        <Table>
           <TableBody>
             <TableRow>
               <TableCell colSpan={3} width='100%'>
@@ -237,19 +242,35 @@ export default function SettingsStretcherBearer(props) {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={2} className={classes.mainUserTableCell} style={{ verticalAlign: 'top' }} >
-                <BearerAccountsTable userAccounts={filteredUserAccounts} onSelectedAccountForEdit={handleSetAccountToEdit} />
+              <TableCell colSpan={2} className={classes.mainUserTableCell} style={{ verticalAlign: 'top', width:'100%' }} >
+                <PropertiesAccountsTable 
+                  userAccounts={filteredUserAccounts} 
+                  extraProperties={extraAccountProps} 
+                  onSelectedAccountForEdit={handleSetAccountToEdit} />
               </TableCell>
-              <TableCell  className={classes.mainUserTableCell} style={{ verticalAlign: 'top' }} >
-                  <BearerAccountDetails account={selectedAccount} />
+              <TableCell  className={classes.mainUserTableCell} style={{ verticalAlign: 'top', minWidth:300, maxWidth:300}} >
+                <PropertiesAccountDetails 
+                  header="Details du brancardier"
+                  label="Brancardier"
+                  account={selectedAccount} 
+                  extraProperties={extraAccountProps} 
+                  onSave={handleSaveAccountChnage}/>
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell  style={{ verticalAlign: 'top' }}>
-                <PropertyList title="Propriétés additionel associer aux brancardiers" items={items} onEdit={(item) => handlePropertyToEdit(item)}/>
+                <PropertyList title="Propriétés additionel associer aux brancardiers" 
+                  extraProperties={extraAccountProps} 
+                  onEdit={(item) => handlePropertyToEdit(item)} 
+                  onDelete={(item) => handlePropertyDelete(item)}
+                  onNew={handleNewProperty}
+                  onSave={handleSavePropList}
+                  onReorder={(reorderedList) => handlePropListReorder(reorderedList)}/>
               </TableCell>
               <TableCell  style={{ verticalAlign: 'top' }}>
-                <PropertyEditor property={selectedProperty}/>
+                <PropertyEditor 
+                  property={selectedProperty}
+                  onSave={(item) => handleSavePropItem(item)}/>
               </TableCell>
               <TableCell style={{ verticalAlign: 'top' }}>
                 <Grid

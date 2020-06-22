@@ -1,4 +1,5 @@
 import React from 'react';
+import {  Switch, Route } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
@@ -89,6 +90,19 @@ SettingsTabPanel.propTypes = {
   value: PropTypes.any.isRequired,
 };
 
+
+function LinkTab(props) {
+  return (
+    <Tab
+      component="a"
+      onClick={(event) => {
+        event.preventDefault();
+      }}
+      {...props}
+    />
+  );
+}
+
 function a11yProps(index) {
   return {
     id: `vertical-tab-${index}`,
@@ -135,31 +149,38 @@ export default function SettingsMenuNavigation() {
         aria-label="Vertical tabs example"
         className={classes.tabs}
       >
-          <Tab icon={<AccountCircleOutlinedIcon />} aria-label="phone" {...a11yProps(0)} className={classes.tab}/>
-          <Tab icon={<LayersOutlinedIcon />} aria-label="favorite" {...a11yProps(1)} className={classes.tab}/>
-          <Tab icon={<HotelOutlinedIcon />} aria-label="person" {...a11yProps(2)} className={classes.tab}/>
-          <Tab icon={<CleaningIcon />} aria-label="help" {...a11yProps(3)} className={classes.tab}/>
-          <Tab icon={<TransferWithinAStationOutlinedIcon />} aria-label="shopping" {...a11yProps(4)} className={classes.tab}/>
-          <Tab icon={<SettingsOutlinedIcon />} aria-label="shopping" {...a11yProps(5)} className={classes.tab}/>
+          <LinkTab icon={<AccountCircleOutlinedIcon />} aria-label="accounts" href="/settings/accounts" {...a11yProps(0)} className={classes.tab}/>
+          <LinkTab icon={<LayersOutlinedIcon />} aria-label="floors" {...a11yProps(1)} href="/settings/floors" className={classes.tab}/>
+          <LinkTab icon={<HotelOutlinedIcon />} aria-label="beds" {...a11yProps(2)} href="/settings/beds" className={classes.tab}/>
+          <LinkTab icon={<CleaningIcon />} aria-label="cleaning" {...a11yProps(3)} href="/settings/cleaning" className={classes.tab}/>
+          <LinkTab icon={<TransferWithinAStationOutlinedIcon />} aria-label="bearer" href="/settings/bearer" {...a11yProps(4)} className={classes.tab}/>
+          <LinkTab icon={<SettingsOutlinedIcon />} aria-label="shopping" href="/settings/global" {...a11yProps(5)} className={classes.tab}/>
       </Tabs>
       <SettingsTabPanel value={value} index={0}>
          <Users />
+         {/* <Route path="/settings/accounts" exact component={Users} /> */}
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={1}>
         <FloorConfigurations/>
+        {/* <Route path="/settings/floors" exact component={FloorConfigurations} /> */}
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={2}>
         <BedConfiguration />
+        {/* <Route path="/settings/beds" exact component={BedConfiguration} /> */}
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={3}>
          <SettingsCleaning />
+         {/* <Route path="/settings/cleaning" exact component={SettingsCleaning} /> */}
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={4}>
         <SettingsStretcherBearer />
+        {/* <Route path="/settings/bearer" exact component={SettingsStretcherBearer} /> */}
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={5}>
         <GlobalSettings />
+        {/* <Route path="/settings/global" exact component={GlobalSettings} /> */}
       </SettingsTabPanel>
+
     </div>
   );
 }

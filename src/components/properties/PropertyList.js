@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -19,10 +19,38 @@ import Button from '@material-ui/core/Button';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 export default function PropertyList(props) {
+    const [modified, setModified] = useState(false);
+    const [items, setItems] = useState();
+    
+    useEffect(() => {
+        setItems(props.extraProperties);
+      }, [props.extraProperties]);
+
     const onDrop = ({ removedIndex, addedIndex }) => {
-        arrayMove(props.items, removedIndex, addedIndex);
-        //setItems(items => arrayMove(props.items, removedIndex, addedIndex));
-      };
+        setModified(true);
+        setItems(arrayMove(items, removedIndex, addedIndex));
+        props.onReorder(items);
+    };
+
+    const handledPropertyEdit = (item) => {
+        props.onEdit(item)
+    }
+
+    const handledNewProp = () => {
+        props.onNew();
+        setModified(true);
+    }
+
+    const handledDeleteProp = (item) => {
+        props.onDelete(item);
+        setModified(true);
+    }    
+
+    const handledSaveList = () => {
+        props.onSave();
+        setModified(false);
+    }    
+
     return (    
         <Grid
         container
@@ -37,15 +65,16 @@ export default function PropertyList(props) {
             </Typography>  
         </Grid>
         <Grid item style={{width:'100%', display: 'flex', justifyContent: 'flex-end'}}>
-            <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />}>
+            <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handledNewProp}>
                 Nouvelle propriétée
             </Button>
         </Grid>
         <Grid item>
             <Paper elevation={3} style={{minWidth: 400, maxHeight: 600, overflow: 'auto'}}>
+                {items?
                 <List >
                     <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop} >
-                        {props.items.map((item) => (
+                        {items.map((item) => (
                         <Draggable key={item.id}>
                             <ListItem>
 
@@ -56,10 +85,10 @@ export default function PropertyList(props) {
                             <ListItemText primary={item.text} />
 
                                 <ListItemSecondaryAction >
-                                <IconButton aria-label="edit" size="small" onClick={() => props.onEdit(item)}>
+                                <IconButton aria-label="edit" size="small" onClick={() => handledPropertyEdit(item)}>
                                     <EditIcon />
                                 </IconButton >
-                                <IconButton aria-label="delete" size="small">
+                                <IconButton aria-label="delete" size="small" onClick={() => handledDeleteProp(item)}>
                                     <DeleteIcon />
                                 </IconButton >
                                 </ListItemSecondaryAction>
@@ -69,7 +98,13 @@ export default function PropertyList(props) {
                         ))}
                     </Container>
                 </List>
+                :null}
             </Paper>
+        </Grid>
+        <Grid item style={{width:'100%', display: 'flex', justifyContent: 'flex-end'}}>
+            <Button variant="contained" color="primary" disabled={!modified} onClick={handledSaveList}>
+                Sauvegarder
+            </Button>
         </Grid>
     </Grid>
 );
