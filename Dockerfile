@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:latest
+FROM node:14.4.0-alpine3.12
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN npm install
 COPY . /app/
 RUN npm build
 
-FROM nginx:1.17.8-alpine
+FROM nginx:1.19.0-alpine
 COPY --from=build /app/build /usr/share/nginx/html
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx/nginx.conf /etc/nginx/conf.d
