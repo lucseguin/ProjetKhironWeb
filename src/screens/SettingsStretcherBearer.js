@@ -93,8 +93,10 @@ const allBearerUsers = [
 ];
 
 const bearerExtraFieldsX = [
-  { id: 1, text: "Specialisations", type:"4", multi: false, items:[
+  { id: 1, text: "Specialisations", type:"4", multi: true, items:[
     { id: 1, text: "COVID"},
+    { id: 2, text: "SRAS"},
+    { id: 3, text: "Nuclear"},
   ]}
 ];
 

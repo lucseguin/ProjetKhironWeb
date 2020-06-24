@@ -11,6 +11,8 @@ import FloorConfigurations from "../screens/FloorConfigurations";
 import Main from "../screens/Main";
 import SettingsCleaning from "../screens/SettingsCleaning";
 import StretcherBearerStatus from "../screens/StretcherBearerStatus";
+import CleaningStatus from "../screens/CleaningStatus";
+
 import Users from "../screens/Users";
 import SettingsMenuNavigation from "./SettingsMenuNavigation"
 import Box from '@material-ui/core/Box';
@@ -104,7 +106,7 @@ export default function TopMenuNavigation() {
         <div></div>
       </TabPanel>
       <TabPanel value={value} index={2} >
-        <div></div>
+        <CleaningStatus />
       </TabPanel>
       <TabPanel value={value} index={3} >
        <StretcherBearerStatus />

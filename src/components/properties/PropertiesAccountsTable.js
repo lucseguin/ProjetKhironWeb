@@ -59,8 +59,29 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 14,
     }
   }));
+
+
 export default function PropertiesAccountsTable(props) {
   const classes = useStyles();
+
+  const propsAccountValueToString = (account, property) => {
+    const accountProp = account.extra.find(o => o.id === property.id);
+    if(accountProp) {
+      if(property.type === Properties.TEXT_PROPERTY.id) {
+        return accountProp.value;
+      } else if(property.type === Properties.NUM_PROPERTY.id) {
+        return ''+accountProp.value;
+      } else if(property.type === Properties.LIST_PROPERTY.id) {
+        if(property.multi === true) {
+          //value is an array
+        } else {
+          //value is not an array
+          
+        }
+      }
+    }
+  }
+
   return (
     <Paper style={{ height: "100%", width: "100%" }}>
     <TableContainer size="small">
@@ -85,10 +106,9 @@ export default function PropertiesAccountsTable(props) {
               </TableCell>
               <TableCell >{account.firstName + ' ' + account.lastName}</TableCell>
               {props.extraProperties.map((option) => (
-                <TableCell  key={option.id}>
+                <TableCell key={option.id}>
                   <div>
 TODO
-
                   </div>
                 </TableCell>
               ))}

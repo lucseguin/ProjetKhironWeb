@@ -67,13 +67,13 @@ function StretcherBearerStatus(props) {
         spacing={3}>
         <Grid item xs={8}>
           <Paper>
-            <BearerRequestsSummary showGraph requests={bearerRequests} data={data}/>
+            <BearerRequestsSummary showGraph requests={bearerRequests} data={data} title="Demande de brancarderie derniers 7 jours"/>
           </Paper>
         </Grid>
 
         <Grid item xs={4}>
           <Paper>
-            DEmande
+            Demande
          </Paper>
         </Grid>
 

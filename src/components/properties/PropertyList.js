@@ -82,7 +82,7 @@ export default function PropertyList(props) {
                                 <DragHandleIcon />
                                 </ListItemIcon>
 
-                            <ListItemText primary={item.text} />
+                                <ListItemText primary={item.text} />
 
                                 <ListItemSecondaryAction >
                                 <IconButton aria-label="edit" size="small" onClick={() => handledPropertyEdit(item)}>

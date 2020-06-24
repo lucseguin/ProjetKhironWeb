@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   }));
 
   
-export default function BearerRequestsSummary(props) {
+export default function CleaningRequestsSummary(props) {
     const classes = useStyles();
   
     return (
@@ -78,8 +78,7 @@ export default function BearerRequestsSummary(props) {
               <TableHead>
                 <TableRow>
                   <TableCell className={classes.tableHeaderCell}></TableCell>
-                  <TableCell className={classes.tableHeaderCell} >De</TableCell>
-                  <TableCell className={classes.tableHeaderCell} >Vers</TableCell>
+                  <TableCell className={classes.tableHeaderCell} >Lit</TableCell>
                   <TableCell className={classes.tableHeaderCell} >Assignée à</TableCell>
                   <TableCell className={classes.tableHeaderCell} >Demande</TableCell>
                   <TableCell className={classes.tableHeaderCell} >Accepter</TableCell>
@@ -92,9 +91,8 @@ export default function BearerRequestsSummary(props) {
                     <TableCell style={{width:30}}>
                       {request.status==='new'?<PlayForWorkOutlinedIcon className={classes.statusIcons}/>:request.status==='inprogress'?<CircularProgress size={20}/>:request.status==='done'?<CheckCircleOutlinedIcon className={classes.statusIcons}/>:null}
                     </TableCell>
-                    <TableCell >{request.from.department}</TableCell>
-                    <TableCell >{request.to.bedlabel}</TableCell>
-                    <TableCell >{request.bearer.firstName}</TableCell>
+                    <TableCell >{request.location.bedlabel}</TableCell>
+                    <TableCell >{request.cleaner.firstName}</TableCell>
                     <TableCell >{request.in}</TableCell>
                     <TableCell >{request.started}</TableCell>
                     <TableCell >{request.completed}</TableCell>
