@@ -16,8 +16,6 @@
     "google-map-react": "^1.1.4",
     "material-ui-slider": "^3.0.8",
     "ml-matrix": "^6.5.0",
-    "mongodb": "^3.5.9",
-    "mongodb-client-encryption": "^1.1.0",
     "pathfinding": "^0.4.18",
     "paths-js": "^0.4.10",
     "pure-react-carousel": "^1.21.1",
