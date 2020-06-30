@@ -1,19 +1,12 @@
 import React from 'react';
-import { Switch, Route } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
-import BedConfiguration from "../screens/BedConfiguration";
-import FloorConfigurations from "../screens/FloorConfigurations";
 import Main from "../screens/Main";
-import SettingsCleaning from "../screens/SettingsCleaning";
 import StretcherBearerStatus from "../screens/StretcherBearerStatus";
 import CleaningStatus from "../screens/CleaningStatus";
-
-import Users from "../screens/Users";
 import SettingsMenuNavigation from "./SettingsMenuNavigation"
 import Box from '@material-ui/core/Box';
 

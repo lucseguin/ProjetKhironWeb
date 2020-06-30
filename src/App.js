@@ -1,30 +1,16 @@
 import React from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import "./icons.js";
-import BedConfiguration from "./screens/BedConfiguration";
-import FloorConfigurations from "./screens/FloorConfigurations";
-import Main from "./screens/Main";
-import SettingsCleaning from "./screens/SettingsCleaning";
-import SettingsStretcherBearer from "./screens/SettingsStretcherBearer";
-import Users from "./screens/Users";
 import "./style.css";
 import TopMenuNavigation from "./components/TopMenuNavigation";
 import TopMenuBar from "./components/TopMenuBar";
-import SettingsMenuNavigation from "./components/SettingsMenuNavigation";
 
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import Amplify, { Auth } from 'aws-amplify';
+import Amplify from 'aws-amplify';
 import awsconfig from './aws-exports';
-import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import { withAuthenticator } from '@aws-amplify/ui-react';
 import { Grid } from "@material-ui/core";
-import {
-  orange,
-  lightBlue,
-  deepPurple,
-  deepOrange
-} from "@material-ui/core/colors";
-
 
 Amplify.configure(awsconfig);
 

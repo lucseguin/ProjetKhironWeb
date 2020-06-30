@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from "react";
+import React, {useState} from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -113,6 +113,7 @@ export default function SettingsStretcherBearer(props) {
   const handleFilterChange = (event) => {
     setUserFilter(event.target.value);
     const lcFilterVal = event.target.value.toLowerCase();
+    
     if (!event.target.value || 0 === event.target.value.length)
       setFilteredUserAccounts([...allUserAccounts]);
     else
@@ -125,21 +126,21 @@ export default function SettingsStretcherBearer(props) {
       })]);
   };
 
-  const refreshUserAccountFilterUpdate = () => {
-    const lcFilterVal = userFilter.toLowerCase();
+  // const refreshUserAccountFilterUpdate = () => {
+  //   const lcFilterVal = userFilter.toLowerCase();
 
-    if(lcFilterVal && lcFilterVal.value.length > 0) {
-      setFilteredUserAccounts([...allUserAccounts.filter((item) => {
-        //TODO also search additional fields
-        return item.firstName.toLowerCase().includes(lcFilterVal) || 
-              item.lastName.toLowerCase().includes(lcFilterVal) ||
-              item.email.toLowerCase().includes(lcFilterVal) ||
-              item.phone.toLowerCase().includes(lcFilterVal);
-      })]);
-    } else {
-      setFilteredUserAccounts([...allUserAccounts]);
-    }
-  } 
+  //   if(lcFilterVal && lcFilterVal.value.length > 0) {
+  //     setFilteredUserAccounts([...allUserAccounts.filter((item) => {
+  //       //TODO also search additional fields
+  //       return item.firstName.toLowerCase().includes(lcFilterVal) || 
+  //             item.lastName.toLowerCase().includes(lcFilterVal) ||
+  //             item.email.toLowerCase().includes(lcFilterVal) ||
+  //             item.phone.toLowerCase().includes(lcFilterVal);
+  //     })]);
+  //   } else {
+  //     setFilteredUserAccounts([...allUserAccounts]);
+  //   }
+  // } 
 
   const handleSetAccountToEdit = (account) => {
     setSelectedAccount(account);

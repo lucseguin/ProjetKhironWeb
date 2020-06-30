@@ -1,10 +1,8 @@
 import React from 'react';
-import {  Switch, Route } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
 import Users from "../screens/Users"
@@ -15,15 +13,7 @@ import SettingsStretcherBearer from "../screens/SettingsStretcherBearer"
 import GlobalSettings from "../screens/GlobalSettings"
 
 import SvgIcon from '@material-ui/core/SvgIcon';
-import PhoneIcon from '@material-ui/icons/Phone';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import PersonPinIcon from '@material-ui/icons/PersonPin';
-import HelpIcon from '@material-ui/icons/Help';
-import ShoppingBasket from '@material-ui/icons/ShoppingBasket';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
-import LocalHotelIcon from '@material-ui/icons/LocalHotel';
-import TransferWithinAStationIcon from '@material-ui/icons/TransferWithinAStation';
 import LayersOutlinedIcon from '@material-ui/icons/LayersOutlined';
 import HotelOutlinedIcon from '@material-ui/icons/HotelOutlined';
 import TransferWithinAStationOutlinedIcon from '@material-ui/icons/TransferWithinAStationOutlined';

@@ -8,12 +8,10 @@ import InputBase from '@material-ui/core/InputBase';
 import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import MoreIcon from '@material-ui/icons/MoreVert';
 import Avatar from '@material-ui/core/Avatar';
 import { AmplifySignOut } from '@aws-amplify/ui-react';
 const useStyles = makeStyles((theme) => ({

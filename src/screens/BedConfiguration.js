@@ -1,5 +1,4 @@
 import React, {useState, useRef, useEffect} from "react";
-import { KeyboardEvent } from 'react';
 
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -30,7 +29,7 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 import { CanvasWidget, Action, InputType} from '@projectstorm/react-canvas-core';
 import createEngine, { DiagramModel, DefaultNodeModel } from '@projectstorm/react-diagrams';
-import { BedStatusWorkspaceWidget, BedStatusButton } from '../components/BedStatusWorkspaceWidget';
+import { BedStatusWorkspaceWidget } from '../components/BedStatusWorkspaceWidget';
 import { BedStatusCanvasWidget } from '../components/BedStatusCanvasWidget';
 import BedStatusNodeDetailEditor from '../components/BedStatusNodeDetailEditor'
 import * as _ from 'lodash';
@@ -42,7 +41,7 @@ class MyDeleteItemsAction extends Action {
 		super({
 			type: InputType.KEY_DOWN,
 			fire: (e) => {
-				const { keyCode, ctrlKey, shiftKey, altKey, metaKey } = e.event;
+				const { keyCode, shiftKey} = e.event;
 
 				if (keyCodes.indexOf(keyCode) !== -1 && shiftKey === true) {
 					_.forEach(this.engine.getModel().getSelectedEntities(), (model) => {
@@ -222,8 +221,8 @@ function BedConfiguration(props) {
 
   const addNewBedStateNode = () => {
     var n1 = new DefaultNodeModel('Nouvel Etat', 'rgb(0,192,255)');
-    var n1out = n1.addOutPort('Sortie');
-    var n1in = n1.addInPort('Entrée');
+    n1.addOutPort('Sortie');
+    n1.addInPort('Entrée');
     n1.registerListener({
       selectionChanged: (e) => {
         if(statusNodeEditor.current && e) {

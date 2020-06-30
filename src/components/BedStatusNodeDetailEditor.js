@@ -6,7 +6,6 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { DefaultLinkModel, DefaultLabelModel } from '@projectstorm/react-diagrams';
 
 class BedStatusNodeDetailEditor extends Component {
     constructor(props){

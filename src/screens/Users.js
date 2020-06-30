@@ -296,6 +296,8 @@ function RoleDetails(props) {
       case 'MODULE_CLEANER_CONFIG':
         setSettings((event.target.checked) ? (settings | MODULE_CLEANER_CONFIG) : (settings & ~MODULE_CLEANER_CONFIG));
         break;
+      default:
+        break;
     }
     setModified(true);
   };

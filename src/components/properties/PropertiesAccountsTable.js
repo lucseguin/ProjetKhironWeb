@@ -9,7 +9,6 @@ import TableRow from '@material-ui/core/TableRow';
 import TableHead from '@material-ui/core/TableHead';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button';
 import UserAccountStatus from "../UserAccountStatus"
 import * as Properties from './Properties';
 const useStyles = makeStyles((theme) => ({
@@ -73,10 +72,11 @@ export default function PropertiesAccountsTable(props) {
         return ''+accountProp.value;
       } else if(property.type === Properties.LIST_PROPERTY.id) {
         if(property.multi === true) {
+          //accountProp.value
           //value is an array
         } else {
           //value is not an array
-          
+          return props.extraProperties.find(o => o.id === accountProp.value).text;
         }
       }
     }
@@ -108,7 +108,7 @@ export default function PropertiesAccountsTable(props) {
               {props.extraProperties.map((option) => (
                 <TableCell key={option.id}>
                   <div>
-TODO
+                    {propsAccountValueToString(account,option)}
                   </div>
                 </TableCell>
               ))}

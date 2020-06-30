@@ -1,11 +1,11 @@
 
-import React, {useState, useEffect} from "react";
+import React from "react";
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import ListItemText from '@material-ui/core/ListItemText';
+
 import Select from '@material-ui/core/Select';
 import * as Properties from './Properties'
 
