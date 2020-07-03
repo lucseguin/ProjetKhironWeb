@@ -4,13 +4,20 @@ import "./icons.js";
 import "./style.css";
 import TopMenuNavigation from "./components/TopMenuNavigation";
 import TopMenuBar from "./components/TopMenuBar";
-
+import axios from "axios"
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import Amplify from 'aws-amplify';
 import awsconfig from './aws-exports';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import { Grid } from "@material-ui/core";
+
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
+console.log("process.env.REACT_APP_PK_DB_API_ENDPOINT:"+process.env.REACT_APP_PK_DB_API_ENDPOINT);
+axios.defaults.baseURL = "http://localhost:3001";
 
 Amplify.configure(awsconfig);
 

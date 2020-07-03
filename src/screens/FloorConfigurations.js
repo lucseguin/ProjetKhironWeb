@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useState, useRef, Component } from "react";
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -22,8 +22,10 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Divider from '@material-ui/core/Divider';
 import FloorSvgEditor from '../components/FloorSvgEditor'
 import Slider from '@material-ui/core/Slider';
+import axios from 'axios';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = theme => ({
   tableContainer: {
     maxHeight: 500,
   },
@@ -62,82 +64,82 @@ const useStyles = makeStyles((theme) => ({
 
   }
 
-}));
+});
 
-const allFloorDetails = [
-  {
-    id: 7,
-    label: '7',
-    description: 'Post operatoire',
-    useSections: false,
-    layout: "../assets/testfloor1.svg",
-    beds: [
-      {
-        id: 1,
-        label: "701-01",
-        x: 20,
-        y: 20,
-        w: 30,
-        h: 50,
-        rot: 0
-      },
-      {
-        id: 2,
-        label: "701-02",
-        x: 80,
-        y: 80,
-        w: 30,
-        h: 50,
-        rot: 45
-      }
-    ]
-  },
-  {
-    id: 8,
-    label: '8',
-    description: 'Post operatoire',
-    useSections: true,
-    layout : null,
-    sections: [
-      {
-        id: 1,
-        label: 'Est',
-        description: "Chirurgie d'un jour",
-        layout: "../assets/testfloor1.svg",
-        beds: [
-          {
-            id: 1,
-            label: "801-01",
-            x: 50,
-            y: 50,
-            w: 30,
-            h: 50,
-            rot: 45
-          },
-          {
-            id: 2,
-            label: "801-02",
-            x: 100,
-            y: 100,
-            w: 30,
-            h: 50,
-            rot: 90
-          }
-        ]
-      },
-      {
-        id: 2,
-        label: 'Ouest',
-        description: "Chirurgie plus d'un jour",
-        layout: '',
-        beds: []
-      }
-    ]
-  }
-];
+// const allFloorDetails = [
+//   {
+//     id: 7,
+//     label: '7',
+//     description: 'Post operatoire',
+//     useSections: false,
+//     layout: "../assets/testfloor1.svg",
+//     beds: [
+//       {
+//         id: 1,
+//         label: "701-01",
+//         x: 20,
+//         y: 20,
+//         w: 30,
+//         h: 50,
+//         rot: 0
+//       },
+//       {
+//         id: 2,
+//         label: "701-02",
+//         x: 80,
+//         y: 80,
+//         w: 30,
+//         h: 50,
+//         rot: 45
+//       }
+//     ]
+//   },
+//   {
+//     id: 8,
+//     label: '8',
+//     description: 'Post operatoire',
+//     useSections: true,
+//     layout : null,
+//     sections: [
+//       {
+//         id: 1,
+//         label: 'Est',
+//         description: "Chirurgie d'un jour",
+//         layout: "../assets/testfloor1.svg",
+//         beds: [
+//           {
+//             id: 1,
+//             label: "801-01",
+//             x: 50,
+//             y: 50,
+//             w: 30,
+//             h: 50,
+//             rot: 45
+//           },
+//           {
+//             id: 2,
+//             label: "801-02",
+//             x: 100,
+//             y: 100,
+//             w: 30,
+//             h: 50,
+//             rot: 90
+//           }
+//         ]
+//       },
+//       {
+//         id: 2,
+//         label: 'Ouest',
+//         description: "Chirurgie plus d'un jour",
+//         layout: '',
+//         beds: []
+//       }
+//     ]
+//   }
+// ];
 
 function FloorList(props) {
-  //const classes = useStyles();
+  const classes = makeStyles(useStyles)();
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const handleListItemClick = (event, index, floor) => {
@@ -157,7 +159,7 @@ function FloorList(props) {
             button
             selected={selectedIndex === index}
             onClick={(event) => handleListItemClick(event, index, floor)}
-            key={floor.id}
+            key={floor._id}
           >
             <ListItemText primary={floor.label} />
             <ListItemSecondaryAction>
@@ -172,7 +174,7 @@ function FloorList(props) {
 }
 
 function SectionList(props) {
-  //const classes = useStyles();
+  const classes = makeStyles(useStyles)();
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const handleListItemClick = (event, index, section) => {
@@ -192,7 +194,7 @@ function SectionList(props) {
             button
             selected={selectedIndex === index}
             onClick={(event) => handleListItemClick(event, index, section)}
-            key={section.id}
+            key={section._id}
           >
             <ListItemText primary={section.label} />
             <ListItemSecondaryAction>
@@ -206,103 +208,127 @@ function SectionList(props) {
   );
 }
 
-function FloorConfigurations(props) {
-  const classes = useStyles();
-  const [selectedFloor, setSelectedFloor] = useState();
-  const [selectedSection, setSelectedSection] = useState();
-  const floorEditor = useRef(null);
+class FloorConfigurations extends Component {
+  constructor(props) {
+    super(props);
+    this.floorEditor = null;
+  }
 
-  //const [beds, setBeds] = useState([]);
-  const [selectionModified, setSelectionModified] = useState(false);
-  const [layout, setLayout] = useState("");
-  const [bedSize, setBedSize] = useState(1.0);
+  state = {
+    selectedFloor: null,
+    selectedSection: null,
+    beds: [],
+    selectionModified: false,
+    layout: "",
+    bedSize: 1.0,
+    newBedsPattern:"7[0-9][0-9]-0[1-2]",
+    newBedsCount:0,
+    allFloorDetails:[],
+    loadingFloors:true,
+    loadingBeds:false,
+  };
 
-  const [newBedsPattern, setNewBedsPattern] = useState("7[0-9][0-9]-0[1-2]");
-  const [newBedsCount, setNewBedsCount] = useState(0);
+ 
 
-  const handleSelectedFloor = (floor) => {
-    setSelectedFloor(floor);
-    setSelectedSection(null);
+
+  componentDidMount () {
+    axios.get("/projetkhiron/floors")
+    .then((response) => {
+      if(response.status === 200) {
+        this.setState({allFloorDetails: response.data, loadingFloors:false});
+      }
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  handleSelectedFloor(floor){
     if(!floor.useSections) {
-      //setBeds([...floor.beds]); //copy beds
-      floorEditor.current.editSelectionBeds(floor.beds);
-      setSelectionModified(false);
-      setLayout(floor.layout);
+      //get beds
+      this.setState({loadingBeds:true});
+
+      axios.get("/projetkhiron/beds/" + floor._id)
+      .then((response) => {
+        if(response.status === 200) {
+          this.setState({selectedFloor:floor, selectedSection:null, beds:response.data, selectionModified:false, layout:floor.layout});
+          this.floorEditor.editSelectionBeds(this.state.beds);
+        }
+      }).catch(error => {
+        console.log("error" +error);
+        if (error) throw error;
+      }).finally(() => {
+        this.setState({loadingBeds:false});
+      });
+
     } else {
-      //setBeds(null);
-      floorEditor.current.editSelectionBeds([]);
-      setLayout("");
+      this.setState({selectedFloor:floor, selectedSection:null,beds:[], layout:""});
+      this.floorEditor.editSelectionBeds([]);
     }
-  };
+  }
 
 
-  const handleSelectedSection = (section) => {
-    setSelectedSection(section);
-    //setBeds([...section.beds]); // copy beds
-    floorEditor.current.editSelectionBeds(section.beds);
-    setSelectionModified(false);
-    setLayout(section.layout);
-  };
+  handleSelectedSection(section) {
 
-  
-  const handleNewBedsCount = (event) => {
-    setNewBedsCount(event.target.value);
-  };
+    this.setState({loadingBeds:true});
+    axios.get("/projetkhiron/beds/" + section._id)
+    .then((response) => {
+      if(response.status === 200) {
+        this.setState({selectedSection:section, beds:response.data, selectionModified:false, layout:section.layout});
+        this.floorEditor.editSelectionBeds(this.state.beds);
+      }
+    }).catch(error => {
+      console.log("error" +error);
+      if (error) throw error;
+    }).finally(() => {
+      this.setState({loadingBeds:false});
+    });
+  }
 
-  const handleNewBedsPattern = (event) => {
-    setNewBedsPattern(event.target.value);
-  };
+  handleNewBedsCount(event) {
+    this.setState({newBedsCount:event.target.value});
+  }
 
-  const handleFloorUseSectionChange = (event) => {
-    let updatedFloor = {...selectedFloor, useSections: event.target.checked};
-    setSelectedFloor(updatedFloor);
-  };
+  handleNewBedsPattern(event) {
+    this.setState({newBedsPattern:event.target.value});
+  }
 
-  const handleFloorLabelChange = (event) => {
-    let updatedFloor = {...selectedFloor, label: event.target.value};
-    setSelectedFloor(updatedFloor);
-  };
-  const handleFloorDescriptionChange = (event) => {
-    let updatedFloor = {...selectedFloor, description: event.target.value};
-    setSelectedFloor(updatedFloor);
-  };
-  const handleSectionLabelChange = (event) => {
-    let updatedSection = {...selectedSection, label: event.target.value};
-    setSelectedSection(updatedSection);
-  };
-  const handleSectionDescriptionChange = (event) => {
-    let updatedSection = {...selectedSection, description: event.target.value};
-    setSelectedSection(updatedSection);
-  };
-  const handleBedSizeChange = (event,value) => {
-    setBedSize(value);
-  };
-  const handleFloorLayoutChange = (event) => {
-    if(selectedSection) {
-      let updatedSection = {...selectedSection, layout: event.target.value};
-      setSelectedSection(updatedSection);
-    } else if (selectedFloor){
-      let updatedFloor = {...selectedFloor, layout: event.target.value};
-      setSelectedFloor(updatedFloor);
+  handleFloorUseSectionChange (event) {
+    let updatedFloor = {...this.state.selectedFloor, useSections: event.target.checked};
+    this.setState({selectedFloor:updatedFloor, selectionModified:true});
+  }
+
+  handleFloorLabelChange(event) {
+    let updatedFloor = {...this.state.selectedFloor, label: event.target.value};
+    this.setState({selectedFloor:updatedFloor, selectionModified:true});
+  }
+  handleFloorDescriptionChange(event) {
+    let updatedFloor = {...this.state.selectedFloor, description: event.target.value};
+    this.setState({selectedFloor:updatedFloor, selectionModified:true});
+  }
+  handleSectionLabelChange (event) {
+    let updatedSection = {...this.state.selectedSection, label: event.target.value};
+    this.setState({selectedSection:updatedSection, selectionModified:true});
+  }
+  handleSectionDescriptionChange(event) {
+    let updatedSection = {...this.state.selectedSection, description: event.target.value};
+    this.setState({selectedSection:updatedSection, selectionModified:true});
+  }
+  handleBedSizeChange (event,value) {
+    this.setState({bedSize:value, selectionModified:true});
+  }
+
+  handleFloorLayoutChange(event) {
+    if(this.state.selectedSection) {
+      let updatedSection = {...this.state.selectedSection, layout: event.target.value};
+      this.setState({selectedSection:updatedSection, selectionModified:true, layout:event.target.value});
+    } else if (this.state.selectedFloor){
+      let updatedFloor = {...this.state.selectedFloor, layout: event.target.value};
+      this.setState({selectedFloor:updatedFloor, selectionModified:true, layout:event.target.value});
     }
-    setLayout(event.target.value);
-  };
+  }
 
-
-  let floorEditorCpt;
-  //if((selectedFloor && selectedFloor.useSections && selectedSection) || (selectedFloor && !selectedFloor.useSections)){
-    floorEditorCpt = <FloorSvgEditor 
-    ref={floorEditor}
-    viewBox="0 0 1200 800" 
-    width={900} 
-    height={600} 
-    bedSize={bedSize} 
-    layout={layout}
-    />;
-  // } else {
-  //   floorEditorCpt = <div></div>;
-  // }
-
+  render () {
+  const { classes } = this.props;
   return (
     <Paper elevation={0} style={{ height: "100%" }} >
       <TableContainer>
@@ -332,17 +358,20 @@ function FloorConfigurations(props) {
             </TableRow>
             <TableRow>
               <TableCell className={classes.floorListSection} >
+                {this.state.loadingFloors?
+                <Paper className={classes.rolePropertySections}><CircularProgress /></Paper>
+                :
                 <Paper className={classes.rolePropertySections}>
-                  <FloorList floors={allFloorDetails} onSelectedFloor={handleSelectedFloor} />
-                  {selectedFloor?
+                  <FloorList floors={this.state.allFloorDetails} onSelectedFloor={this.handleSelectedFloor.bind(this)} />
+                  {this.state.selectedFloor?
                   <FormControlLabel
                     classes={{ label: classes.checkBoxFont }}
                     control={
                       <Checkbox
                         id="edit-floor-use-sections"
                         size="small"
-                        checked={selectedFloor.useSections}
-                        onChange={handleFloorUseSectionChange}
+                        checked={this.state.selectedFloor.useSections}
+                        onChange={this.handleFloorUseSectionChange.bind(this)}
                         name="floor-use-sections"
                         color="primary"
                       />
@@ -350,10 +379,11 @@ function FloorConfigurations(props) {
                     label="Utilisations de section pour cet étage" /> 
                     : null}
 
-                  {selectedFloor && selectedFloor.useSections ?
-                    <SectionList sections={selectedFloor.sections} onSelectedSection={handleSelectedSection} />
+                  {this.state.selectedFloor && this.state.selectedFloor.useSections ?
+                    <SectionList sections={this.state.selectedFloor.sections} onSelectedSection={this.handleSelectedSection.bind(this)} />
                     : null}
                 </Paper>
+                }
               </TableCell>
               <TableCell width="100%" height="100%">
                 <Paper className={classes.rolePropertySections}>
@@ -362,16 +392,16 @@ function FloorConfigurations(props) {
                       <TableBody>
                         <TableRow>
                           <TableCell style={{ borderBottom: 'none', width: 200 }}>
-                            {selectedFloor ?
-                              <TextField id="edit-floor-label" label="Identifiant étage" value={selectedFloor.label} onChange={handleFloorLabelChange} style={{ width: 200 }} />
+                            {this.state.selectedFloor ?
+                              <TextField id="edit-floor-label" label="Identifiant étage" value={this.state.selectedFloor.label} onChange={this.handleFloorLabelChange.bind(this)} style={{ width: 200 }} />
                               :
                               <TextField id="edit-floor-label-dis" label="Identifiant étage" disabled value="" style={{ width: 200 }} />
                             }
                           </TableCell>
                           <TableCell style={{ borderBottom: 'none' }} >
-                            {(selectedFloor && selectedFloor.useSections && selectedSection) ?
-                              <TextField id="edit-section-label" label="Identifiant de la section" value={selectedSection.label} onChange={handleSectionLabelChange} style={{ width: 200 }} />
-                              : (selectedFloor && selectedFloor.useSections) ?
+                            {(this.state.selectedFloor && this.state.selectedFloor.useSections && this.state.selectedSection) ?
+                              <TextField id="edit-section-label" label="Identifiant de la section" value={this.state.selectedSection.label} onChange={this.handleSectionLabelChange.bind(this)} style={{ width: 200 }} />
+                              : (this.state.selectedFloor && this.state.selectedFloor.useSections) ?
                                 <TextField id="edit-section-label-dis" label="Identifiant de la section" disabled value="" style={{ width: 200 }} />
                                 : null}
                           </TableCell>
@@ -380,8 +410,8 @@ function FloorConfigurations(props) {
                               Taille des lits
                             </Typography>
                             <Slider
-                              value={bedSize}
-                              onChange={handleBedSizeChange}
+                              value={this.state.bedSize}
+                              onChange={this.handleBedSizeChange.bind(this)}
                               aria-labelledby="discrete-slider-small-steps"
                               step={0.1}
                               min={0.1}
@@ -392,22 +422,22 @@ function FloorConfigurations(props) {
                         </TableRow>
                         <TableRow>
                           <TableCell style={{ borderBottom: 'none', width: 400 }}>
-                            {selectedFloor ?
-                              <TextField id="edit-floor-desc" label="Description de l'étage" value={selectedFloor.description} onChange={handleFloorDescriptionChange} style={{ width: 400 }} />
+                            {this.state.selectedFloor ?
+                              <TextField id="edit-floor-desc" label="Description de l'étage" value={this.state.selectedFloor.description} onChange={this.handleFloorDescriptionChange.bind(this)} style={{ width: 400 }} />
                               :
                               <TextField id="edit-floor-desc-dis" label="Description de l'étage" disabled value="" style={{ width: 400 }} />
                             }
                           </TableCell>
                           <TableCell style={{ borderBottom: 'none', width: 400 }}>
-                            {(selectedFloor && selectedFloor.useSections && selectedSection) ?
-                              <TextField id="edit-section-desc" label="Description de la section" value={selectedSection.description} onChange={handleSectionDescriptionChange} style={{ width: 400 }} />
-                              : (selectedFloor && selectedFloor.useSections) ?
+                            {(this.state.selectedFloor && this.state.selectedFloor.useSections && this.state.selectedSection) ?
+                              <TextField id="edit-section-desc" label="Description de la section" value={this.state.selectedSection.description} onChange={this.handleSectionDescriptionChange.bind(this)} style={{ width: 400 }} />
+                              : (this.state.selectedFloor && this.state.selectedFloor.useSections) ?
                                 <TextField id="edit-section-desc-dis" label="Description de la section" value="" disabled style={{ width: 400 }} />
                                 : null}
                           </TableCell>
                           <TableCell width="100%">
-                          {((selectedFloor && !selectedFloor.useSections) || selectedSection) ?
-                              <TextField id="edit-floor-layout" label="Layout" value={layout} onChange={handleFloorLayoutChange} style={{ width: 400 }} />
+                          {((this.state.selectedFloor && !this.state.selectedFloor.useSections) || this.state.selectedSection) ?
+                              <TextField id="edit-floor-layout" label="Layout" value={this.state.layout} onChange={this.handleFloorLayoutChange.bind(this)} style={{ width: 400 }} />
                               : <TextField id="edit-floor-layout" label="Layout" value="" disabled style={{ width: 400 }} />}
                           </TableCell>
                         </TableRow>
@@ -419,7 +449,15 @@ function FloorConfigurations(props) {
                       <TableBody>
                         <TableRow>
                           <TableCell style={{ borderBottom: 'none',width: 900 }}>
-                            {floorEditorCpt}
+                            <FloorSvgEditor 
+                              ref={floorSvgEditorRef => { this.floorEditor = floorSvgEditorRef }}
+                              viewBox="0 0 1200 800" 
+                              width={900} 
+                              height={600} 
+                              bedSize={this.state.bedSize} 
+                              layout={this.state.layout}
+                              loading={this.state.loadingBeds}
+                              />
                           </TableCell>
                           <TableCell style={{ borderBottom: 'none',verticalAlign: 'top' }}>
                             <Paper>
@@ -435,22 +473,22 @@ function FloorConfigurations(props) {
                                 </Typography>
                               </Grid>
                               <Grid item >
-                              {((selectedFloor && !selectedFloor.useSections) || selectedSection) ?
-                                <TextField id="edit-bed-id-pattern" label="Modèle de numérotation" value={newBedsPattern} onChange={handleNewBedsPattern} style={{ width: '300px' }}/>
+                              {((this.state.selectedFloor && !this.state.selectedFloor.useSections) || this.state.selectedSection) ?
+                                <TextField id="edit-bed-id-pattern" label="Modèle de numérotation" value={this.state.newBedsPattern} onChange={this.handleNewBedsPattern.bind(this)} style={{ width: '300px' }}/>
                                 :
                                 <TextField id="edit-bed-id-pattern-dis" label="Modèle de numérotation" value="" disabled style={{ width: '300px' }}/>
                               }
                               </Grid>
                               <Grid item >
-                              {((selectedFloor && !selectedFloor.useSections) || selectedSection) ?
-                                <TextField id="edit-bed-add-count" label="Nombre de lit" value={newBedsCount} onChange={handleNewBedsCount} style={{ width: '100px' }}/>
+                              {((this.state.selectedFloor && !this.state.selectedFloor.useSections) || this.state.selectedSection) ?
+                                <TextField id="edit-bed-add-count" label="Nombre de lit" value={this.state.newBedsCount} onChange={this.handleNewBedsCount.bind(this)} style={{ width: '100px' }}/>
                                 :
                                 <TextField id="edit-bed-add-count-dis" label="Nombre de lit" value="" disabled style={{ width: '100px' }}/>
                               }
                               </Grid>
                               <Grid item >
-                              {((selectedFloor && !selectedFloor.useSections) || selectedSection) ?
-                                <Button  variant="contained" color="primary" onClick={() => floorEditor.current.addNewBeds(newBedsPattern,newBedsCount)}>
+                              {((this.state.selectedFloor && !this.state.selectedFloor.useSections) || this.state.selectedSection) ?
+                                <Button  variant="contained" color="primary" onClick={() => this.floorEditor.current.addNewBeds(this.state.newBedsPattern,this.state.newBedsCount)}>
                                   Ajouter Lit(s)
                                 </Button>
                                 :
@@ -474,7 +512,8 @@ function FloorConfigurations(props) {
           </TableBody>
         </Table>
       </TableContainer>
-    </Paper>);
+    </Paper>)
+  };
 }
 
-export default FloorConfigurations;
+export default withStyles(useStyles)(FloorConfigurations);

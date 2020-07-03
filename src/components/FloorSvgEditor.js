@@ -6,6 +6,9 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Popover from '@material-ui/core/Popover';
+import Typography from '@material-ui/core/Typography';
 
 class FloorSvgEditor extends Component {
   constructor(props){
@@ -123,7 +126,7 @@ class FloorSvgEditor extends Component {
 
   editSelectionBeds(bedsToEdit) {
     this.setState({
-      beds: [...bedsToEdit], //make a copy
+      beds: [...bedsToEdit], //make a copyß
       selectedBedID:null,
       selectedBed:null,
       modified:false,
@@ -134,7 +137,7 @@ class FloorSvgEditor extends Component {
     //console.log("[FloorSvgEditor]] handleMouseDownObj");
 
       this.setState({
-        selectedBedID: obj.id,
+        selectedBedID: obj._id,
         action: action,
         clickedBedID: null,
         dragStart: {
@@ -146,9 +149,9 @@ class FloorSvgEditor extends Component {
 
   handleMouseUpObj (obj, e) {
     const { beds } = this.state;
-    const selectedBedIndex = beds.findIndex(o => o.id === obj.id);
+    const selectedBedIndex = beds.findIndex(o => o._id === obj._id);
     this.setState(
-      {clickedBedID: obj.id,
+      {clickedBedID: obj._id,
        selectedBed:beds[selectedBedIndex],
     });
   }
@@ -161,7 +164,7 @@ class FloorSvgEditor extends Component {
   }
   handleSelectedBedLabelChange(e) {
     const { beds, clickedBedID } = this.state;
-    const selectedBedIndex = beds.findIndex(o => o.id === clickedBedID);
+    const selectedBedIndex = beds.findIndex(o => o._id === clickedBedID);
     const selectedBed = beds[selectedBedIndex];
     selectedBed.label = e.target.value;
         this.setState({
@@ -179,7 +182,7 @@ class FloorSvgEditor extends Component {
 
   deleteClickedBed(){
     const { beds, clickedBedID } = this.state;
-    const selectedBedIndex = beds.findIndex(o => o.id === clickedBedID);
+    const selectedBedIndex = beds.findIndex(o => o._id === clickedBedID);
     this.setState({
       clickedBedID :null,
       selectedBed:null,
@@ -231,7 +234,7 @@ class FloorSvgEditor extends Component {
         }});
       
       const {svgZoomPanValue} = this.state;
-      const selectedBedIndex = beds.findIndex(o => o.id === selectedBedID);
+      const selectedBedIndex = beds.findIndex(o => o._id === selectedBedID);
       const selectedBed = beds[selectedBedIndex];
       if(xDelta !== 0 || yDelta !== 0){
         if (action==="move") {
@@ -272,7 +275,7 @@ class FloorSvgEditor extends Component {
     let restBedHeight = totalHeight - pillowHeight - 2;
     let fullItemRender;
     
-    let bedRender = <g key={bed.id}  className="bed"
+    let bedRender = <g key={bed._id}  className="bed"
       x={bed.x}
       y={bed.y}
       width={totalWidth}
@@ -298,14 +301,14 @@ class FloorSvgEditor extends Component {
 
     let bedSelectors;
     
-    if(this.state.clickedBedID === bed.id){
+    if(this.state.clickedBedID === bed._id){
       bedSelectors = [<rect
       x={bed.x-3}
       y={bed.y-3}
       width={6}
       height={6}
       fill="black" 
-      key={bed.id+"-nw"}
+      key={bed._id+"-nw"}
       onMouseDown={this.handleMouseDownObj.bind(this, bed, "rotate")}
       onMouseUp={this.handleMouseUpObj.bind(this, bed)} />,
       // <path fill="none" stroke="red" d={"M"+(x-6)+","+(y+6)+" C"+(x-10)+","+(y-10)+" "+(x+6)+","+(y-6)+" "+(x+6)+","+(y-6)} />,
@@ -316,7 +319,7 @@ class FloorSvgEditor extends Component {
       width={6}
       height={6}
       fill="black" 
-      key={bed.id+"-sw"}
+      key={bed._id+"-sw"}
       onMouseDown={this.handleMouseDownObj.bind(this, bed, "rotate")}
       onMouseUp={this.handleMouseUpObj.bind(this, bed)}/>,
       <rect
@@ -325,7 +328,7 @@ class FloorSvgEditor extends Component {
       width={6}
       height={6}
       fill="black" 
-      key={bed.id+"-ne"}
+      key={bed._id+"-ne"}
       onMouseDown={this.handleMouseDownObj.bind(this, bed, "rotate")}
       onMouseUp={this.handleMouseUpObj.bind(this, bed)}/>,
       <rect
@@ -334,7 +337,7 @@ class FloorSvgEditor extends Component {
       width={6}
       height={6}
       fill="black" 
-      key={bed.id+"-se"}
+      key={bed._id+"-se"}
       onMouseDown={this.handleMouseDownObj.bind(this, bed, "rotate")}
       onMouseUp={this.handleMouseUpObj.bind(this, bed)}/>,
       ];
@@ -342,7 +345,7 @@ class FloorSvgEditor extends Component {
 
 
     if(bed.rot && bed.rot !== 0){
-      fullItemRender = <g key={bed.id+"-rot"} transform={"rotate("+bed.rot+" "+(bed.x+(bed.w * this.props.bedSize/2))+" "+(bed.y+(bed.h * this.props.bedSize /2))+")"}>
+      fullItemRender = <g key={bed._id+"-rot"} transform={"rotate("+bed.rot+" "+(bed.x+(bed.w * this.props.bedSize/2))+" "+(bed.y+(bed.h * this.props.bedSize /2))+")"}>
         {[bedRender,bedSelectors]}
       </g>;
     } else {
@@ -354,6 +357,12 @@ class FloorSvgEditor extends Component {
     );
   }
 
+  getUpdateSpinnerEL() {
+    if(this.Viewer && this.Viewer.ViewerDOM)
+      return this.Viewer.ViewerDOM;
+    else
+      return this.Viewer;
+  }
   render () {
     const {beds, selectedBed, modified} = this.state;
     return (
@@ -361,7 +370,9 @@ class FloorSvgEditor extends Component {
           width={this.props.width}
          height={this.props.height}
          key="floor-editor-div"
+         id="floor-editor-div"
         >
+        
         <ConfirmDialog 
           ref={this.confirmDlgRef}
           title="Supprimer lit" 
@@ -370,8 +381,9 @@ class FloorSvgEditor extends Component {
           confirmLabel="Supprimer"
           onConfirm={this.deleteClickedBed}
           />
-
+       
         <ReactSVGPanZoom
+          id="ReactSVGPanZoomCtrl"
           width={this.props.width} height={this.props.height}
           ref={Viewer => this.Viewer = Viewer}
           tool={this.state.tool} onChangeTool={tool => this.changeTool(tool)}
@@ -386,7 +398,6 @@ class FloorSvgEditor extends Component {
               viewBox={this.props.viewBox}
               width="1200"
               height="800"
-
               >
             {(this.props.layout !== '')?
             <image x="0" y="0" width="1200" height="800" href={require("../assets/testfloor1.svg")} />:null}
@@ -395,6 +406,32 @@ class FloorSvgEditor extends Component {
             })}
           </svg>
         </ReactSVGPanZoom>
+
+        <Popover
+          anchorEl={this.getUpdateSpinnerEL.bind(this)}
+          open={this.props.loading}
+          anchorOrigin={{
+            vertical: 'center',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'center',
+            horizontal: 'center',
+          }}
+        >
+        <Grid
+          container
+          justify="center"
+          alignItems="center"
+          direction="column">
+            <Grid item>
+             <CircularProgress />
+            </Grid>
+            <Grid item>
+              <Typography>Loading beds...</Typography>
+            </Grid>
+          </Grid>
+      </Popover>
 
         <Paper>
           <Grid

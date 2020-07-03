@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useState, useEffect, Component } from "react";
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -20,9 +20,11 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
-
+import axios from 'axios';
 import UserAccountStatus from "../components/UserAccountStatus"
-const useStyles = makeStyles((theme) => ({
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+const useStyles = theme => ({
   tableContainer: {
     maxHeight: 500,
   },
@@ -72,42 +74,49 @@ const useStyles = makeStyles((theme) => ({
   },
   checkBoxFont: {
     fontSize: 14,
-  }
-}));
-
-
-function createData(userid, status, firstName, lastName, role, email, phone) {
-  return { userid, status, firstName, lastName, role, email, phone };
-}
-
-const allUserAccounts = [
-  createData(1234567891, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567892, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567893, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567894, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567895, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567896, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567897, 'online', 'Marc-Antoine', 'Dumont', 4, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567898, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567899, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(1234567890, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678911, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678922, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678933, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678944, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678955, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678966, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678977, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678988, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678999, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678912, 'offline', 'Luc', 'Seguin',1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678913, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-  createData(12345678914, 'offline', 'Luc', 'Seguin', 1, 'lseguin@hopital.qc.ca', '819-123-1234'),
-];
-
+  },
+});
 
 function UserAccountsTable(props) {
-  const classes = useStyles();
+  const classes = makeStyles(useStyles)();
+
+  const getRoleLabel = (roles, forId) => {
+    let label = '';
+    if(roles) {
+      let foundRole = roles.find(item => item._id === forId);
+      if(foundRole) {
+        label = foundRole.name;
+      }
+    }
+    return label;
+  }
+  let allUserRows = null;
+  if(!props.loading) {
+    allUserRows = props.userAccounts.map((row) => (
+      <TableRow key={row._id}>
+        <TableCell component="th" scope="row" className={classes.iconTableCell}>
+          <UserAccountStatus account={row} />
+        </TableCell>
+        <TableCell >{row.firstName + ' ' + row.lastName}</TableCell>
+        <TableCell >{getRoleLabel(props.roles, row.role)}</TableCell>
+        <TableCell >{row.email}</TableCell>
+        <TableCell >{row.phone}</TableCell>
+        <TableCell className="iconTableCell">
+          <IconButton aria-label="edit" size="small" onClick={() => props.onSelectedAccountForEdit(row)} >
+            <EditIcon />
+          </IconButton >
+        </TableCell>
+        <TableCell className={classes.iconTableCell}>
+          <IconButton aria-label="delete" size="small">
+            <DeleteIcon />
+          </IconButton >
+        </TableCell>
+      </TableRow>
+    ));
+  } else {
+    allUserRows = <TableRow><TableCell colSpan={7} ><CircularProgress /></TableCell></TableRow>
+  }
+
   return (
     <Paper>
     <TableContainer className={classes.tableContainer} size="small">
@@ -125,27 +134,7 @@ function UserAccountsTable(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.userAccounts.map((row) => (
-            <TableRow key={row.userid}>
-              <TableCell component="th" scope="row" className={classes.iconTableCell}>
-                <UserAccountStatus account={row} />
-              </TableCell>
-              <TableCell >{row.firstName + ' ' + row.lastName}</TableCell>
-              <TableCell >{roles.find(item => item.id === row.role).name }</TableCell>
-              <TableCell >{row.email}</TableCell>
-              <TableCell >{row.phone}</TableCell>
-              <TableCell className={classes.iconTableCell}>
-                <IconButton aria-label="edit" size="small" onClick={() => props.onSelectedAccountForEdit(row)} >
-                  <EditIcon />
-                </IconButton >
-              </TableCell>
-              <TableCell className={classes.iconTableCell}>
-                <IconButton aria-label="delete" size="small">
-                  <DeleteIcon />
-                </IconButton >
-              </TableCell>
-            </TableRow>
-          ))}
+          {allUserRows}
         </TableBody>
       </Table>
     </TableContainer>
@@ -173,72 +162,51 @@ const MODULE_CLEANER_UPDATE = 8192;
 const MODULE_CLEANER_CONFIG = 16384;
 //const MODULE_CLEANER_X1 = 32768;
 
-const roles = [
-  {
-    id: 1,
-    name: 'Brancardier',
-    count: 5,
-    settings: ROLE_SETTINGS_GEO_FENCED|MODULE_BEARER_VIEW|MODULE_BEARER_UPDATE,
-  },
-  {
-    id: 2,
-    name: 'Nettoyeur',
-    count: 5,
-    settings: ROLE_SETTINGS_GEO_FENCED|MODULE_CLEANER_VIEW|MODULE_CLEANER_UPDATE,
-  },
-  {
-    id: 3,
-    name: 'Administrateur',
-    count: 5,
-    settings: ROLE_SETTINGS_MANAGE_ACCOUNTS|MODULE_BEDS_VIEW|MODULE_BEDS_CONFIG_FLOOR|MODULE_BEDS_CONFIG_BED|MODULE_BEARER_VIEW|MODULE_BEARER_CONFIG|MODULE_CLEANER_VIEW|MODULE_CLEANER_CONFIG,
-  },
-  {
-    id: 4,
-    name: 'Gestionnaire',
-    count: 5,
-    settings: MODULE_BEDS_VIEW|MODULE_BEARER_VIEW|MODULE_CLEANER_VIEW,
-  },
-];
-
 function RolesTable(props) {
-  const classes = useStyles();
+  const classes = makeStyles(useStyles)();
+  let allRolesRows = null;
+  if(!props.loading) {
+    allRolesRows = props.roles.map((row) => (
+      <TableRow key={row._id}>
+        <TableCell >{row.name}</TableCell>
+        <TableCell className={classes.iconTableCell}>
+          <IconButton aria-label="edit role" size="small" onClick={() => props.onSelectedRoleForEdit(row)}>
+            <EditIcon  />
+          </IconButton >
+        </TableCell>
+        <TableCell className={classes.iconTableCell}>
+          <IconButton aria-label="delete role" size="small">
+            <DeleteIcon />
+          </IconButton >
+        </TableCell>
+      </TableRow>
+    ));
+  } else {
+    allRolesRows = <TableRow><TableCell colSpan={4} width='100%'><CircularProgress /></TableCell></TableRow>
+  }
   return (
+    <Paper>
     <TableContainer className={classes.rolesRable} size="small">
       <Table className={classes.rolesRable} size="small" aria-label="Roles" height="100%">
         {/* <caption>A basic table example with a caption</caption> */}
         <TableHead>
           <TableRow>
             <TableCell className={classes.tableHeaderCell} width='200'>Role</TableCell>
-            <TableCell className={classes.tableHeaderCell} width='30'>#</TableCell>
-            <TableCell className={classes.tableHeaderCell} width='30'></TableCell>
-            <TableCell className={classes.tableHeaderCell} width='30'></TableCell>
+            <TableCell className={classes.tableHeaderCell}  width='30'></TableCell>
+            <TableCell className={classes.tableHeaderCell}  width='30'></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.roles.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell >{row.name}</TableCell>
-              <TableCell >{row.count}</TableCell>
-              <TableCell className={classes.iconTableCell}>
-                <IconButton aria-label="edit role" size="small" onClick={() => props.onSelectedRoleForEdit(row)}>
-                  <EditIcon  />
-                </IconButton >
-              </TableCell>
-              <TableCell className={classes.iconTableCell}>
-                <IconButton aria-label="delete role" size="small">
-                  <DeleteIcon />
-                </IconButton >
-              </TableCell>
-            </TableRow>
-          ))}
+          {allRolesRows}
         </TableBody>
       </Table>
     </TableContainer>
+    </Paper>
   );
 }
 
 function RoleDetails(props) {
-  const classes = useStyles();
+  const classes = makeStyles(useStyles)();
   const [isModified, setModified] = useState(false);
   const [name, setName] = useState(props.role.name);
   const [settings, setSettings] = useState(props.role.settings);
@@ -417,7 +385,7 @@ function RoleDetails(props) {
             </Paper>
           </Grid>
           <Grid item xs={4}>
-            <Paper className={classes.rolePropertySections}>
+            <Paper className={classes.rolePropertySection}>
               <Typography variant="subtitle1">
                 Module Brancarderie
               </Typography>
@@ -529,7 +497,7 @@ function RoleDetails(props) {
 }
 
 function UserAccountDetails(props) {
-  const classes = useStyles();
+  const classes = makeStyles(useStyles)();
 
   const [isModified, setModified] = useState(false);
   const [firstName, setFirstName] = useState(props.account.firstName);
@@ -578,7 +546,7 @@ function UserAccountDetails(props) {
     </TableHead>
     <TableBody>
       <TableRow>
-        <TableCell className={classes.userDetailCell} >
+        <TableCell className={classes.userDetailCell}>
           <TextField id="user-edit-first-name" label="Prénom" value={firstName} onChange={handleFirstNameChange} style={{ width: '100%' }} />
         </TableCell>
       </TableRow>
@@ -597,8 +565,8 @@ function UserAccountDetails(props) {
             onChange={handleRoleChange}
             style={{ width: '50%' }}
           >
-            {roles.map((option) => (
-              <MenuItem key={option.id} value={option.id}>
+            {props.roles.map((option) => (
+              <MenuItem key={option._id} value={option._id}>
                 {option.name}
               </MenuItem>
             ))}
@@ -635,7 +603,7 @@ function UserAccountDetails(props) {
       </TableRow>
       <TableRow>
         <TableCell align='right' >
-          {props.account.id ?
+          {props.account._id ?
             <Button variant="contained" color="primary"  >
               Appliquer
             </Button>
@@ -651,33 +619,67 @@ function UserAccountDetails(props) {
   );
 }
 
-export default function Users(props) {
-  const classes = useStyles();
-  const [userFilter, setUserFilter] = useState('');
-  const [filteredUserAccounts, setFilteredUserAccounts] = useState(allUserAccounts);
-  const [selectedAccount, setSelectedAccount] = useState();
-  const [selectedRole, setSelectedRole] = useState();
 
-  const handleFilterChange = (event) => {
-    setUserFilter(event.target.value);
+class Users extends Component {
+  constructor(props) {
+    super(props);
+    //this.classes = makeUseOfStyles();
+
+  }
+  
+
+  state = {
+    userFilter: '',
+    allAccounts : [],
+    allRoles : [],
+    filteredUserAccounts: [],
+    selectedAccount: null,
+    selectedRole: null,
+    loadingAccounts:true,
+    loadingRoles:true,
+  };
+
+  componentDidMount () {
+    axios.get("/projetkhiron/roles")
+    .then((response) => {
+      if(response.status === 200) {
+        this.setState({allRoles: response.data, loadingRoles:false});
+      }
+    }, (error) => {
+      console.log(error);
+    });
+
+    axios.get("/projetkhiron/accounts")
+    .then((response2) => {
+      if(response2.status === 200) {
+        this.setState({allAccounts: response2.data, filteredUserAccounts: response2.data, loadingAccounts:false});
+      }
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  handleFilterChange(event) {
+    this.setState({userFilter: event.target.value})
     if (!event.target.value || 0 === event.target.value.length)
-      setFilteredUserAccounts(allUserAccounts)
+      this.setState({filteredUserAccounts: this.state.allAccounts});
     else
-      setFilteredUserAccounts(allUserAccounts.filter((item) => {
-        return item.firstName.includes(event.target.value) || item.lastName.includes(event.target.value);
-      }));
-  };
+      this.setState({filteredUserAccounts:this.state.allUserAccounts.filter((item) => {
+          return item.firstName.includes(event.target.value) || item.lastName.includes(event.target.value);
+        })
+      });
+  }
 
-  const handleSetAccountToEdit = (account) => {
-    setSelectedAccount(account);
-    //console.log("***handleSetAccountToEdit account:" + account);
-  };
+  handleSetAccountToEdit(account) {
+    this.setState({selectedAccount: account});
+  }
 
-  const handleSetRoleToEdit = (role) => {
-    setSelectedRole(role);
-    //console.log("***handleSetRoleToEdit role:" + role);
-  };
+  handleSetRoleToEdit(role) {
+    this.setState({selectedRole: role});
+  }
 
+  render () {
+  const { classes } = this.props;
   return (
     <Paper elevation={0} style={{ height: "100%" }}>
       <TableContainer>
@@ -693,7 +695,7 @@ export default function Users(props) {
                           Gestion des comptes utilisateurs
                     </TableCell>
                         <TableCell style={{ borderBottom: 'none' }}>
-                          <TextField id="input-with-icon-grid" className={classes.searchTextField} label="Recherche" onChange={handleFilterChange} value={userFilter}
+                          <TextField id="input-with-icon-grid" className={classes.searchTextField} label="Recherche" onChange={this.handleFilterChange.bind(this)} value={this.state.userFilter}
                             InputProps={{
                               endAdornment: <InputAdornment position="start"><AccountCircle /></InputAdornment>,
                             }}
@@ -712,11 +714,11 @@ export default function Users(props) {
             </TableRow>
             <TableRow>
               <TableCell className={classes.mainUserTableCell} style={{ verticalAlign: 'top' }} >
-                <UserAccountsTable userAccounts={filteredUserAccounts} onSelectedAccountForEdit={handleSetAccountToEdit} />
+                <UserAccountsTable loading={this.state.loadingAccounts} userAccounts={this.state.filteredUserAccounts} roles={this.state.allRoles} onSelectedAccountForEdit={this.handleSetAccountToEdit.bind(this)} />
               </TableCell>
               <TableCell className={classes.mainUserTableCell} style={{ verticalAlign: 'top' }} >
-                {selectedAccount ?
-                  <UserAccountDetails account={selectedAccount} />
+                {this.state.selectedAccount ?
+                  <UserAccountDetails account={this.state.selectedAccount} roles={this.state.allRoles}/>
                   :
                   <Paper>
                   <TableContainer>
@@ -747,8 +749,8 @@ export default function Users(props) {
                             disabled
                             style={{ width: '50%' }}
                           >
-                            {roles.map((option) => (
-                              <MenuItem key={option.id} value={option.id}>
+                            {this.state.allRoles.map((option) => (
+                              <MenuItem key={option._id} value={option._id}>
                                 {option.name}
                               </MenuItem>
                             ))}
@@ -806,11 +808,11 @@ export default function Users(props) {
                     </TableRow>
                     <TableRow>
                       <TableCell style={{ borderBottom: 'none', verticalAlign: 'top' }} className={classes.rolesRable}>
-                        <RolesTable roles={roles} onSelectedRoleForEdit={handleSetRoleToEdit} />
+                        <RolesTable loading={this.state.loadingRoles} roles={this.state.allRoles} onSelectedRoleForEdit={this.handleSetRoleToEdit.bind(this)} />
                       </TableCell>
                       <TableCell style={{ borderBottom: 'none', verticalAlign: 'top' }}>
-                        {selectedRole ?
-                          <RoleDetails role={selectedRole} />
+                        {this.state.selectedRole ?
+                          <RoleDetails role={this.state.selectedRole} />
                           :
                           <Grid container spacing={1}>
                             <Grid container item xs={12} spacing={3}>
@@ -842,7 +844,7 @@ export default function Users(props) {
                                   </Paper>
                                 </Grid>
                                 <Grid item xs={6}>
-                                  <Paper className={classes.rolePropertySections}>
+                                  <Paper className="rolePropertySections">
                                     <Typography variant="subtitle1">
                                       Restrictions
               </Typography>
@@ -1029,4 +1031,7 @@ export default function Users(props) {
       </TableContainer>
     </Paper>
   );
+  }
 }
+
+export default withStyles(useStyles)(Users);
