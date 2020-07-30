@@ -10,13 +10,13 @@ import Select from '@material-ui/core/Select';
 import * as Properties from './Properties'
 
 export default function PropertySelector(props) {
-    let propSelector = [];
+  let propSelector = [];
 
-    if(props.extra.type === Properties.TEXT_PROPERTY.id) { //text
+    if(props.extra.type === Properties.TEXT_PROPERTY) { //text
         propSelector = <TextField {...props} label={props.label} value={props.value} onChange={props.onChange}/>;
-    } else if(props.extra.type === Properties.NUM_PROPERTY.id) { //numerique
+    } else if(props.extra.type === Properties.NUM_PROPERTY) { //numerique
 
-    } else if(props.extra.type === Properties.LIST_PROPERTY.id) { //liste
+    } else if(props.extra.type === Properties.LIST_PROPERTY) { //liste
       propSelector =<FormControl {...props}>
         <InputLabel id="demo-mutiple-name-label">{props.label}</InputLabel>
         <Select
@@ -26,16 +26,15 @@ export default function PropertySelector(props) {
           value={props.value}
           onChange={props.onChange}
           input={<Input />}
-          
         >
           {props.extra.items.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
+            <MenuItem key={option._id} value={option._id}>
               {option.text}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
-    }  else if(props.type===Properties.DB_LINK_PROPERTY.id) { //DB link (HL7)  
+    }  else if(props.type===Properties.DB_LINK_PROPERTY) { //DB link (HL7)  
 
     }
 

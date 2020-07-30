@@ -15,11 +15,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton'
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 export default function PropertyList(props) {
-    const [modified, setModified] = useState(false);
     const [items, setItems] = useState();
     
     useEffect(() => {
@@ -27,7 +25,6 @@ export default function PropertyList(props) {
       }, [props.extraProperties]);
 
     const onDrop = ({ removedIndex, addedIndex }) => {
-        setModified(true);
         setItems(arrayMove(items, removedIndex, addedIndex));
         props.onReorder(items);
     };
@@ -36,20 +33,43 @@ export default function PropertyList(props) {
         props.onEdit(item)
     }
 
-    const handledNewProp = () => {
-        props.onNew();
-        setModified(true);
-    }
-
     const handledDeleteProp = (item) => {
         props.onDelete(item);
-        setModified(true);
     }    
 
-    const handledSaveList = () => {
-        props.onSave();
-        setModified(false);
-    }    
+    let allProperties = null;
+    if(!props.loading) {
+        if(items) {
+            allProperties = <List >
+            <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop} >
+                {items.map((item) => (
+                <Draggable key={item._id}>
+                    <ListItem>
+
+                        <ListItemIcon className="drag-handle">
+                        <DragHandleIcon />
+                        </ListItemIcon>
+
+                        <ListItemText primary={item.text} />
+
+                        <ListItemSecondaryAction >
+                        <IconButton aria-label="edit" size="small" onClick={() => handledPropertyEdit(item)}>
+                            <EditIcon />
+                        </IconButton >
+                        <IconButton aria-label="delete" size="small" onClick={() => handledDeleteProp(item)}>
+                            <DeleteIcon />
+                        </IconButton >
+                        </ListItemSecondaryAction>
+
+                    </ListItem>
+                </Draggable>
+                ))}
+            </Container>
+        </List>
+        }
+    } else {
+        allProperties = <LinearProgress/> 
+    }
 
     return (    
         <Grid
@@ -64,47 +84,10 @@ export default function PropertyList(props) {
                 {props.title}
             </Typography>  
         </Grid>
-        <Grid item style={{width:'100%', display: 'flex', justifyContent: 'flex-end'}}>
-            <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handledNewProp}>
-                Nouvelle propriétée
-            </Button>
-        </Grid>
         <Grid item>
             <Paper elevation={3} style={{minWidth: 400, maxHeight: 600, overflow: 'auto'}}>
-                {items?
-                <List >
-                    <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop} >
-                        {items.map((item) => (
-                        <Draggable key={item.id}>
-                            <ListItem>
-
-                                <ListItemIcon className="drag-handle">
-                                <DragHandleIcon />
-                                </ListItemIcon>
-
-                                <ListItemText primary={item.text} />
-
-                                <ListItemSecondaryAction >
-                                <IconButton aria-label="edit" size="small" onClick={() => handledPropertyEdit(item)}>
-                                    <EditIcon />
-                                </IconButton >
-                                <IconButton aria-label="delete" size="small" onClick={() => handledDeleteProp(item)}>
-                                    <DeleteIcon />
-                                </IconButton >
-                                </ListItemSecondaryAction>
-
-                            </ListItem>
-                        </Draggable>
-                        ))}
-                    </Container>
-                </List>
-                :null}
+                {allProperties}
             </Paper>
-        </Grid>
-        <Grid item style={{width:'100%', display: 'flex', justifyContent: 'flex-end'}}>
-            <Button variant="contained" color="primary" disabled={!modified} onClick={handledSaveList}>
-                Sauvegarder
-            </Button>
         </Grid>
     </Grid>
 );

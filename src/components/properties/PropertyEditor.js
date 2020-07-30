@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -24,17 +24,10 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton'
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-
+import { v4 as uuidv4 } from 'uuid';
+import SingleInputDialog from '../SingleInputDialog'
 import * as Properties from './Properties'
 
-const propertyTypes = [
-    { id: "1", text: "Text" },
-    { id: "2", text: "Numerique" },
-    { id: "3", text: "Date" },
-    { id: "4", text: "Liste" },
-    { id: "5", text: "Lien HL7" },
-    { id: "6", text: "Geo" },
-];
 
 const mlRegressions = [
     { id: "1", text: "Régression linéraire - Estimé de séjour" },
@@ -46,73 +39,134 @@ const mlClassification = [
 
 
 export default function PropertyEditor(props) {
-    const [modified, setModified] = useState(false);
-
     const [selectedProperty, setSelectedProperty] = useState(props.property);
+    const [selectedPropertyListOption, setSelectedPropertyListOption] = useState({_id:'', text:''});
+
+    const inputDlgRef = useRef(null);
+    const [singleInputTitle, setSingleInputTitle] = useState('');
+    const [singleInputMsg, setSingleInputMsg] = useState('');
+    const [singleInputLabel, setSingleInputLabel] = useState('');
+    const [singleInputValue, setSingleInputValue] = useState('');
 
     useEffect(() => {
         setSelectedProperty(props.property);
     }, [props.property]);
 
+
     const handlePropTextChange = (event) => {
         let updatedSelection = { ...selectedProperty, text: event.target.value };
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     }
 
     const handlePropTypeChange = (event) => {
         let updatedSelection = { ...selectedProperty, type: event.target.value };
-        if (event.target.value === Properties.TEXT_PROPERTY.id) {
-            updatedSelection = { ...selectedProperty, type: Properties.TEXT_PROPERTY.id, mlAlgo: '', max: 0, mandatory: false };
-        } else if (event.target.value === Properties.NUM_PROPERTY.id) {
-            updatedSelection = { ...selectedProperty, type: Properties.NUM_PROPERTY.id, mlAlgo: '', max: 365, min: 0 };
-        } else if (event.target.value === Properties.LIST_PROPERTY.id) {
-            updatedSelection = { ...selectedProperty, type: Properties.LIST_PROPERTY.id, multi: false, items: [] };
-        } else if (event.target.value === Properties.DB_LINK_PROPERTY.id) {
-            updatedSelection = { ...selectedProperty, type: Properties.DB_LINK_PROPERTY.id, items: [] };
+        if (event.target.value === Properties.TEXT_PROPERTY) {
+            updatedSelection = { ...selectedProperty, type: Properties.TEXT_PROPERTY, mlAlgo: '', max: 0, mandatory: false };
+        } else if (event.target.value === Properties.NUM_PROPERTY) {
+            updatedSelection = { ...selectedProperty, type: Properties.NUM_PROPERTY, mlAlgo: '', max: 365, min: 0 };
+        } else if (event.target.value === Properties.LIST_PROPERTY) {
+            updatedSelection = { ...selectedProperty, type: Properties.LIST_PROPERTY, multi: false, items: [] };
+        } else if (event.target.value === Properties.DB_LINK_PROPERTY) {
+            updatedSelection = { ...selectedProperty, type: Properties.DB_LINK_PROPERTY, items: [] };
         }
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     }
 
     const handlePropMandatoryChange = (event) => {
         let updatedSelection = { ...selectedProperty, mandatory: event.target.checked };
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     }
 
     const handlePropTextMaxChange = (event) => {
         let updatedSelection = { ...selectedProperty, max: event.target.value };
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     }
 
     const handlePropMinChange = (event) => {
         let updatedSelection = { ...selectedProperty, min: event.target.value };
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     }
 
     const handlePropMLAlgo = (event) => {
         let updatedSelection = { ...selectedProperty, mlAlgo: event.target.value };
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     }
 
     const handlePropListMultiChange = (event) => {
         let updatedSelection = { ...selectedProperty, multi: event.target.checked };
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     }
     const onSelectedPropItemsDrop = ({ removedIndex, addedIndex }) => {
         let updatedSelection = { ...selectedProperty, items: arrayMove(selectedProperty.items, removedIndex, addedIndex) };
         setSelectedProperty(updatedSelection);
-        setModified(true);
+        props.onChange(updatedSelection);
     };
 
-    const handlePropSave = () => {
-        props.onSave(selectedProperty);
-        setModified(false);
+    const handleNewPropertyListOption = () => {
+        let newOption = {_id:uuidv4(), text:"Nouvelle Option"};
+
+        setSelectedPropertyListOption(newOption);
+
+        setSingleInputTitle("Nouvelle Option");
+        setSingleInputMsg("Nouvelle option pour la liste " + selectedProperty.text);
+        setSingleInputLabel("Valeur de l'option");
+        setSingleInputValue("");
+
+        inputDlgRef.current.showDialog();
+    }
+
+    const handlePropertyListOptionChange = (event) => {
+        let updatedOption = {...selectedPropertyListOption};
+        updatedOption.text = event.target.value;
+        setSelectedPropertyListOption(updatedOption);
+    }
+
+    const handleConfirmPropertyListOptionChange = () => {
+        let updatedProperty = {...selectedProperty};
+        const selectedListOptionIndex = updatedProperty.items.findIndex(o => o._id === selectedPropertyListOption._id);
+        if (selectedListOptionIndex === -1){ //new   
+            updatedProperty.items = [...updatedProperty.items, selectedPropertyListOption];
+        } else { //existing
+          updatedProperty.items = [
+          ...updatedProperty.items.slice(0, selectedListOptionIndex),
+          selectedPropertyListOption,
+          ...updatedProperty.items.slice(selectedListOptionIndex + 1)
+        ];
+        }
+        setSelectedProperty(updatedProperty);
+        props.onChange(updatedProperty);
+    }
+
+    const handleEditListOption = (option) => {
+        setSelectedPropertyListOption(option);
+
+        setSingleInputTitle("Modification d'option");
+        setSingleInputMsg("Modification d'option pour la liste " + selectedProperty.text);
+        setSingleInputLabel("Valeur de l'option");
+        setSingleInputValue("");
+
+        inputDlgRef.current.showDialog();
+    }
+
+    const handleDeleteListOption = (option) => {
+        let updatedProperty = {...selectedProperty};
+
+        const selectedListOptionIndex = updatedProperty.items.findIndex(o => o._id === option._id);
+        
+        updatedProperty.items = [
+          ...updatedProperty.items.slice(0, selectedListOptionIndex),
+          ...updatedProperty.items.slice(selectedListOptionIndex + 1)
+        ];
+        setSelectedProperty(updatedProperty);
+
+        props.onChange(updatedProperty);
     }
 
     let selectedPropertyElement;
@@ -126,13 +180,13 @@ export default function PropertyEditor(props) {
             value={selectedProperty.type}
             onChange={handlePropTypeChange}
         >
-            {propertyTypes.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                    {option.text}
+            {Properties.SUPPORTED_PROPERTIES.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                    {option.label}
                 </MenuItem>
             ))}
         </TextField>
-        if (selectedProperty.type === Properties.TEXT_PROPERTY.id) { //text
+        if (selectedProperty.type === Properties.TEXT_PROPERTY) { //text
             selectedPropertyElement = [selectedPropertyElement,
                 <TextField id="user-prop-text-char-num" key="user-prop-text-char-num" label="Nombre charactères max" value={selectedProperty.max} onChange={handlePropTextMaxChange} style={{ width: '400px' }} />,
                 <FormControlLabel
@@ -165,7 +219,7 @@ export default function PropertyEditor(props) {
                     ))}
                 </TextField>
             ];
-        } else if (selectedProperty.type === Properties.NUM_PROPERTY.id) { //numerique
+        } else if (selectedProperty.type === Properties.NUM_PROPERTY) { //numerique
             selectedPropertyElement = [selectedPropertyElement,
                 <TextField id="user-prop-min-val" key="user-prop-min-val" label="Valeur min" value={selectedProperty.min} onChange={handlePropMinChange} style={{ width: '400px' }} />,
                 <TextField id="user-prop-max-val" key="user-prop-max-val" label="Valeur max" value={selectedProperty.max} onChange={handlePropTextMaxChange} style={{ width: '400px' }} />,
@@ -185,7 +239,7 @@ export default function PropertyEditor(props) {
                     ))}
                 </TextField>
             ];
-        } else if (selectedProperty.type === Properties.LIST_PROPERTY.id) { //liste
+        } else if (selectedProperty.type === Properties.LIST_PROPERTY) { //liste
             selectedPropertyElement = [selectedPropertyElement,
                 <TableContainer key="tbl-cont-prop-static-list" size="small" style={{ border: '1px' }} >
                     <Table size="small" >
@@ -210,9 +264,9 @@ export default function PropertyEditor(props) {
                             </TableRow>
                             <TableRow>
                                 <TableCell align='right' style={{ width: '100%', borderBottom: 'none' }}>
-                                    <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} >
+                                    <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handleNewPropertyListOption}>
                                         Nouvel option
-                      </Button>
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                             <TableRow>
@@ -221,17 +275,17 @@ export default function PropertyEditor(props) {
                                         <List style={{ width: '100%', maxHeight: 300, overflow: 'auto', border: 1 }}>
                                             <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onSelectedPropItemsDrop} >
                                                 {selectedProperty.items.map((item) => (
-                                                    <Draggable key={item.id}>
+                                                    <Draggable key={item._id}>
                                                         <ListItem>
                                                             <ListItemIcon className="drag-handle">
                                                                 <DragHandleIcon />
                                                             </ListItemIcon>
                                                             <ListItemText primary={item.text} />
                                                             <ListItemSecondaryAction >
-                                                                <IconButton aria-label="edit" size="small" >
+                                                                <IconButton aria-label="edit" size="small" onClick={() => handleEditListOption(item)}>
                                                                     <EditIcon />
                                                                 </IconButton >
-                                                                <IconButton aria-label="delete" size="small">
+                                                                <IconButton aria-label="delete" size="small" onClick={() => handleDeleteListOption(item)}>
                                                                     <DeleteIcon />
                                                                 </IconButton >
                                                             </ListItemSecondaryAction>
@@ -247,7 +301,7 @@ export default function PropertyEditor(props) {
                     </Table>
                 </TableContainer>
             ];
-        } else if (selectedProperty.type === Properties.DB_LINK_PROPERTY.id) { //DB link (HL7)    
+        } else if (selectedProperty.type === Properties.DB_LINK_PROPERTY) { //DB link (HL7)    
             selectedPropertyElement = [selectedPropertyElement,
                 <TableContainer key="tbl-cont-prop-db-list" size="small" style={{ border: '1px' }} >
                     <Table size="small" >
@@ -300,15 +354,28 @@ export default function PropertyEditor(props) {
             disabled
             value=""
         >
-            {propertyTypes.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                    {option.text}
+            {Properties.SUPPORTED_PROPERTIES.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                    {option.label}
                 </MenuItem>
             ))}
         </TextField>;
     }
 
     return (
+        <>
+        <SingleInputDialog
+        ref={inputDlgRef}
+        title={singleInputTitle} 
+        message={singleInputMsg}
+        inputLabel={singleInputLabel}
+        value={selectedPropertyListOption.text}
+        cancelLabel="Annuler"
+        confirmLabel="Terminer"
+        onChange={handlePropertyListOptionChange}
+        onConfirm={handleConfirmPropertyListOptionChange}
+      />
+
     <Grid
             container
             direction="column"
@@ -336,17 +403,13 @@ export default function PropertyEditor(props) {
                                 <TextField id="user-prop-text-dis" label="Identifiant" disabled value="" style={{ width: '400px' }} />
                             }
                         </Grid>
-                        <Grid item style={{ width: '400px' }}>
+                        <Grid item style={{ minWidth: 400, }}>
                             {selectedPropertyElement}
-                        </Grid>
-                        <Grid item>
-                            <Button key="btn-save-pselected-prop" variant="contained" color="primary" disabled={!modified} onClick={handlePropSave}>
-                                Sauvegarder
-                                </Button>
                         </Grid>
                     </Grid>
                 </Paper>
             </Grid>
         </Grid>
+        </>
     );
 }

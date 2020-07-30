@@ -73,14 +73,16 @@ export default function PropertiesAccountDetails(props) {
     const handleAccountPropertyChange = (propertyId, e) => {
         let updatedAccount = {...selectedAccount};
 
-        const idx = updatedAccount.extra.findIndex(o => o.id === propertyId);
-        updatedAccount.extra = [
-            ...updatedAccount.extra.slice(0, idx),
-            {id:propertyId, value:e.target.value},
-            ...updatedAccount.extra.slice(idx + 1)
-        ];
-
-        //updatedAccount.extra = [...updatedAccount.extra, {id:propertyId, value:e.target.value}];
+        const idx = updatedAccount.extra.findIndex(o => o._id === propertyId);
+        if(idx >= 0) {
+          updatedAccount.extra = [
+              ...updatedAccount.extra.slice(0, idx),
+              {_id:propertyId, value:e.target.value},
+              ...updatedAccount.extra.slice(idx + 1)
+          ];
+        } else {
+          updatedAccount.extra = [...updatedAccount.extra, {_id:propertyId, value:e.target.value}];
+        }
         setSelectedAccount(updatedAccount);
         setModified(true);
     }
@@ -94,21 +96,21 @@ export default function PropertiesAccountDetails(props) {
   
     const getAccountValueFor = (property) => {
       if(selectedAccount) {
-        let accountProp = selectedAccount.extra.find(item => item.id === property.id);
+        let accountProp = selectedAccount.extra.find(item => item._id === property._id);
         if(accountProp)
           return accountProp.value;
         else {
-          if(property.type === Properties.NUM_PROPERTY.id)
+          if(property.type === Properties.NUM_PROPERTY)
             return 0;
-          else if(property.type === Properties.LIST_PROPERTY.id && property.multi === true) 
+          else if(property.type === Properties.LIST_PROPERTY && property.multi === true) 
             return [];
           else
             return '';
         }
       } else {
-        if(property.type === Properties.NUM_PROPERTY.id) {
+        if(property.type === Properties.NUM_PROPERTY) {
           return 0;
-        } else if(property.type === Properties.LIST_PROPERTY.id && property.multi === true) {
+        } else if(property.type === Properties.LIST_PROPERTY && property.multi === true) {
           return [];
         } else {
           return '';
@@ -134,13 +136,13 @@ export default function PropertiesAccountDetails(props) {
           </TableCell>
         </TableRow>
         {props.extraProperties.map((element) => (
-        <TableRow key={element.id}> 
+        <TableRow key={element._id}> 
           <TableCell className={classes.userDetailCell} >
             <PropertySelector 
               disabled={!selectedAccount} 
               label={element.text} 
               value={getAccountValueFor(element)} 
-              onChange={(e) => handleAccountPropertyChange(element.id, e)} 
+              onChange={(e) => handleAccountPropertyChange(element._id, e)} 
               extra={element}
               style={{width:'100%'}}/>
           </TableCell>

@@ -14,6 +14,16 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Avatar from '@material-ui/core/Avatar';
 import { AmplifySignOut } from '@aws-amplify/ui-react';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+
+import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
+import LayersOutlinedIcon from '@material-ui/icons/LayersOutlined';
+import HotelOutlinedIcon from '@material-ui/icons/HotelOutlined';
+import TransferWithinAStationOutlinedIcon from '@material-ui/icons/TransferWithinAStationOutlined';
+import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
+import CleaningIcon from "./CleaningIcon"
+
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
@@ -78,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function TopMenuBar() {
+export default function TopMenuBar(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -103,6 +113,26 @@ export default function TopMenuBar() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const handlePaletteTypeChange = (event) => {
+    if(event.target.checked)
+      props.onThemeChange('dark');
+    else
+      props.onThemeChange('light');
+  }
+
+  let avatarIcon = <Avatar ></Avatar>;
+  if (props.user.role.name === "bearer")
+    avatarIcon = <Avatar ><TransferWithinAStationOutlinedIcon/></Avatar>;
+  else if (props.user.role.name === "cleaner")
+    avatarIcon = <Avatar ><CleaningIcon/></Avatar>;
+  
+  // Auth.currentAuthenticatedUser()
+  // .then(user => {
+  //   console.log(user);
+  //   avatarIcon = <Avatar >LS</Avatar>;
+  // })
+  // .catch(err => console.log(err));
+
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
     <Menu
@@ -116,6 +146,17 @@ export default function TopMenuBar() {
     >
       {/* <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
+      <MenuItem><FormControlLabel
+        control={
+          <Switch
+            checked={props.paletteType==='dark'}
+            onChange={handlePaletteTypeChange}
+            name="dark-mode-switch"
+            color="primary"
+          />
+        }
+        label="Dark Mode"
+      /></MenuItem>
       <MenuItem><AmplifySignOut /></MenuItem>
 
     </Menu>
@@ -202,7 +243,7 @@ export default function TopMenuBar() {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-                <Avatar >LS</Avatar>
+                {avatarIcon}
             </IconButton>
           </div>
           {/* <div className={classes.sectionMobile}>

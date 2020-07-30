@@ -23,7 +23,7 @@ import Divider from '@material-ui/core/Divider';
 import FloorSvgEditor from '../components/FloorSvgEditor'
 import Slider from '@material-ui/core/Slider';
 import axios from 'axios';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = theme => ({
   tableContainer: {
@@ -66,77 +66,6 @@ const useStyles = theme => ({
 
 });
 
-// const allFloorDetails = [
-//   {
-//     id: 7,
-//     label: '7',
-//     description: 'Post operatoire',
-//     useSections: false,
-//     layout: "../assets/testfloor1.svg",
-//     beds: [
-//       {
-//         id: 1,
-//         label: "701-01",
-//         x: 20,
-//         y: 20,
-//         w: 30,
-//         h: 50,
-//         rot: 0
-//       },
-//       {
-//         id: 2,
-//         label: "701-02",
-//         x: 80,
-//         y: 80,
-//         w: 30,
-//         h: 50,
-//         rot: 45
-//       }
-//     ]
-//   },
-//   {
-//     id: 8,
-//     label: '8',
-//     description: 'Post operatoire',
-//     useSections: true,
-//     layout : null,
-//     sections: [
-//       {
-//         id: 1,
-//         label: 'Est',
-//         description: "Chirurgie d'un jour",
-//         layout: "../assets/testfloor1.svg",
-//         beds: [
-//           {
-//             id: 1,
-//             label: "801-01",
-//             x: 50,
-//             y: 50,
-//             w: 30,
-//             h: 50,
-//             rot: 45
-//           },
-//           {
-//             id: 2,
-//             label: "801-02",
-//             x: 100,
-//             y: 100,
-//             w: 30,
-//             h: 50,
-//             rot: 90
-//           }
-//         ]
-//       },
-//       {
-//         id: 2,
-//         label: 'Ouest',
-//         description: "Chirurgie plus d'un jour",
-//         layout: '',
-//         beds: []
-//       }
-//     ]
-//   }
-// ];
 
 function FloorList(props) {
   const classes = makeStyles(useStyles)();
@@ -359,7 +288,7 @@ class FloorConfigurations extends Component {
             <TableRow>
               <TableCell className={classes.floorListSection} >
                 {this.state.loadingFloors?
-                <Paper className={classes.rolePropertySections}><CircularProgress /></Paper>
+                <Paper className={classes.rolePropertySections}><LinearProgress /></Paper>
                 :
                 <Paper className={classes.rolePropertySections}>
                   <FloorList floors={this.state.allFloorDetails} onSelectedFloor={this.handleSelectedFloor.bind(this)} />

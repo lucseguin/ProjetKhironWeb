@@ -56,27 +56,25 @@ function CleaningStatus(props) {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
       <Grid container
         direction="row"
         justify="flex-start"
         alignItems="flex-start"
-        style={{ padding: 20, width: '100%' }}
+        style={{ padding: 20, width: '100%', height: '100vh' }}
         spacing={3}>
         <Grid item xs={8}>
-          <Paper>
+          {/* <Paper>
             <CleaningRequestsSummary showGraph requests={cleaningRequests} data={data} title="Demande de nettoyage derniers 7 jours"/>
-          </Paper>
+          </Paper> */}
         </Grid>
 
         <Grid item xs={4}>
-          <Paper>
+          {/* <Paper>
             Demande
-         </Paper>
+         </Paper> */}
         </Grid>
 
       </Grid>
-    </div>
   );
 }
 

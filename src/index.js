@@ -3,6 +3,22 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import * as axios from "axios";
+import { Auth } from 'aws-amplify';
+
+axios.defaults.baseURL = process.env.REACT_APP_PK_DB_API_ENDPOINT;
+axios.interceptors.request.use(function (config) {
+    return Auth.currentSession()
+      .then(session => {
+        // User is logged in. Set auth header on all requests
+        config.headers.Authorization = 'Bearer ' + session.accessToken.jwtToken
+        return Promise.resolve(config)
+      })
+      .catch(() => {
+        // No logged-in user: don't set auth header
+        return Promise.resolve(config)
+      })
+  })
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

@@ -1,15 +1,13 @@
 
-export const TEXT_PROPERTY = { id: "1", text: "Text" };
-export const NUM_PROPERTY = { id: "2", text: "Numerique" };
-export const LIST_PROPERTY = { id: "4", text: "Liste" };
-export const DB_LINK_PROPERTY = { id: "5", text: "Lien HL7" };
-export const GEO_PROPERTY = { id: "6", text: "Geo" };
+export const TEXT_PROPERTY = "string";
+export const NUM_PROPERTY = "numeric";
+export const LIST_PROPERTY = "static-list";
+export const DB_LINK_PROPERTY = "database";
+export const GEO_PROPERTY = "geo";
 export const SUPPORTED_PROPERTIES = [
-    TEXT_PROPERTY,
-    NUM_PROPERTY,
-    LIST_PROPERTY,
-    DB_LINK_PROPERTY,
-    GEO_PROPERTY
+    {value:TEXT_PROPERTY,label:'Text'},
+    {value:NUM_PROPERTY, label:'Numerique'},
+    {value:LIST_PROPERTY, label:'Liste'},
+    {value:DB_LINK_PROPERTY,label:'Lien BD'},
+    {value:GEO_PROPERTY, label:'Geo'},
 ];
-
-

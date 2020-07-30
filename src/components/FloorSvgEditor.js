@@ -363,6 +363,7 @@ class FloorSvgEditor extends Component {
     else
       return this.Viewer;
   }
+  
   render () {
     const {beds, selectedBed, modified} = this.state;
     return (

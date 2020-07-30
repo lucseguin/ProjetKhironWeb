@@ -7,6 +7,8 @@ import Tab from '@material-ui/core/Tab';
 import Main from "../screens/Main";
 import StretcherBearerStatus from "../screens/StretcherBearerStatus";
 import CleaningStatus from "../screens/CleaningStatus";
+import BedStatus from "../screens/BedStatus";
+
 import SettingsMenuNavigation from "./SettingsMenuNavigation"
 import Box from '@material-ui/core/Box';
 
@@ -63,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function TopMenuNavigation() {
+export default function TopMenuNavigation(props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
@@ -87,7 +89,7 @@ export default function TopMenuNavigation() {
           <LinkTab label="Lits" href="/beds" {...a11yProps(1)} />
           <LinkTab label="Nettoyage" href="/cleaning" {...a11yProps(2)} />
           <LinkTab label="Brancarderie" href="/bearer" {...a11yProps(3)} />
-          <LinkTab label="Configuration" href="/settings" {...a11yProps(4)} />
+          {props.user.role.name === "admin"?<LinkTab label="Configuration" href="/settings" {...a11yProps(4)} />:null}
         </Tabs>
       </AppBar>
 
@@ -96,7 +98,7 @@ export default function TopMenuNavigation() {
         {/* <Route path="/" component={Main} />  */}
       </TabPanel>
       <TabPanel value={value} index={1} >
-        <div></div>
+        <BedStatus />
       </TabPanel>
       <TabPanel value={value} index={2} >
         <CleaningStatus />
@@ -104,10 +106,11 @@ export default function TopMenuNavigation() {
       <TabPanel value={value} index={3} >
        <StretcherBearerStatus />
       </TabPanel>
+      {props.user.role.name === "admin"?
       <TabPanel value={value} index={4}>
         <SettingsMenuNavigation />
-        {/* <Route path="/settings" exact component={SettingsMenuNavigation} /> */}
       </TabPanel>
+      :null}
 
     </div>
   );

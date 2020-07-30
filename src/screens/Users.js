@@ -22,7 +22,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios';
 import UserAccountStatus from "../components/UserAccountStatus"
-import CircularProgress from '@material-ui/core/CircularProgress';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = theme => ({
   tableContainer: {
@@ -80,16 +80,6 @@ const useStyles = theme => ({
 function UserAccountsTable(props) {
   const classes = makeStyles(useStyles)();
 
-  const getRoleLabel = (roles, forId) => {
-    let label = '';
-    if(roles) {
-      let foundRole = roles.find(item => item._id === forId);
-      if(foundRole) {
-        label = foundRole.name;
-      }
-    }
-    return label;
-  }
   let allUserRows = null;
   if(!props.loading) {
     allUserRows = props.userAccounts.map((row) => (
@@ -98,7 +88,7 @@ function UserAccountsTable(props) {
           <UserAccountStatus account={row} />
         </TableCell>
         <TableCell >{row.firstName + ' ' + row.lastName}</TableCell>
-        <TableCell >{getRoleLabel(props.roles, row.role)}</TableCell>
+        <TableCell >{row.role.label}</TableCell>
         <TableCell >{row.email}</TableCell>
         <TableCell >{row.phone}</TableCell>
         <TableCell className="iconTableCell">
@@ -114,7 +104,7 @@ function UserAccountsTable(props) {
       </TableRow>
     ));
   } else {
-    allUserRows = <TableRow><TableCell colSpan={7} ><CircularProgress /></TableCell></TableRow>
+    allUserRows = <TableRow><TableCell colSpan={7} ><LinearProgress /></TableCell></TableRow>
   }
 
   return (
@@ -168,7 +158,7 @@ function RolesTable(props) {
   if(!props.loading) {
     allRolesRows = props.roles.map((row) => (
       <TableRow key={row._id}>
-        <TableCell >{row.name}</TableCell>
+        <TableCell >{row.label}</TableCell>
         <TableCell className={classes.iconTableCell}>
           <IconButton aria-label="edit role" size="small" onClick={() => props.onSelectedRoleForEdit(row)}>
             <EditIcon  />
@@ -182,7 +172,7 @@ function RolesTable(props) {
       </TableRow>
     ));
   } else {
-    allRolesRows = <TableRow><TableCell colSpan={4} width='100%'><CircularProgress /></TableCell></TableRow>
+    allRolesRows = <TableRow><TableCell colSpan={4} width='100%'><LinearProgress /></TableCell></TableRow>
   }
   return (
     <Paper>
@@ -208,18 +198,18 @@ function RolesTable(props) {
 function RoleDetails(props) {
   const classes = makeStyles(useStyles)();
   const [isModified, setModified] = useState(false);
-  const [name, setName] = useState(props.role.name);
-  const [settings, setSettings] = useState(props.role.settings);
+  const [label, setLabel] = useState(props.role.label);
+  const [settings, setSettings] = useState(props.role.settings.options);
 
   useEffect(() => {
     setModified(false);
-    setName(props.role.name);
-    setSettings(props.role.settings);
+    setLabel(props.role.label);
+    setSettings(props.role.settings.options);
   }, [props]);
 
   const onNameChangeHandler = (event) => {
-    setName(event.target.value);
-    setSettings(props.role.settings);
+    setLabel(event.target.value);
+    setSettings(props.role.settings.options);
     setModified(true);
   }
 
@@ -275,7 +265,7 @@ function RoleDetails(props) {
       <Grid container item xs={12} spacing={3}>
         <React.Fragment>
           <Grid item xs={4}>
-            <TextField id="edit-role-name" label="Identifiant" value={name} onChange={onNameChangeHandler} style={{ width: '100%' }} />
+            <TextField id="edit-role-name" label="Identifiant" value={label} onChange={onNameChangeHandler} style={{ width: '100%' }} />
           </Grid>
         </React.Fragment>
       </Grid>
@@ -502,7 +492,7 @@ function UserAccountDetails(props) {
   const [isModified, setModified] = useState(false);
   const [firstName, setFirstName] = useState(props.account.firstName);
   const [lastName, setLastName] = useState(props.account.lastName);
-  const [role, setRole] = useState(props.account.role);
+  const [role, setRole] = useState(props.account.role.parent);
   const [email, setEmail] = useState(props.account.email);
   const [phone, setPhone] = useState(props.account.phone);
 
@@ -510,7 +500,7 @@ function UserAccountDetails(props) {
     setModified(false);
     setFirstName(props.account.firstName);
     setLastName(props.account.lastName);
-    setRole(props.account.role);
+    setRole(props.account.role.parent);
     setEmail(props.account.email);
     setPhone(props.account.phone);
   }, [props]);
@@ -567,7 +557,7 @@ function UserAccountDetails(props) {
           >
             {props.roles.map((option) => (
               <MenuItem key={option._id} value={option._id}>
-                {option.name}
+                {option.label}
               </MenuItem>
             ))}
           </TextField>

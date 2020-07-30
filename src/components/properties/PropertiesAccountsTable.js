@@ -11,6 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton'
 import UserAccountStatus from "../UserAccountStatus"
 import * as Properties from './Properties';
+import LinearProgress from '@material-ui/core/LinearProgress';
 const useStyles = makeStyles((theme) => ({
     tableContainer: {
       maxHeight: 500,
@@ -64,24 +65,56 @@ export default function PropertiesAccountsTable(props) {
   const classes = useStyles();
 
   const propsAccountValueToString = (account, property) => {
-    const accountProp = account.extra.find(o => o.id === property.id);
+    const accountProp = account.extra.find(o => o._id === property._id);
     if(accountProp) {
-      if(property.type === Properties.TEXT_PROPERTY.id) {
+      if(property.type === Properties.TEXT_PROPERTY) {
         return accountProp.value;
-      } else if(property.type === Properties.NUM_PROPERTY.id) {
+      } else if(property.type === Properties.NUM_PROPERTY) {
         return ''+accountProp.value;
-      } else if(property.type === Properties.LIST_PROPERTY.id) {
+      } else if(property.type === Properties.LIST_PROPERTY) {
         if(property.multi === true) {
+          return accountProp.value.map((item) => (
+            property.items.find(o => o._id === item).text
+          ))
           //accountProp.value
           //value is an array
         } else {
           //value is not an array
-          return props.extraProperties.find(o => o.id === accountProp.value).text;
+          return property.find(o => o._id === accountProp.value).text;
         }
       }
     }
   }
+  
+  let allUserRows = null;
+  if(!props.loading) {
+    allUserRows = props.userAccounts.map((account) => (
+      <TableRow key={account._id}>
+        <TableCell component="th" scope="row" className={classes.iconTableCell}>
+          <UserAccountStatus account={account} />
+        </TableCell>
+        <TableCell >{account.firstName + ' ' + account.lastName}</TableCell>
+        {props.extraProperties.map((option) => (
+          <TableCell key={option._id}>
+            <div>
+              {propsAccountValueToString(account,option)}
+            </div>
+          </TableCell>
+        ))}
+        <TableCell >{account.email}</TableCell>
+        <TableCell >{account.phone}</TableCell>
+        <TableCell className={classes.iconTableCell}>
+          <IconButton aria-label="edit" size="small" onClick={() => props.onSelectedAccountForEdit(account)} >
+            <EditIcon />
+          </IconButton >
+        </TableCell>
+      </TableRow>
+    ))
+  } else {
+    allUserRows = <TableRow><TableCell colSpan={5+props.extraProperties.length} ><LinearProgress/> </TableCell></TableRow>
+  }
 
+  
   return (
     <Paper style={{ height: "100%", width: "100%" }}>
     <TableContainer size="small">
@@ -91,7 +124,7 @@ export default function PropertiesAccountsTable(props) {
             <TableCell className={classes.tableHeaderCell}></TableCell>
             <TableCell className={classes.tableHeaderCell} >Nom</TableCell>
             {props.extraProperties.map((option) => (
-              <TableCell key={option.id} className={classes.tableHeaderCell} >{option.text}</TableCell>
+              <TableCell key={option._id} className={classes.tableHeaderCell} >{option.text}</TableCell>
             ))}
             <TableCell className={classes.tableHeaderCell} >Courriel</TableCell>
             <TableCell className={classes.tableHeaderCell} >Cellulaire</TableCell>
@@ -99,28 +132,7 @@ export default function PropertiesAccountsTable(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.userAccounts.map((account) => (
-            <TableRow key={account.id}>
-              <TableCell component="th" scope="row" className={classes.iconTableCell}>
-                <UserAccountStatus account={account} />
-              </TableCell>
-              <TableCell >{account.firstName + ' ' + account.lastName}</TableCell>
-              {props.extraProperties.map((option) => (
-                <TableCell key={option.id}>
-                  <div>
-                    {propsAccountValueToString(account,option)}
-                  </div>
-                </TableCell>
-              ))}
-              <TableCell >{account.email}</TableCell>
-              <TableCell >{account.phone}</TableCell>
-              <TableCell className={classes.iconTableCell}>
-                <IconButton aria-label="edit" size="small" onClick={() => props.onSelectedAccountForEdit(account)} >
-                  <EditIcon />
-                </IconButton >
-              </TableCell>
-            </TableRow>
-          ))}
+          {allUserRows}
         </TableBody>
       </Table>
     </TableContainer>
