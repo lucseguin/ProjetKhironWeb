@@ -6,7 +6,8 @@ import * as serviceWorker from './serviceWorker';
 import * as axios from "axios";
 import { Auth } from 'aws-amplify';
 
-axios.defaults.baseURL = process.env.REACT_APP_PK_DB_API_ENDPOINT;
+axios.defaults.baseURL = "http://projetkhiron.com:3000";
+
 axios.interceptors.request.use(function (config) {
     return Auth.currentSession()
       .then(session => {
