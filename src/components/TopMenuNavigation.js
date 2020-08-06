@@ -8,7 +8,7 @@ import Main from "../screens/Main";
 import StretcherBearerStatus from "../screens/StretcherBearerStatus";
 import CleaningStatus from "../screens/CleaningStatus";
 import BedStatus from "../screens/BedStatus";
-
+import * as AR from '../components/AccessRights'
 import SettingsMenuNavigation from "./SettingsMenuNavigation"
 import Box from '@material-ui/core/Box';
 
@@ -86,29 +86,35 @@ export default function TopMenuNavigation(props) {
           aria-label="nav tabs example"
         >
           <LinkTab label="Acceuil" href="/" {...a11yProps(0)} />
-          <LinkTab label="Lits" href="/beds" {...a11yProps(1)} />
-          <LinkTab label="Nettoyage" href="/cleaning" {...a11yProps(2)} />
-          <LinkTab label="Brancarderie" href="/bearer" {...a11yProps(3)} />
+          {(props.userSettings&&AR.MODULE_BEDS_VIEW)?<LinkTab label="Lits" href="/beds" {...a11yProps(1)} />:null}
+          {(props.userSettings&&AR.MODULE_CLEANER_VIEW)?<LinkTab label="Nettoyage" href="/cleaning" {...a11yProps(2)} />:null}
+          {(props.userSettings&&AR.MODULE_BEARER_VIEW)?<LinkTab label="Brancarderie" href="/bearer" {...a11yProps(3)} />:null}
           {props.user.role.name === "admin"?<LinkTab label="Configuration" href="/settings" {...a11yProps(4)} />:null}
         </Tabs>
       </AppBar>
 
       <TabPanel value={value} index={0} >
-        <Main/>
+        <Main user={props.user} userSettings={props.userSettings}/>
         {/* <Route path="/" component={Main} />  */}
       </TabPanel>
+      {(props.userSettings&&AR.MODULE_BEDS_VIEW)?
       <TabPanel value={value} index={1} >
-        <BedStatus />
+        <BedStatus user={props.user} userSettings={props.userSettings}/>
       </TabPanel>
+      :null}
+      {(props.userSettings&&AR.MODULE_CLEANER_VIEW)?
       <TabPanel value={value} index={2} >
-        <CleaningStatus />
+        <CleaningStatus user={props.user} userSettings={props.userSettings}/>
       </TabPanel>
+      :null}
+      {(props.userSettings&&AR.MODULE_BEARER_VIEW)?
       <TabPanel value={value} index={3} >
-       <StretcherBearerStatus />
+       <StretcherBearerStatus user={props.user} userSettings={props.userSettings}/>
       </TabPanel>
+      :null}
       {props.user.role.name === "admin"?
       <TabPanel value={value} index={4}>
-        <SettingsMenuNavigation />
+        <SettingsMenuNavigation user={props.user} userSettings={props.userSettings}/>
       </TabPanel>
       :null}
 

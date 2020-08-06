@@ -23,6 +23,7 @@ import Typography from '@material-ui/core/Typography';
 import axios from 'axios';
 import UserAccountStatus from "../components/UserAccountStatus"
 import LinearProgress from '@material-ui/core/LinearProgress';
+import * as AR from '../components/AccessRights'
 
 const useStyles = theme => ({
   tableContainer: {
@@ -132,25 +133,7 @@ function UserAccountsTable(props) {
   );
 }
 
-const ROLE_SETTINGS_MANAGE_ACCOUNTS = 1;
-const ROLE_SETTINGS_GEO_FENCED = 2;
-//const ROLE_SETTINGS_X1 = 4;
-//const ROLE_SETTINGS_X2 = 8;
 
-const MODULE_BEDS_VIEW = 16;
-const MODULE_BEDS_UPDATE = 32;
-const MODULE_BEDS_CONFIG_FLOOR = 64;
-const MODULE_BEDS_CONFIG_BED = 128;
-
-const MODULE_BEARER_VIEW = 256;
-const MODULE_BEARER_UPDATE = 512;
-const MODULE_BEARER_CONFIG = 1024;
-//const MODULE_BEARER_X1 = 2048;
-
-const MODULE_CLEANER_VIEW = 4096;
-const MODULE_CLEANER_UPDATE = 8192;
-const MODULE_CLEANER_CONFIG = 16384;
-//const MODULE_CLEANER_X1 = 32768;
 
 function RolesTable(props) {
   const classes = makeStyles(useStyles)();
@@ -216,44 +199,53 @@ function RoleDetails(props) {
   const handleRoleSettingChange = (event) => {
     switch (event.target.name) {
       case 'ROLE_SETTINGS_MANAGE_ACCOUNTS':
-        setSettings((event.target.checked) ? (settings | ROLE_SETTINGS_MANAGE_ACCOUNTS) : (settings & ~ROLE_SETTINGS_MANAGE_ACCOUNTS));
+        setSettings((event.target.checked) ? (settings | AR.ROLE_SETTINGS_MANAGE_ACCOUNTS) : (settings & ~AR.ROLE_SETTINGS_MANAGE_ACCOUNTS));
         break;
       case 'ROLE_SETTINGS_GEO_FENCED':
-        setSettings((event.target.checked) ? (settings | ROLE_SETTINGS_GEO_FENCED) : (settings & ~ROLE_SETTINGS_GEO_FENCED));
+        setSettings((event.target.checked) ? (settings | AR.ROLE_SETTINGS_GEO_FENCED) : (settings & ~AR.ROLE_SETTINGS_GEO_FENCED));
         break;
 
       case 'MODULE_BEDS_VIEW':
-        setSettings((event.target.checked) ? (settings | MODULE_BEDS_VIEW) : (settings & ~MODULE_BEDS_VIEW));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEDS_VIEW) : (settings & ~AR.MODULE_BEDS_VIEW));
         break;
       case 'MODULE_BEDS_UPDATE ':
-        setSettings((event.target.checked) ? (settings | MODULE_BEDS_UPDATE) : (settings & ~MODULE_BEDS_UPDATE));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEDS_UPDATE) : (settings & ~AR.MODULE_BEDS_UPDATE));
         break;
       case 'MODULE_BEDS_CONFIG_FLOOR':
-        setSettings((event.target.checked) ? (settings | MODULE_BEDS_CONFIG_FLOOR) : (settings & ~MODULE_BEDS_CONFIG_FLOOR));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEDS_CONFIG_FLOOR) : (settings & ~AR.MODULE_BEDS_CONFIG_FLOOR));
         break;
       case 'MODULE_BEDS_CONFIG_BED':
-        setSettings((event.target.checked) ? (settings | MODULE_BEDS_CONFIG_BED) : (settings & ~MODULE_BEDS_CONFIG_BED));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEDS_CONFIG_BED) : (settings & ~AR.MODULE_BEDS_CONFIG_BED));
         break;
 
       case 'MODULE_BEARER_VIEW':
-        setSettings((event.target.checked) ? (settings | MODULE_BEARER_VIEW) : (settings & ~MODULE_BEARER_VIEW));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEARER_VIEW) : (settings & ~AR.MODULE_BEARER_VIEW));
         break;
       case 'MODULE_BEARER_UPDATE':
-        setSettings((event.target.checked) ? (settings | MODULE_BEARER_UPDATE) : (settings & ~MODULE_BEARER_UPDATE));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEARER_UPDATE) : (settings & ~AR.MODULE_BEARER_UPDATE));
         break;
       case 'MODULE_BEARER_CONFIG':
-        setSettings((event.target.checked) ? (settings | MODULE_BEARER_CONFIG) : (settings & ~MODULE_BEARER_CONFIG));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEARER_CONFIG) : (settings & ~AR.MODULE_BEARER_CONFIG));
         break;
+      case 'MODULE_BEARER_NEW_REQUEST':
+        setSettings((event.target.checked) ? (settings | AR.MODULE_BEARER_NEW_REQUEST) : (settings & ~AR.MODULE_BEARER_NEW_REQUEST));
+        break;
+        
 
       case 'MODULE_CLEANER_VIEW':
-        setSettings((event.target.checked) ? (settings | MODULE_CLEANER_VIEW) : (settings & ~MODULE_CLEANER_VIEW));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_CLEANER_VIEW) : (settings & ~AR.MODULE_CLEANER_VIEW));
         break;
       case 'MODULE_CLEANER_UPDATE':
-        setSettings((event.target.checked) ? (settings | MODULE_CLEANER_UPDATE) : (settings & ~MODULE_CLEANER_UPDATE));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_CLEANER_UPDATE) : (settings & ~AR.MODULE_CLEANER_UPDATE));
         break;
       case 'MODULE_CLEANER_CONFIG':
-        setSettings((event.target.checked) ? (settings | MODULE_CLEANER_CONFIG) : (settings & ~MODULE_CLEANER_CONFIG));
+        setSettings((event.target.checked) ? (settings | AR.MODULE_CLEANER_CONFIG) : (settings & ~AR.MODULE_CLEANER_CONFIG));
         break;
+      case 'MODULE_CLEANER_NEW_REQUEST':
+        setSettings((event.target.checked) ? (settings | AR.MODULE_CLEANER_NEW_REQUEST) : (settings & ~AR.MODULE_CLEANER_NEW_REQUEST));
+        break;
+        
+
       default:
         break;
     }
@@ -281,7 +273,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & ROLE_SETTINGS_MANAGE_ACCOUNTS) === ROLE_SETTINGS_MANAGE_ACCOUNTS)}
+                    checked={((settings & AR.ROLE_SETTINGS_MANAGE_ACCOUNTS) === AR.ROLE_SETTINGS_MANAGE_ACCOUNTS)}
                     onChange={handleRoleSettingChange}
                     name="ROLE_SETTINGS_MANAGE_ACCOUNTS"
                     color="primary"
@@ -301,7 +293,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & ROLE_SETTINGS_GEO_FENCED) === ROLE_SETTINGS_GEO_FENCED)}
+                    checked={((settings & AR.ROLE_SETTINGS_GEO_FENCED) === AR.ROLE_SETTINGS_GEO_FENCED)}
                     onChange={handleRoleSettingChange}
                     name="ROLE_SETTINGS_GEO_FENCED"
                     color="primary"
@@ -325,7 +317,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_BEDS_VIEW) === MODULE_BEDS_VIEW)}
+                    checked={((settings & AR.MODULE_BEDS_VIEW) === AR.MODULE_BEDS_VIEW)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_BEDS_VIEW"
                     color="primary"
@@ -338,7 +330,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_BEDS_UPDATE) === MODULE_BEDS_UPDATE)}
+                    checked={((settings & AR.MODULE_BEDS_UPDATE) === AR.MODULE_BEDS_UPDATE)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_BEDS_UPDATE"
                     color="primary"
@@ -351,7 +343,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_BEDS_CONFIG_FLOOR) === MODULE_BEDS_CONFIG_FLOOR)}
+                    checked={((settings & AR.MODULE_BEDS_CONFIG_FLOOR) === AR.MODULE_BEDS_CONFIG_FLOOR)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_BEDS_CONFIG_FLOOR"
                     color="primary"
@@ -364,7 +356,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_BEDS_CONFIG_BED) === MODULE_BEDS_CONFIG_BED)}
+                    checked={((settings & AR.MODULE_BEDS_CONFIG_BED) === AR.MODULE_BEDS_CONFIG_BED)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_BEDS_CONFIG_BED"
                     color="primary"
@@ -384,7 +376,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_BEARER_VIEW) === MODULE_BEARER_VIEW)}
+                    checked={((settings & AR.MODULE_BEARER_VIEW) === AR.MODULE_BEARER_VIEW)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_BEARER_VIEW"
                     color="primary"
@@ -397,7 +389,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_BEARER_UPDATE) === MODULE_BEARER_UPDATE)}
+                    checked={((settings & AR.MODULE_BEARER_UPDATE) === AR.MODULE_BEARER_UPDATE)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_BEARER_UPDATE"
                     color="primary"
@@ -410,13 +402,26 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_BEARER_CONFIG) === MODULE_BEARER_CONFIG)}
+                    checked={((settings & AR.MODULE_BEARER_CONFIG) === AR.MODULE_BEARER_CONFIG)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_BEARER_CONFIG"
                     color="primary"
                   />
                 }
                 label="Configuration des équipes."
+              />
+              <FormControlLabel
+                classes={{ label: classes.checkBoxFont }}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={((settings & AR.MODULE_BEARER_NEW_REQUEST) === AR.MODULE_BEARER_NEW_REQUEST)}
+                    onChange={handleRoleSettingChange}
+                    name="MODULE_BEARER_NEW_REQUEST"
+                    color="primary"
+                  />
+                }
+                label="Formuler de nouvelle demande de brancarderie."
               />
             </Paper>
           </Grid>
@@ -430,7 +435,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_CLEANER_VIEW) === MODULE_CLEANER_VIEW)}
+                    checked={((settings & AR.MODULE_CLEANER_VIEW) === AR.MODULE_CLEANER_VIEW)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_CLEANER_VIEW"
                     color="primary"
@@ -443,7 +448,7 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_CLEANER_UPDATE) === MODULE_CLEANER_UPDATE)}
+                    checked={((settings & AR.MODULE_CLEANER_UPDATE) === AR.MODULE_CLEANER_UPDATE)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_CLEANER_UPDATE"
                     color="primary"
@@ -456,13 +461,26 @@ function RoleDetails(props) {
                 control={
                   <Checkbox
                     size="small"
-                    checked={((settings & MODULE_CLEANER_CONFIG) === MODULE_CLEANER_CONFIG)}
+                    checked={((settings & AR.MODULE_CLEANER_CONFIG) === AR.MODULE_CLEANER_CONFIG)}
                     onChange={handleRoleSettingChange}
                     name="MODULE_CLEANER_CONFIG"
                     color="primary"
                   />
                 }
                 label="Configuration des équipes."
+              />
+              <FormControlLabel
+                classes={{ label: classes.checkBoxFont }}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={((settings & AR.MODULE_CLEANER_NEW_REQUEST) === AR.MODULE_CLEANER_NEW_REQUEST)}
+                    onChange={handleRoleSettingChange}
+                    name="MODULE_CLEANER_NEW_REQUEST"
+                    color="primary"
+                  />
+                }
+                label="Formuler de nouvelle demande de nettoyage."
               />
             </Paper>
           </Grid>
@@ -907,7 +925,7 @@ class Users extends Component {
                                           color="primary"
                                         />
                                       }
-                                      label="Configurer l'informatino des lits."
+                                      label="Configurer l'information des lits."
                                     />
                                   </Paper>
                                 </Grid>
@@ -952,6 +970,18 @@ class Users extends Component {
                                       }
                                       label="Configuration des équipes."
                                     />
+                                    <FormControlLabel
+                                      classes={{ label: classes.checkBoxFont }}
+                                      control={
+                                        <Checkbox
+                                          size="small"
+                                          disabled
+                                          name="MODULE_BEARER_NEW_REQUEST"
+                                          color="primary"
+                                        />
+                                      }
+                                      label="Formuler de nouvelle demande de brancarderie."
+                                    />
                                   </Paper>
                                 </Grid>
                                 <Grid item xs={4}>
@@ -995,6 +1025,19 @@ class Users extends Component {
                                       }
                                       label="Configuration des équipes."
                                     />
+                                    <FormControlLabel
+                                      classes={{ label: classes.checkBoxFont }}
+                                      control={
+                                        <Checkbox
+                                          size="small"
+                                          disabled
+                                          name="MODULE_CLEANER_NEW_REQUEST"
+                                          color="primary"
+                                        />
+                                      }
+                                      label="Formuler de nouvelle demande de nettoyage."
+                                    />
+
                                   </Paper>
                                 </Grid>
                               </React.Fragment>

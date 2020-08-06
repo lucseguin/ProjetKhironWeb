@@ -29,6 +29,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import CheckCircleOutlinedIcon from '@material-ui/icons/CheckCircleOutlined';
 import PlayForWorkOutlinedIcon from '@material-ui/icons/PlayForWorkOutlined';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import * as AR from '../components/AccessRights'
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -149,10 +150,10 @@ function StretcherBearerStatus(props) {
         });
 
         floorListRes.data.forEach( floor => {
-          sectorOptions.push({label:floor.label, _id:floor._id, type:'floor', useSections:floor.useSections});
-          if(floor.useSections) {
+          sectorOptions.push({label:floor.label, _id:floor._id, type:'floor'});
+          if(floor.sections && floor.sections.length > 0 ) {
             floor.sections.forEach( section => {
-              sectorOptions.push({label:floor.label + " " + section.label, _id:section._id, type:'section'});
+              sectorOptions.push({label: " " + section.label, _id:section._id, floorID:floor._id, type:'section'});
             });
           }
         });
@@ -274,19 +275,29 @@ function StretcherBearerStatus(props) {
 
   const handleSelectedFromRequest = (value) => {
     setSelectedFromRequest(value);
-    if(value && ((value.type === "floor" && !value.useSections) || value.type === "section")) {
+    if(value && ((value.type === "floor" ) || value.type === "section")) {
       setLoadingFromBeds(true);
       setShowFromBeds(true);
-
-      //console.log("/projetkhiron/beds/" + value._id);
-
-      axios.get("/projetkhiron/beds/" + value._id)
+      var getFromFloorID = value._id;
+      if(value.type === "section")
+        getFromFloorID = value.floorID;
+      
+      axios.get("/projetkhiron/floor/" + getFromFloorID)
       .then((response) => {
         //console.log(response);
         if(response.status === 200) {
 
+          let beds = [];
+          if(value.type === "floor")
+            beds = response.data.beds;
+          else {
+            let section = response.data.sections.find(o => o._id === value._id);
+            if(section) 
+              beds = section.beds;
+          }
+
           let bedOptions = [];
-          response.data.forEach( bed => {
+          beds.forEach( bed => {
             bedOptions.push({label:bed.label, _id:bed._id, type:'bed'});
           });
           setFromBedList(bedOptions);
@@ -299,6 +310,8 @@ function StretcherBearerStatus(props) {
       }).finally(() => {
 
       });
+
+
     } else {
       setShowFromBeds(false);
       setFromBedList([]);
@@ -307,19 +320,29 @@ function StretcherBearerStatus(props) {
   const handleSelectedToRequest = (value) => {
     setSelectedToRequest(value);
 
-    if(value && ((value.type === "floor" && !value.useSections) || value.type === "section")) {
+    if(value && (value.type === "floor" || value.type === "section")) {
       setLoadingToBeds(true);
       setShowToBeds(true);
 
-      //console.log("/projetkhiron/beds/" + value._id);
-
-      axios.get("/projetkhiron/beds/" + value._id)
+      var getFromFloorID = value._id;
+      if(value.type === "section")
+        getFromFloorID = value.floorID;
+      
+      axios.get("/projetkhiron/floor/" + getFromFloorID)
       .then((response) => {
         //console.log(response);
         if(response.status === 200) {
+          let beds = [];
+          if(value.type === "floor")
+            beds = response.data.beds;
+          else {
+            let section = response.data.sections.find(o => o._id === value._id);
+            if(section) 
+              beds = section.beds;
+          }
 
           let bedOptions = [];
-          response.data.forEach( bed => {
+          beds.forEach( bed => {
             bedOptions.push({label:bed.label, _id:bed._id, type:'bed'});
           });
           setToBedList(bedOptions);
@@ -625,9 +648,11 @@ function StretcherBearerStatus(props) {
         spacing={3}>
 
         <Grid item xs={7} align="right">
+          {(props.userSettings&&AR.MODULE_BEARER_NEW_REQUEST)?
             <Button variant="contained" color="primary" disabled={loadingSettings} startIcon={<AddCircleOutlineIcon />} onClick={() => setOpenNewRequest(true)}>
                 Nouvelle demande
             </Button>
+            :null}
         </Grid>
 
         <Grid item xs={5}>

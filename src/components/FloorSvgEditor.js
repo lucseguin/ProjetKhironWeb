@@ -88,12 +88,13 @@ class FloorSvgEditor extends Component {
       matches = this.incrementMatchesCount(matches.length-1, matches);
     }
 
+    const updatedBeds = [...this.state.beds, ...newBeds];
     this.setState({
-      beds: [...this.state.beds, ...newBeds],
+      beds: updatedBeds,
       modified:true,
     });
 
-    this.onBedUpdates();
+    this.onBedUpdates(updatedBeds);
   }
 
   componentDidMount () {
@@ -168,33 +169,37 @@ class FloorSvgEditor extends Component {
     const selectedBedIndex = beds.findIndex(o => o._id === clickedBedID);
     const selectedBed = beds[selectedBedIndex];
     selectedBed.label = e.target.value;
+    const updatedBeds = [
+      ...beds.slice(0, selectedBedIndex),
+      {
+        ...selectedBed,
+      },
+      ...beds.slice(selectedBedIndex + 1)
+    ];
+
         this.setState({
-          beds: [
-            ...beds.slice(0, selectedBedIndex),
-            {
-              ...selectedBed,
-            },
-            ...beds.slice(selectedBedIndex + 1)
-          ],
+          beds: updatedBeds,
           selectedBed: selectedBed,
           modified:true,
         });
-    this.onBedUpdates();
+    this.onBedUpdates(updatedBeds);
   }
 
   deleteClickedBed(){
     const { beds, clickedBedID } = this.state;
     const selectedBedIndex = beds.findIndex(o => o._id === clickedBedID);
+
+    console.log("Deleting Bed clickedBedID:" + clickedBedID + " selectedBedIndex:" + selectedBedIndex);
+
+    const updatedBeds = [...beds.slice(0, selectedBedIndex), ...beds.slice(selectedBedIndex + 1)];
+
     this.setState({
       clickedBedID :null,
       selectedBed:null,
-      beds: [
-        ...beds.slice(0, selectedBedIndex),
-        ...beds.slice(selectedBedIndex + 1)
-      ],
+      beds: updatedBeds,
       modified:true,
     });
-    this.onBedUpdates();
+    this.onBedUpdates(updatedBeds);
   }
   
   handleMouseUp (e) {
@@ -369,9 +374,12 @@ class FloorSvgEditor extends Component {
       return this.Viewer;
   }
   
-  onBedUpdates() {
+  onBedUpdates(beds=null) {
     if(this.props.onBedUpdates) {
-      this.props.onBedUpdates(this.state.beds);
+      if(beds)
+        this.props.onBedUpdates(beds);
+      else
+        this.props.onBedUpdates(this.state.beds);
     }
   }
   render () {
