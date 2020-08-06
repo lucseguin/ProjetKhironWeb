@@ -324,7 +324,7 @@ class FloorConfigurations extends Component {
     let newFloor = {_id:'-1', label:'Nouvel Étage', description:'Nouvel Étage', layout:'', sections:[], beds:[]};
     
     let updatedFloorDetails = [...this.state.allFloorDetails, newFloor];
-
+    this.floorEditor.editSelectionBeds([]);
     this.setState({selectedFloor:newFloor, allFloorDetails:updatedFloorDetails, selectedSection:null, modified:true, newFloor:true});
   }
 
@@ -507,7 +507,7 @@ class FloorConfigurations extends Component {
       confirmDlgMessage:"Vous avez apporter des modification à l'étage "+currentFloor.label+" qui non pas été sauvegarder. Si vous Continuer tout vos chnagement seront perdus. Clicker sur Annuler opur revenir en arrière et sauvegarder vos changement.", 
       confirmDlgCancelLablel:"Annuler", 
       confirmDlgComfirmLablel:"Continuer", 
-      confirmDlgComfirmAction:() => {this.loadFloorList();this.loadFloorDetailsForEdit(nextFloor)},
+      confirmDlgComfirmAction:() => {this.loadFloorList();this.setState({modified:false, newFloor:false}); this.loadFloorDetailsForEdit(nextFloor); },
     });
     this.confirmDlgRef.current.showDialog();
   }
