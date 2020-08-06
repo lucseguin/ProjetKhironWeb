@@ -219,7 +219,7 @@ export default function SettingsStretcherBearer(props) {
         setSettingsModified(false);
       }
     }).catch(error => {
-      setAlertMessage(error);
+      setAlertMessage(JSON.stringify(error));
       setAlertType("error");
       setOpenAlert(true);
       console.log("error" + error);

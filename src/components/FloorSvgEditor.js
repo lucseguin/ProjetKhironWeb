@@ -5,10 +5,7 @@ import ConfirmDialog from "./ConfirmDialog"
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Popover from '@material-ui/core/Popover';
-import Typography from '@material-ui/core/Typography';
+import { v4 as uuidv4 } from 'uuid';
 
 class FloorSvgEditor extends Component {
   constructor(props){
@@ -18,6 +15,8 @@ class FloorSvgEditor extends Component {
     this.editSelectionBeds = this.editSelectionBeds.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.addNewBeds = this.addNewBeds.bind(this);
+    this.onBedUpdates = this.onBedUpdates.bind(this);
+    
 
     this.svgRef = createRef();
     this.confirmDlgRef = createRef();
@@ -77,7 +76,7 @@ class FloorSvgEditor extends Component {
       //console.log(bedId);
 
       newBeds.push({
-        id: ""+ Date.now() + bedId,
+        _id: uuidv4(),
         label: bedId,
         x : 10+(i*30) + (i*10),
         y : 20 + (i%2*50),
@@ -93,6 +92,8 @@ class FloorSvgEditor extends Component {
       beds: [...this.state.beds, ...newBeds],
       modified:true,
     });
+
+    this.onBedUpdates();
   }
 
   componentDidMount () {
@@ -178,6 +179,7 @@ class FloorSvgEditor extends Component {
           selectedBed: selectedBed,
           modified:true,
         });
+    this.onBedUpdates();
   }
 
   deleteClickedBed(){
@@ -192,12 +194,15 @@ class FloorSvgEditor extends Component {
       ],
       modified:true,
     });
+    this.onBedUpdates();
   }
   
   handleMouseUp (e) {
     //console.log("[FloorSvgEditor]] handleMouseUp");
 
     const { selectedBedID } = this.state;
+    if(selectedBedID && this.state.modified) 
+      this.onBedUpdates();
 
     this.setState({
       selectedBedID: null,
@@ -209,7 +214,7 @@ class FloorSvgEditor extends Component {
         clickedBedID: null,
         selectedBed:null,
       });
-    }
+    } 
   }
 
   handleMouseDown (e) {
@@ -364,6 +369,11 @@ class FloorSvgEditor extends Component {
       return this.Viewer;
   }
   
+  onBedUpdates() {
+    if(this.props.onBedUpdates) {
+      this.props.onBedUpdates(this.state.beds);
+    }
+  }
   render () {
     const {beds, selectedBed, modified} = this.state;
     return (
@@ -407,7 +417,7 @@ class FloorSvgEditor extends Component {
             })}
           </svg>
         </ReactSVGPanZoom>
-
+{/* 
         <Popover
           anchorEl={this.getUpdateSpinnerEL.bind(this)}
           open={this.props.loading}
@@ -432,7 +442,7 @@ class FloorSvgEditor extends Component {
               <Typography>Loading beds...</Typography>
             </Grid>
           </Grid>
-      </Popover>
+      </Popover> */}
 
         <Paper>
           <Grid
@@ -448,17 +458,6 @@ class FloorSvgEditor extends Component {
               <TextField id="edit-bed-id-dis" label="Identifiant du lit" disabled value="" style={{ width: '300px' }}/>
               }
             </Grid>
-            <Grid item >
-            {modified ?
-              <Button  variant="contained" color="primary" >
-                Sauvegarder
-              </Button>
-              :
-              <Button  id="save-btn-diss" variant="contained" color="primary" disabled>
-                Savegarder
-              </Button>
-            }
-              </Grid>
           </Grid>
         </Paper>
       </div>

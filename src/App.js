@@ -15,13 +15,6 @@ import Amplify,  { Auth }  from 'aws-amplify';
 import awsconfig from './aws-exports';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-
-console.log("process.env.REACT_APP_PK_DB_API_ENDPOINT:"+process.env.REACT_APP_PK_DB_API_ENDPOINT);
-
-
 Amplify.configure(awsconfig);
 
 function App() {

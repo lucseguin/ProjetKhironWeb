@@ -122,6 +122,7 @@ function StretcherBearerStatus(props) {
 
     let floorList = axios.get("/projetkhiron/floors");
 
+  
     axios.all([roleSettingsReq, globalSettingsReq, floorList])
     .then(
       axios.spread((...responses) => {
@@ -368,7 +369,7 @@ function StretcherBearerStatus(props) {
         setOpenAlert(true);
       }
     }).catch(error => {
-      setAlertMessage(error);
+      setAlertMessage(JSON.stringify(error));
       setAlertType("error");
       setOpenAlert(true);
       console.log("ERROR");
