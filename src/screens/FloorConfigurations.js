@@ -229,7 +229,7 @@ class FloorConfigurations extends Component {
 
   handleSelectedSection(section) {
     const selectedSectionIndex = this.state.selectedFloor.sections.findIndex(s => s._id === section._id);
-    this.setState({selectedSection:this.state.selectedFloor.sections[selectedSectionIndex], modified:false});
+    this.setState({selectedSection:this.state.selectedFloor.sections[selectedSectionIndex]});
     this.floorEditor.editSelectionBeds(this.state.selectedFloor.sections[selectedSectionIndex].beds);
   }
 
@@ -352,24 +352,27 @@ class FloorConfigurations extends Component {
       if (response.status === 200) {
         //console.log(response);
 
-        // const selectedFloorIndex = this.state.allFloorDetails.findIndex(floor => floor._id === this.state.selectedFloor._id);
+        // 
 
         // let updatedFloorDetail = {...this.state.allFloorDetails[selectedFloorIndex], label: this.state.selectedFloor.label};
         
         //TODO : need to also copy section details only to updatedFloorDetail
 
         if(this.state.newFloor) {
-          //updatedFloorDetail = {...updatedFloorDetail, _id:response.data.insertedId};
+          const selectedFloorIndex = this.state.allFloorDetails.findIndex(floor => floor._id === this.state.selectedFloor._id);
+          let updatedFloorDetail = this.state.allFloorDetails[selectedFloorIndex];
+           updatedFloorDetail = {...updatedFloorDetail, _id:response.data.insertedId};
           let updatedSelectedFloor = {...this.state.selectedFloor, _id:response.data.insertedId};
-          this.setState({selectedFloor:updatedSelectedFloor});
-        }
+          let updatedAllFloorDetails = [
+            ...this.state.allFloorDetails.slice(0, selectedFloorIndex),
+            updatedFloorDetail,
+            ...this.state.allFloorDetails.slice(selectedFloorIndex + 1)
+          ];
+          this.setState({selectedFloor:updatedSelectedFloor,allFloorDetails:updatedAllFloorDetails});
+        } 
 
-        // let updatedAllFloorDetails = [
-        //                 ...this.state.allFloorDetails.slice(0, selectedFloorIndex),
-        //                 updatedFloorDetail,
-        //                 ...this.state.allFloorDetails.slice(selectedFloorIndex + 1)
-        //               ];
-        //allFloorDetails:updatedAllFloorDetails,
+
+        
 
         this.setState({
           openAlert:true, 
