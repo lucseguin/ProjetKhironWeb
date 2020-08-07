@@ -607,7 +607,7 @@ function StretcherBearerStatus(props) {
             </Grid> 
             </Grid> 
 
-            {settings.extra?
+            {settings.extra && settings.extra.length > 0?
             <Grid item>
             <Grid container
               direction="column"
