@@ -153,7 +153,7 @@ function StretcherBearerStatus(props) {
           sectorOptions.push({label:floor.label, _id:floor._id, type:'floor'});
           if(floor.sections && floor.sections.length > 0 ) {
             floor.sections.forEach( section => {
-              sectorOptions.push({label: " " + section.label, _id:section._id, floorID:floor._id, type:'section'});
+              sectorOptions.push({label: " " + section.label, _id:section._id, floorID:floor._id, floorLabel:floor.label, type:'section'});
             });
           }
         });
@@ -364,15 +364,31 @@ function StretcherBearerStatus(props) {
   const handleSendNewRequest = (event) => {
     let fromReq = null;
     let toReq = null;
-    if(selectedBedFromRequest)
-      fromReq = selectedBedFromRequest;
-    else 
+    if(selectedBedFromRequest) {
+      fromReq = {...selectedBedFromRequest};
+      if(selectedFromRequest.type === "section"){
+        fromReq.label = selectedFromRequest.floorLabel + " - "+ selectedFromRequest.label +" - " + fromReq.label;
+        fromReq = {...fromReq, section:selectedFromRequest};
+      } else {
+        fromReq.label = selectedFromRequest.label + " - " + fromReq.label;
+        fromReq = {...fromReq, floor:selectedFromRequest};
+      }
+    } else {
       fromReq = selectedFromRequest;
+    }
 
-    if(selectedBedToRequest)
-      toReq = selectedBedToRequest;
-    else 
+    if(selectedBedToRequest) {
+      toReq = {...selectedBedToRequest};
+      if(selectedToRequest.type === "section") {
+        toReq.label = selectedToRequest.floorLabel + " - "+ selectedToRequest.label +" - " + toReq.label;
+        toReq = {...toReq, section:selectedToRequest};
+      } else {
+        toReq.label = selectedToRequest.label + " - " + toReq.label;
+        toReq = {...toReq, floor:selectedToRequest};
+      }
+    } else {
       toReq = selectedToRequest;
+    }
 
     console.log("[handleSendNewRequest] newRequestOptions");
     console.log(newRequestOptions);

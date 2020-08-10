@@ -4,7 +4,6 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 export default function CleaningIcon(props) {
     return (
       <SvgIcon {...props} viewBox="0 0 947.1 947.101" >
-  
   <g>
           <path d="M901.178,714.9H795.979l-97.601-71.3c-9.5-6.9-22.8-4.9-29.7,4.6c-6.899,9.5-4.899,22.8,4.601,29.7l50.399,37h-33.6
               c-7.2,0-12.8,6.6-11.5,13.7l31,180.199c1,5.601,5.8,9.7,11.5,9.7h74.5h75.5c5.7,0,10.6-4.1,11.5-9.8l30-180.2

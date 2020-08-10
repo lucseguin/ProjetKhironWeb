@@ -363,12 +363,19 @@ function CleaningStatus(props) {
 
   const handleSendNewRequest = (event) => {
     let fromReq = null;
-    let toReq = null;
-    if(selectedBedFromRequest)
-      fromReq = selectedBedFromRequest;
-    else 
+    if(selectedBedFromRequest) {
+      fromReq = {...selectedBedFromRequest};
+      if(selectedFromRequest.type === "section"){
+        fromReq.label = selectedFromRequest.floorLabel + " - "+ selectedFromRequest.label +" - " + fromReq.label;
+        fromReq = {...fromReq, section:selectedFromRequest};
+      } else {
+        fromReq.label = selectedFromRequest.label + " - " + fromReq.label;
+        fromReq = {...fromReq, floor:selectedFromRequest};
+      }
+    } else {
       fromReq = selectedFromRequest;
-
+    }
+    
     // if(selectedBedToRequest)
     //   toReq = selectedBedToRequest;
     // else 
