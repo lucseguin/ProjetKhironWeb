@@ -153,7 +153,7 @@ function CleaningStatus(props) {
           sectorOptions.push({label:floor.label, _id:floor._id, type:'floor'});
           if(floor.sections && floor.sections.length > 0 ) {
             floor.sections.forEach( section => {
-              sectorOptions.push({label: " " + section.label, _id:section._id, floorID:floor._id, type:'section'});
+              sectorOptions.push({label: " " + section.label, _id:section._id, floorID:floor._id, floorLabel:floor.label, type:'section'});
             });
           }
         });
@@ -375,7 +375,7 @@ function CleaningStatus(props) {
     } else {
       fromReq = selectedFromRequest;
     }
-    
+
     // if(selectedBedToRequest)
     //   toReq = selectedBedToRequest;
     // else 
