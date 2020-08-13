@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
-axios.defaults.baseURL = "http://projetkhiron.com:3000";
+axios.defaults.baseURL = "https://projetkhiron.com:3000";
 
 if(process.env.REACT_APP_PK_DB_API_ENDPOINT && process.env.REACT_APP_PK_DB_API_ENDPOINT.trim().length > 0) {
   console.log("process.env.REACT_APP_PK_DB_API_ENDPOINT:"+process.env.REACT_APP_PK_DB_API_ENDPOINT);
