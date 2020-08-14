@@ -312,16 +312,16 @@ export default function SettingsStretcherBearer(props) {
     setSettingsModified(true);
   };
 
-  const handleUseShift = (event) => {
+  const toggleUseShift = (event) => {
     let settingsCopy = {...settings};
-    settingsCopy.useShifts = event.target.value;
+    settingsCopy.useShifts = !settingsCopy.useShifts;
     setSettings(settingsCopy);  
     setSettingsModified(true);
   };
 
-  const handleUseSectors = (event) => {
+  const toggleUseSectors = (event) => {
     let settingsCopy = {...settings};
-    settingsCopy.useSectors = event.target.value;
+    settingsCopy.useSectors = !settingsCopy.useSectors;
     setSettings(settingsCopy);  
     setSettingsModified(true);
   };
@@ -486,7 +486,7 @@ export default function SettingsStretcherBearer(props) {
                             <Checkbox
                               size="small"
                               checked={settings.useShifts}
-                              onChange={handleUseShift}
+                              onChange={toggleUseShift}
                               name="use-bearer-shift-stats"
                               color="primary"
                             />
@@ -553,7 +553,7 @@ export default function SettingsStretcherBearer(props) {
                             <Checkbox
                               size="small"
                               checked={settings.useSectors}
-                              onChange={handleUseSectors}
+                              onChange={toggleUseSectors}
                               name="use-bearer-sector-assignment"
                               color="primary"
                             />
