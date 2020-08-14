@@ -87,6 +87,7 @@ function CleaningStatus(props) {
   const [last30DaysData, setLast30DaysData] = useState([]);
   const [last7DaysData, setLast7DaysData] = useState([]);
   const [last8hoursRequests, setLast8hoursRequests] = useState([]);
+  const [outOfServiceRequests, setOutOfServiceRequests] = useState([]);
   const [last8hoursDataPoints, setLast8hoursDataPoints] = useState([]);
   const [locationList, setLocationList] = useState([]);
   const [openNewRequest, setOpenNewRequest] = useState(false);
@@ -107,7 +108,7 @@ function CleaningStatus(props) {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('');
 
-  const [serviceLevel, setServiceLevel] = useState(0);
+  const [serviceLevel, setServiceLevel] = useState(16);
 
   useEffect(() => {
     setLoadingSettings(true);
@@ -136,9 +137,14 @@ function CleaningStatus(props) {
         if (roleSettingRes.status === 200 && roleSettingRes.data.length === 1) {
           setSettings(roleSettingRes.data[0].settings);
           var timeParts = roleSettingRes.data[0].settings.serviceLevel.split(':'); 
+          var sLevel = 16;
           if(timeParts.length === 3) {
-            setServiceLevel(parseInt(timeParts[0])*60 + parseInt(timeParts[1]));
+            sLevel = parseInt(timeParts[0])*60 + parseInt(timeParts[1]);
+            //console.log("sLevel:"+ sLevel);
           }
+          setServiceLevel(sLevel);
+
+          loadRequestDataEx(sLevel);
         } else {
           console.log(roleSettingRes);
         }
@@ -174,8 +180,6 @@ function CleaningStatus(props) {
     .finally(() => {
       setLoadingSettings(false);
     });
-
-    loadRequestData();
 }, [])
 
   const addZero = (i) => {
@@ -232,6 +236,10 @@ function CleaningStatus(props) {
   }
 
   const loadRequestData = () => {
+    loadRequestDataEx(serviceLevel)
+  }
+  const loadRequestDataEx = (sLevel) => {
+
     setLoadingRequests(true);
 
     let last30Days =  axios.get("/projetkhiron/cleaner/requests/stats", {
@@ -252,17 +260,27 @@ function CleaningStatus(props) {
         }
     });
 
-    axios.all([last30Days, last7Days, last8hours])
+    let bearerAnalysis =  axios.get("/projetkhiron/cleaner/analysis", {
+      params: {
+        type:'outOfService',
+        seviceLevel: sLevel
+        }
+    });
+
+    axios.all([last30Days, last7Days, last8hours, bearerAnalysis])
       .then(
         axios.spread((...responses) => {
           const last30DaysRes = responses[0];
           const last7DaysRes = responses[1];
           const last8hoursRes = responses[2];
+          const bearerAnalysisRes = responses[3];
 
           setLast30DaysData(last30DaysRes.data);
           setLast7DaysData(last7DaysRes.data);
           
           setLast8hoursRequests(last8hoursRes.data);
+
+          setOutOfServiceRequests(bearerAnalysisRes.data);
 
           setLast8hoursDataPoints(binRequests15MinutesOver8Hours(last8hoursRes.data));
 
@@ -323,49 +341,7 @@ function CleaningStatus(props) {
       setFromBedList([]);
     }
   }
-  // const handleSelectedToRequest = (value) => {
-  //   setSelectedToRequest(value);
-
-  //   if(value && (value.type === "floor" || value.type === "section")) {
-  //     //setLoadingToBeds(true);
-  //     setShowToBeds(true);
-
-  //     var getFromFloorID = value._id;
-  //     if(value.type === "section")
-  //       getFromFloorID = value.floorID;
-      
-  //     axios.get("/projetkhiron/floor/" + getFromFloorID)
-  //     .then((response) => {
-  //       //console.log(response);
-  //       if(response.status === 200) {
-  //         let beds = [];
-  //         if(value.type === "floor")
-  //           beds = response.data.beds;
-  //         else {
-  //           let section = response.data.sections.find(o => o._id === value._id);
-  //           if(section) 
-  //             beds = section.beds;
-  //         }
-
-  //         let bedOptions = [];
-  //         beds.forEach( bed => {
-  //           bedOptions.push({label:bed.label, _id:bed._id, type:'bed'});
-  //         });
-  //         setToBedList(bedOptions);
-  //       }
-  //       setLoadingToBeds(false);        
-  //     }).catch(error => {
-  //       console.log("error" +error);
-  //       setLoadingToBeds(false)
-  //       //if (error) throw error;
-  //     }).finally(() => {
-
-  //     });
-  //   } else {
-  //     setShowToBeds(false);
-  //     setToBedList([]);
-  //   }
-  // }
+  
 
   const handleSendNewRequest = (event) => {
     let fromReq = null;
@@ -381,15 +357,6 @@ function CleaningStatus(props) {
     } else {
       fromReq = selectedFromRequest;
     }
-
-    // if(selectedBedToRequest)
-    //   toReq = selectedBedToRequest;
-    // else 
-    //   toReq = selectedToRequest;
-
-    console.log("[handleSendNewRequest] newRequestOptions");
-    console.log(newRequestOptions);
-    
 
     axios.put("/projetkhiron/cleaner/request", {
       from: fromReq,
@@ -414,11 +381,8 @@ function CleaningStatus(props) {
     }).finally(() => {
       loadRequestData();
       setShowFromBeds(false);
-      //setShowToBeds(false);
       setSelectedFromRequest(null);
       setSelectedBedFromRequest(null);
-      //setSelectedToRequest(null);
-      //setSelectedBedToRequest(null);
       setNewRequestOptions([]);
     });
     setOpenNewRequest(false);
@@ -426,11 +390,8 @@ function CleaningStatus(props) {
 
   const handleCancelNewRequest = () => {
     setShowFromBeds(false);
-    //setShowToBeds(false);
     setSelectedFromRequest(null);
     setSelectedBedFromRequest(null);
-    //setSelectedToRequest(null);
-    //setSelectedBedToRequest(null);
     setNewRequestOptions([]);
     setOpenNewRequest(false);
   }
@@ -524,23 +485,23 @@ function CleaningStatus(props) {
       />
     }
   }
+  const formatDaysDiffInHours = (date1, date2) => {
+    
+    var MS_PER_SECOND = 1000
+    var MS_PER_MINUTE = 60 * MS_PER_SECOND;
+    var MS_PER_HOUR = 60 * MS_PER_MINUTE;
 
-  // let toBedsSelection = null;
-  // if(showToBeds) {
-  //   if(loadingToBeds) { 
-  //     toBedsSelection = <Skeleton animation="wave" variant="rect" width={300} height={60} />
-  //   } else {
-  //     toBedsSelection = <Autocomplete
-  //       id="toBedLocation"
-  //       options={toBedList}
-        
-  //       onChange={(event, value, reason) => setSelectedBedToRequest(value)}
-  //       getOptionLabel={(option) => option.label}
-  //       style={{ width: 300 }}
-  //       renderInput={(params) => <TextField {...params} label="Lit" variant="outlined" />}
-  //     />
-  //   }
-  // }
+    var diffInMs = date1.getTime() - date2.getTime();
+    var hours = Math.floor(diffInMs/MS_PER_HOUR);
+    diffInMs = diffInMs - hours*MS_PER_HOUR;
+
+    var minutes = Math.floor(diffInMs/MS_PER_MINUTE);
+    diffInMs = diffInMs - minutes*MS_PER_MINUTE;
+
+    var seconds =  Math.floor(diffInMs/MS_PER_SECOND);
+
+    return "" + addZero(hours) + ":" + addZero(minutes)+ ":" + addZero(seconds);
+  } 
 
   return (
     <div className={classes.root} >
@@ -717,6 +678,58 @@ function CleaningStatus(props) {
             <LoadingLineChart loading={loadingRequests} data={last30DaysData} serviceLevel={serviceLevel} title="Statistiques de nettoyage et salubrité derniers 30 jours"/>
           </Paper>
         </Grid>
+
+        {outOfServiceRequests.length>0?
+        <>
+          <Grid item xs={12}>
+            <Paper>
+            <Grid container
+              direction="column"
+              justify="center"
+              alignItems="center"
+              style={{ padding: 20 }}>
+          <Grid item>
+            <Typography variant="h6" style={{color:'red'}}>
+                  {outOfServiceRequests.length} Demande de nettoyage non completée, hors service qui depassent le niveau de service établit à {settings.serviceLevel}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <TableContainer className={classes.tableContainer} size="small" component={Paper}>
+              <Table className={classes.table} size="small" aria-label={props.title} height="100%">
+                <TableHead>
+                  <TableRow>
+                    <TableCell className={classes.tableHeaderCell} style={{width:30}}></TableCell>
+                    <TableCell className={classes.tableHeaderCell} >Pour</TableCell>
+                    <TableCell className={classes.tableHeaderCell} >Assignée à</TableCell>
+                    <TableCell className={classes.tableHeaderCell} >Demandé le</TableCell>
+                    <TableCell className={classes.tableHeaderCell} >Accepté le</TableCell>
+                    <TableCell className={classes.tableHeaderCell} >Attente</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loadingRequests?
+                    <TableRow><TableCell colSpan={7} ><LinearProgress /></TableCell></TableRow>
+                  :outOfServiceRequests.map((request) => (
+                    <TableRow key={request._id}>
+                      <TableCell style={{width:30}}>
+                        {request.assignedOn==='1970-01-01T00:00:00.000Z'?<PlayForWorkOutlinedIcon className={classes.statusIcons}/>:request.completedOn==='1970-01-01T00:00:00.000Z'?<CircularProgress size={20}/>:<CheckCircleOutlinedIcon size={20}/>}
+                      </TableCell>
+                      <TableCell >{request.from.label}</TableCell>
+                      <TableCell >{request.assigned?request.assigned.label:null}</TableCell>
+                      <TableCell >{new Date(request.requestedOn).toLocaleString('fr-CA', {dateStyle:"short", timeStyle:"short", hour12:false})}</TableCell>                   
+                      <TableCell >{request.assignedOn!=='1970-01-01T00:00:00.000Z'?new Date(request.assignedOn).toLocaleString('fr-CA', {dateStyle:"short", timeStyle:"short", hour12:false}):null}</TableCell>
+                      <TableCell style={{color:'red'}}>[{formatDaysDiffInHours(new Date(), new Date(request.requestedOn))}]</TableCell>
+                  </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+          </Grid>
+        </Paper>
+        </Grid>
+        </>
+        :null}
       </Grid>
     </div>
   );
