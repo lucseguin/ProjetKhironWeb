@@ -173,9 +173,14 @@ export default function GlobalSettings(props) {
             <Table size="small" style={{verticalAlign: 'top', alignItems: 'top', justifyContent: 'top', }}>
               <TableBody >
                 <TableRow >
-                  <TableCell colSpan={3}>
+                  <TableCell colSpan={2}>
                     <Typography variant="h6" gutterBottom>
                       Configurations Systèmes
+                    </Typography>  
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography variant="subtitle1" gutterBottom>
+                      v0.9.0-20200814
                     </Typography>  
                   </TableCell>
                 </TableRow>

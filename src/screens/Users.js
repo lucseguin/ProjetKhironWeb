@@ -24,6 +24,12 @@ import axios from 'axios';
 import UserAccountStatus from "../components/UserAccountStatus"
 import LinearProgress from '@material-ui/core/LinearProgress';
 import * as AR from '../components/AccessRights'
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = theme => ({
   tableContainer: {
@@ -133,8 +139,6 @@ function UserAccountsTable(props) {
   );
 }
 
-
-
 function RolesTable(props) {
   const classes = makeStyles(useStyles)();
   let allRolesRows = null;
@@ -148,9 +152,11 @@ function RolesTable(props) {
           </IconButton >
         </TableCell>
         <TableCell className={classes.iconTableCell}>
+          {!row.protected?
           <IconButton aria-label="delete role" size="small">
             <DeleteIcon />
           </IconButton >
+          :null}
         </TableCell>
       </TableRow>
     ));
@@ -181,20 +187,52 @@ function RolesTable(props) {
 function RoleDetails(props) {
   const classes = makeStyles(useStyles)();
   const [isModified, setModified] = useState(false);
+  const [name, setName] = useState(props.role.name);
   const [label, setLabel] = useState(props.role.label);
   const [settings, setSettings] = useState(props.role.settings.options);
-
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
   useEffect(() => {
     setModified(false);
+    setName(props.role.name);
     setLabel(props.role.label);
     setSettings(props.role.settings.options);
   }, [props]);
 
   const onNameChangeHandler = (event) => {
     setLabel(event.target.value);
-    setSettings(props.role.settings.options);
     setModified(true);
   }
+  const handleSaveRoleSettingsChange = (event) => {
+    axios.put("/projetkhiron/roles/options", {
+      name: name,
+      label:label,
+      options: settings,
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        setAlertMessage("Sauvegarder");
+        setAlertType("success");
+        setOpenAlert(true);
+        setModified(false);
+      }
+    }).catch(error => {
+      setAlertMessage(JSON.stringify(error));
+      setAlertType("error");
+      setOpenAlert(true);
+      console.log("error" + error);
+    }).finally(() => {
+      
+    });
+  }
+  const handleCloseAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
 
   const handleRoleSettingChange = (event) => {
     switch (event.target.name) {
@@ -208,7 +246,7 @@ function RoleDetails(props) {
       case 'MODULE_BEDS_VIEW':
         setSettings((event.target.checked) ? (settings | AR.MODULE_BEDS_VIEW) : (settings & ~AR.MODULE_BEDS_VIEW));
         break;
-      case 'MODULE_BEDS_UPDATE ':
+      case 'MODULE_BEDS_UPDATE':
         setSettings((event.target.checked) ? (settings | AR.MODULE_BEDS_UPDATE) : (settings & ~AR.MODULE_BEDS_UPDATE));
         break;
       case 'MODULE_BEDS_CONFIG_FLOOR':
@@ -489,16 +527,15 @@ function RoleDetails(props) {
       <Grid container item xs={12} spacing={3}>
         <React.Fragment>
           <Grid item xs={4}>
-            {isModified ?
-              <Button variant="contained" color="primary" >
+              <Button variant="contained" color="primary" disabled={!isModified} onClick={handleSaveRoleSettingsChange}>
                 Sauvegarder
                 </Button>
-              :
-              <Button variant="contained" color="primary" disabled>
-                Sauvegarder
-                </Button>
-            }
           </Grid>
+          <Snackbar open={openAlert} autoHideDuration={1000} onClose={handleCloseAlert}>
+            <Alert onClose={handleCloseAlert} severity={alertType}>
+              {alertMessage}
+            </Alert>
+          </Snackbar>
         </React.Fragment>
       </Grid>
     </Grid>);
@@ -627,7 +664,6 @@ function UserAccountDetails(props) {
   );
 }
 
-
 class Users extends Component {
   constructor(props) {
     super(props);
@@ -635,7 +671,6 @@ class Users extends Component {
 
   }
   
-
   state = {
     userFilter: '',
     allAccounts : [],
@@ -1047,7 +1082,7 @@ class Users extends Component {
                                 <Grid item xs={4}>
                                   <Button variant="contained" color="primary" disabled>
                                     Sauvegarder
-                </Button>
+                                  </Button>
                                 </Grid>
                               </React.Fragment>
                             </Grid>

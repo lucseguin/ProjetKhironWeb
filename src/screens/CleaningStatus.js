@@ -107,6 +107,8 @@ function CleaningStatus(props) {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('');
 
+  const [serviceLevel, setServiceLevel] = useState(0);
+
   useEffect(() => {
     setLoadingSettings(true);
     let roleSettingsReq = axios.get("/projetkhiron/roles", {
@@ -133,6 +135,10 @@ function CleaningStatus(props) {
 
         if (roleSettingRes.status === 200 && roleSettingRes.data.length === 1) {
           setSettings(roleSettingRes.data[0].settings);
+          var timeParts = roleSettingRes.data[0].settings.serviceLevel.split(':'); 
+          if(timeParts.length === 3) {
+            setServiceLevel(parseInt(timeParts[0])*60 + parseInt(timeParts[1]));
+          }
         } else {
           console.log(roleSettingRes);
         }
@@ -667,7 +673,7 @@ function CleaningStatus(props) {
           </Typography>
         </Grid>
         <Grid item>
-          <LoadingLineChart loading={loadingRequests} data={last8hoursDataPoints} label="Demande de nettoyage et salubrité derniers 8 heures" />
+          <LoadingLineChart loading={loadingRequests} data={last8hoursDataPoints} serviceLevel={serviceLevel} label="Demande de nettoyage et salubrité derniers 8 heures" />
         </Grid>
         <Grid item>
           <TableContainer className={classes.tableContainer} size="small" component={Paper}>
@@ -707,8 +713,8 @@ function CleaningStatus(props) {
 
         <Grid item xs={5}>
           <Paper>
-            <LoadingLineChart loading={loadingRequests} data={last7DaysData} title="Statistiques de nettoyage et salubrité derniers 7 jours"/>
-            <LoadingLineChart loading={loadingRequests} data={last30DaysData} title="Statistiques de nettoyage et salubrité derniers 30 jours"/>
+            <LoadingLineChart loading={loadingRequests} data={last7DaysData} serviceLevel={serviceLevel} title="Statistiques de nettoyage et salubrité derniers 7 jours"/>
+            <LoadingLineChart loading={loadingRequests} data={last30DaysData} serviceLevel={serviceLevel} title="Statistiques de nettoyage et salubrité derniers 30 jours"/>
           </Paper>
         </Grid>
       </Grid>
