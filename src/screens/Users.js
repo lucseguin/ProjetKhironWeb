@@ -283,7 +283,18 @@ function RoleDetails(props) {
         setSettings((event.target.checked) ? (settings | AR.MODULE_CLEANER_NEW_REQUEST) : (settings & ~AR.MODULE_CLEANER_NEW_REQUEST));
         break;
         
-
+      case 'ROLE_MOBILE_SILENCE_NOTIFICATIONS':
+        setSettings((event.target.checked) ? (settings | AR.ROLE_MOBILE_SILENCE_NOTIFICATIONS) : (settings & ~AR.ROLE_MOBILE_SILENCE_NOTIFICATIONS));
+        break;
+      case 'ROLE_MOBILE_HIDE_REQUESTS':
+        setSettings((event.target.checked) ? (settings | AR.ROLE_MOBILE_HIDE_REQUESTS) : (settings & ~AR.ROLE_MOBILE_HIDE_REQUESTS));
+        break;   
+      case 'ROLE_MOBILE_OOS_STATS':
+        setSettings((event.target.checked) ? (settings | AR.ROLE_MOBILE_OOS_STATS) : (settings & ~AR.ROLE_MOBILE_OOS_STATS));
+        break;  
+      case 'ROLE_MOBILE_ADJUST_SERVICE_LEVEL':
+        setSettings((event.target.checked) ? (settings | AR.ROLE_MOBILE_ADJUST_SERVICE_LEVEL) : (settings & ~AR.ROLE_MOBILE_ADJUST_SERVICE_LEVEL));
+        break;  
       default:
         break;
     }
@@ -324,7 +335,7 @@ function RoleDetails(props) {
           <Grid item xs={6}>
             <Paper className={classes.rolePropertySections}>
               <Typography variant="subtitle1">
-                Restrictions
+                Application Mobile
               </Typography>
               <FormControlLabel
                 classes={{ label: classes.checkBoxFont }}
@@ -337,7 +348,59 @@ function RoleDetails(props) {
                     color="primary"
                   />
                 }
-                label="Accès application mobile seulement dans le périmètre."
+                label="Accès diponible seulement dans le périmètre."
+              />
+               <FormControlLabel
+                classes={{ label: classes.checkBoxFont }}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={((settings & AR.ROLE_MOBILE_SILENCE_NOTIFICATIONS) === AR.ROLE_MOBILE_SILENCE_NOTIFICATIONS)}
+                    onChange={handleRoleSettingChange}
+                    name="ROLE_MOBILE_SILENCE_NOTIFICATIONS"
+                    color="primary"
+                  />
+                }
+                label="Taire les notifications."
+              />
+              <FormControlLabel
+                classes={{ label: classes.checkBoxFont }}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={((settings & AR.ROLE_MOBILE_HIDE_REQUESTS) === AR.ROLE_MOBILE_HIDE_REQUESTS)}
+                    onChange={handleRoleSettingChange}
+                    name="ROLE_MOBILE_HIDE_REQUESTS"
+                    color="primary"
+                  />
+                }
+                label="Masquer les demandes."
+              />
+              <FormControlLabel
+                classes={{ label: classes.checkBoxFont }}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={((settings & AR.ROLE_MOBILE_OOS_STATS) === AR.ROLE_MOBILE_OOS_STATS)}
+                    onChange={handleRoleSettingChange}
+                    name="ROLE_MOBILE_OOS_STATS"
+                    color="primary"
+                  />
+                }
+                label="Visualiser les statistiques des demandes hors service"
+              />
+              <FormControlLabel
+                classes={{ label: classes.checkBoxFont }}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={((settings & AR.ROLE_MOBILE_ADJUST_SERVICE_LEVEL) === AR.ROLE_MOBILE_ADJUST_SERVICE_LEVEL)}
+                    onChange={handleRoleSettingChange}
+                    name="ROLE_MOBILE_ADJUST_SERVICE_LEVEL"
+                    color="primary"
+                  />
+                }
+                label="Ajuster les niveaux de services"
               />
             </Paper>
           </Grid>
@@ -435,7 +498,7 @@ function RoleDetails(props) {
                 }
                 label="Modifier l'état des demandes."
               />
-              <FormControlLabel
+              {/* <FormControlLabel
                 classes={{ label: classes.checkBoxFont }}
                 control={
                   <Checkbox
@@ -447,7 +510,7 @@ function RoleDetails(props) {
                   />
                 }
                 label="Configuration des équipes."
-              />
+              /> */}
               <FormControlLabel
                 classes={{ label: classes.checkBoxFont }}
                 control={
@@ -494,7 +557,7 @@ function RoleDetails(props) {
                 }
                 label="Modifier l'état des demandes."
               />
-              <FormControlLabel
+              {/* <FormControlLabel
                 classes={{ label: classes.checkBoxFont }}
                 control={
                   <Checkbox
@@ -506,7 +569,7 @@ function RoleDetails(props) {
                   />
                 }
                 label="Configuration des équipes."
-              />
+              /> */}
               <FormControlLabel
                 classes={{ label: classes.checkBoxFont }}
                 control={
@@ -889,8 +952,8 @@ class Users extends Component {
                                 <Grid item xs={6}>
                                   <Paper className="rolePropertySections">
                                     <Typography variant="subtitle1">
-                                      Restrictions
-              </Typography>
+                                      Application Mobile
+                                    </Typography>
                                     <FormControlLabel
                                       classes={{ label: classes.checkBoxFont }}
                                       control={
@@ -901,8 +964,56 @@ class Users extends Component {
                                           color="primary"
                                         />
                                       }
-                                      label="Accès application mobile seulement dans le périmètre."
+                                      label="Accès disponible seulement dans le périmètre."
                                     />
+                                  <FormControlLabel
+                                    classes={{ label: classes.checkBoxFont }}
+                                    control={
+                                      <Checkbox
+                                        size="small"
+                                        disabled
+                                        name="ROLE_MOBILE_SILENCE_NOTIFICATIONS"
+                                        color="primary"
+                                      />
+                                    }
+                                    label="Taire les notifications."
+                                  />
+                                  <FormControlLabel
+                                    classes={{ label: classes.checkBoxFont }}
+                                    control={
+                                      <Checkbox
+                                        size="small"
+                                        disabled
+                                        name="ROLE_MOBILE_HIDE_REQUESTS"
+                                        color="primary"
+                                      />
+                                    }
+                                    label="Masquer les demandes."
+                                  />
+                                  <FormControlLabel
+                                    classes={{ label: classes.checkBoxFont }}
+                                    control={
+                                      <Checkbox
+                                        size="small"
+                                        disabled
+                                        name="ROLE_MOBILE_OOS_STATS"
+                                        color="primary"
+                                      />
+                                    }
+                                    label="Visualiser les statistiques des demandes hors service"
+                                  />
+                                  <FormControlLabel
+                                    classes={{ label: classes.checkBoxFont }}
+                                    control={
+                                      <Checkbox
+                                        size="small"
+                                        disabled
+                                        name="ROLE_MOBILE_ADJUST_SERVICE_LEVEL"
+                                        color="primary"
+                                      />
+                                    }
+                                    label="Ajuster les niveaux de services"
+                                  />
                                   </Paper>
                                 </Grid>
                               </React.Fragment>
@@ -993,7 +1104,7 @@ class Users extends Component {
                                       }
                                       label="Modifier l'état des demandes."
                                     />
-                                    <FormControlLabel
+                                    {/* <FormControlLabel
                                       classes={{ label: classes.checkBoxFont }}
                                       control={
                                         <Checkbox
@@ -1004,7 +1115,7 @@ class Users extends Component {
                                         />
                                       }
                                       label="Configuration des équipes."
-                                    />
+                                    /> */}
                                     <FormControlLabel
                                       classes={{ label: classes.checkBoxFont }}
                                       control={
@@ -1048,7 +1159,7 @@ class Users extends Component {
                                       }
                                       label="Modifier l'état des demandes."
                                     />
-                                    <FormControlLabel
+                                    {/* <FormControlLabel
                                       classes={{ label: classes.checkBoxFont }}
                                       control={
                                         <Checkbox
@@ -1059,7 +1170,7 @@ class Users extends Component {
                                         />
                                       }
                                       label="Configuration des équipes."
-                                    />
+                                    /> */}
                                     <FormControlLabel
                                       classes={{ label: classes.checkBoxFont }}
                                       control={
