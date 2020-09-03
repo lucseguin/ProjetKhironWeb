@@ -60,22 +60,22 @@ export default function PropertyEditor(props) {
     }
 
     const handlePropTypeChange = (event) => {
-        let updatedSelection = { ...selectedProperty, type: event.target.value };
+        let updatedSelection = { ...selectedProperty, type: event.target.value, required: false};
         if (event.target.value === Properties.TEXT_PROPERTY) {
-            updatedSelection = { ...selectedProperty, type: Properties.TEXT_PROPERTY, mlAlgo: '', max: 0, mandatory: false };
+            updatedSelection = { ...selectedProperty, type: Properties.TEXT_PROPERTY, mlAlgo: '', max: 0, required: false };
         } else if (event.target.value === Properties.NUM_PROPERTY) {
-            updatedSelection = { ...selectedProperty, type: Properties.NUM_PROPERTY, mlAlgo: '', max: 365, min: 0 };
+            updatedSelection = { ...selectedProperty, type: Properties.NUM_PROPERTY, mlAlgo: '', max: 365, min: 0, required: false  };
         } else if (event.target.value === Properties.LIST_PROPERTY) {
-            updatedSelection = { ...selectedProperty, type: Properties.LIST_PROPERTY, multi: false, items: [] };
+            updatedSelection = { ...selectedProperty, type: Properties.LIST_PROPERTY, multi: false, items: [], required: false  };
         } else if (event.target.value === Properties.DB_LINK_PROPERTY) {
-            updatedSelection = { ...selectedProperty, type: Properties.DB_LINK_PROPERTY, items: [] };
+            updatedSelection = { ...selectedProperty, type: Properties.DB_LINK_PROPERTY, items: [], required: false };
         }
         setSelectedProperty(updatedSelection);
         props.onChange(updatedSelection);
     }
 
     const handlePropMandatoryChange = (event) => {
-        let updatedSelection = { ...selectedProperty, mandatory: event.target.checked };
+        let updatedSelection = { ...selectedProperty, required: event.target.checked };
         setSelectedProperty(updatedSelection);
         props.onChange(updatedSelection);
     }
@@ -194,10 +194,10 @@ export default function PropertyEditor(props) {
                     control={
                         <Checkbox
                             size="small"
-                            name="user-prop-text-mandatory-check"
-                            id="user-prop-text-mandatory-check"
+                            name="user-prop-text-mandatory-check-2"
+                            id="user-prop-text-mandatory-check-2"
                             color="primary"
-                            checked={selectedProperty.mandatory}
+                            checked={selectedProperty.required}
                             onChange={handlePropMandatoryChange}
                         />
                     }
@@ -237,7 +237,21 @@ export default function PropertyEditor(props) {
                             {mlAlgo.text}
                         </MenuItem>
                     ))}
-                </TextField>
+                </TextField>,
+                <FormControlLabel
+                    key="user-prop-num-mandatory-check"
+                    control={
+                        <Checkbox
+                            size="small"
+                            name="user-prop-num-mandatory-check-2"
+                            id="user-prop-num-mandatory-check-2"
+                            color="primary"
+                            checked={selectedProperty.required}
+                            onChange={handlePropMandatoryChange}
+                        />
+                    }
+                    label="Entrée obligatoire"
+                />
             ];
         } else if (selectedProperty.type === Properties.LIST_PROPERTY) { //liste
             selectedPropertyElement = [selectedPropertyElement,
@@ -247,18 +261,36 @@ export default function PropertyEditor(props) {
                             <TableRow>
                                 <TableCell style={{ width: '100%', borderBottom: 'none' }}>
                                     <FormControlLabel
-                                        key="user-prop-text-mandatory-check"
+                                        key="user-prop-list-multi"
                                         control={
                                             <Checkbox
                                                 size="small"
-                                                name="user-prop-list-multi"
-                                                id="user-prop-list-multi"
+                                                name="user-prop-list-multi-2"
+                                                id="user-prop-list-multi-2"
                                                 color="primary"
                                                 checked={selectedProperty.multi}
                                                 onChange={handlePropListMultiChange}
                                             />
                                         }
                                         label="Multi selection"
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell style={{ width: '100%', borderBottom: 'none' }}>
+                                    <FormControlLabel
+                                        key="user-prop-list-mandatory-check"
+                                        control={
+                                            <Checkbox
+                                                size="small"
+                                                name="user-prop-list-mandatory-check-2"
+                                                id="user-prop-list-mandatory-check-2"
+                                                color="primary"
+                                                checked={selectedProperty.required}
+                                                onChange={handlePropMandatoryChange}
+                                            />
+                                        }
+                                        label="Sélection obligatoire"
                                     />
                                 </TableCell>
                             </TableRow>
@@ -306,6 +338,24 @@ export default function PropertyEditor(props) {
                 <TableContainer key="tbl-cont-prop-db-list" size="small" style={{ border: '1px' }} >
                     <Table size="small" >
                         <TableBody>
+                        <TableRow>
+                                <TableCell style={{ width: '100%', borderBottom: 'none' }}>
+                                    <FormControlLabel
+                                        key="user-prop-db-mandatory-check"
+                                        control={
+                                            <Checkbox
+                                                size="small"
+                                                name="user-prop-db-mandatory-check-2"
+                                                id="user-prop-db-mandatory-check-2"
+                                                color="primary"
+                                                checked={selectedProperty.required}
+                                                onChange={handlePropMandatoryChange}
+                                            />
+                                        }
+                                        label="Entrée obligatoire"
+                                    />
+                                </TableCell>
+                            </TableRow>
                             <TableRow>
                                 <TableCell align='right' style={{ width: '100%', borderBottom: 'none' }}>
                                     <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} >
@@ -313,6 +363,7 @@ export default function PropertyEditor(props) {
                       </Button>
                                 </TableCell>
                             </TableRow>
+
                             <TableRow>
                                 <TableCell style={{ borderBottom: 'none' }}>
                                     <Paper elevation={3} >

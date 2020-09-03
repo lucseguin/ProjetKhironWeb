@@ -563,7 +563,7 @@ export default function SettingsCleaning(props) {
                       </Grid>
                       <Grid item xs={4}>
                         <Typography variant="subtitle1" gutterBottom>
-                          Temps de service viser
+                          Délai de réalisation souhaité 
                         </Typography>  
                       </Grid>
                       <Grid item xs={8}>

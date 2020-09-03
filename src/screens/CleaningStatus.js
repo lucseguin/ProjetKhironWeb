@@ -37,7 +37,7 @@ function Alert(props) {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    //flexGrow: 1,
     //backgroundColor: theme.palette.background.paper,
     display: 'flex',
     height: '100vh',
@@ -80,6 +80,7 @@ function CleaningStatus(props) {
   const [settings, setSettings] = useState({extra:[], algos:[], selectedAlgo:'', useShifts:false, shifts:[], useSectors:false});
   const [newRequestOptions, setNewRequestOptions] = useState([]);
   const [newRequestOptionsText, setNewRequestOptionsText] = useState([]);
+  const [missingRequiredOptions, setMissingRequiredOptions] = useState([]);
   const [globalSettings, setGlobalSettings] = useState({departments:[]});
   const [loadingSettings, setLoadingSettings] = useState(false);
 
@@ -342,8 +343,26 @@ function CleaningStatus(props) {
     }
   }
   
-
   const handleSendNewRequest = (event) => {
+
+    //confirm that all required filed have been populated in newRequestOptions
+    var scanMissingRequiredOptions = [];
+    settings.extra.forEach(property => {
+      if(property.required) {
+        if(newRequestOptions.findIndex(o => o._id === property._id) === -1) { //required property value not provided
+          scanMissingRequiredOptions.push(property._id);
+        }
+      }
+    });
+
+    setMissingRequiredOptions([...scanMissingRequiredOptions]);
+    if(scanMissingRequiredOptions.length > 0) {
+      setAlertMessage("Valeur obligatoire manquante");
+      setAlertType("error");
+      setOpenAlert(true);
+      return;
+    }
+
     let fromReq = null;
     if(selectedBedFromRequest) {
       fromReq = {...selectedBedFromRequest};
@@ -435,10 +454,11 @@ function CleaningStatus(props) {
     let newRequestOptionsCopyText = [...newRequestOptionsText];
     const selectedPropertyTextValuendex = newRequestOptionsCopyText.findIndex(o => o._id === property._id);
     if(selectedPropertyTextValuendex === -1) { //new
-      setNewRequestOptionsText([...newRequestOptionsCopyText, {_id:property._id, label:property.text, value:label}]);
+      setNewRequestOptionsText([...newRequestOptionsCopyText, {_id:property._id, label:property.text, value:label, valueId:value}]);
     } else { //update
       let copyOption = {...newRequestOptionsCopyText[selectedPropertyTextValuendex]};
       copyOption.value = label;
+      copyOption.valueId = value;
       setNewRequestOptionsText([
         ...newRequestOptionsCopyText.slice(0, selectedPropertyTextValuendex),
         copyOption,
@@ -566,37 +586,34 @@ function CleaningStatus(props) {
               </Grid> 
             </Grid> 
             </Grid> 
-
             {settings.extra && settings.extra.length > 0?
             <Grid item>
-            <Grid container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-              style={{ padding: 10, width: '100%' }}
-              spacing={1}>
-              <Grid xs item>
-                <Typography variant="subtitle1">
-                  Options
-                </Typography>
-              </Grid>
-
-              {settings.extra.map((property) => (
-                <Grid item key={property._id}>
-                  <PropertySelector 
-                    label={property.text} 
-                    value={getNewRequestValueFor(property)} 
-                    onChange={(e) => handleNewRequestPropertyChange(property, e)} 
-                    extra={property}
-                    style={{width:200}}/>
+              <Grid container
+                direction="column"
+                justify="flex-start"
+                alignItems="flex-start"
+                style={{ padding: 10, width: '100%' }}
+                spacing={1}>
+                <Grid xs item>
+                  <Typography variant="subtitle1">
+                    Options
+                  </Typography>
                 </Grid>
-              ))}
-            </Grid>
-            </Grid>
-            :null}
+                {settings.extra.map((property) => (
+                  <Grid item key={property._id}>
+                    <PropertySelector 
+                      key={property._id+ "-prop"}
+                      label={property.text} 
+                      value={getNewRequestValueFor(property)} 
+                      onChange={(e) => handleNewRequestPropertyChange(property, e)} 
+                      extra={property}
+                      error={(missingRequiredOptions.findIndex(o => o === property._id) !== -1)?true:false}
+                      style={{width:200}}/>
+                  </Grid>
+                ))}
+              </Grid>
+              </Grid>:null}
           </Grid>
-
-
           </div>
         </Fade>
       </Modal>
@@ -690,7 +707,7 @@ function CleaningStatus(props) {
               style={{ padding: 20 }}>
           <Grid item>
             <Typography variant="h6" style={{color:'red'}}>
-                  {outOfServiceRequests.length} Demande de nettoyage non completée, hors service qui depassent le niveau de service établit à {settings.serviceLevel}
+                  {outOfServiceRequests.length} Demande de nettoyage pour départs et transferts en attente, dépassant le délai de réalisation souhaité établit à {settings.serviceLevel}
             </Typography>
           </Grid>
           <Grid item>

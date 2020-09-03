@@ -80,6 +80,7 @@ function StretcherBearerStatus(props) {
   const [settings, setSettings] = useState({extra:[], algos:[], selectedAlgo:'', useShifts:false, shifts:[], useSectors:false});
   const [newRequestOptions, setNewRequestOptions] = useState([]);
   const [newRequestOptionsText, setNewRequestOptionsText] = useState([]);
+  const [missingRequiredOptions, setMissingRequiredOptions] = useState([]);
   const [globalSettings, setGlobalSettings] = useState({departments:[]});
   const [loadingSettings, setLoadingSettings] = useState(false);
 
@@ -295,8 +296,6 @@ function StretcherBearerStatus(props) {
       });
   }
 
-
-
   const handleSelectedFromRequest = (value) => {
     setSelectedFromRequest(value);
     if(value && ((value.type === "floor" ) || value.type === "section")) {
@@ -341,6 +340,7 @@ function StretcherBearerStatus(props) {
       setFromBedList([]);
     }
   }
+
   const handleSelectedToRequest = (value) => {
     setSelectedToRequest(value);
 
@@ -386,8 +386,27 @@ function StretcherBearerStatus(props) {
   }
 
   const handleSendNewRequest = (event) => {
+    //confirm that all required filed have been populated in newRequestOptions
+    var scanMissingRequiredOptions = [];
+    settings.extra.forEach(property => {
+      if(property.required) {
+        if(newRequestOptions.findIndex(o => o._id === property._id) === -1) { //required property value not provided
+          scanMissingRequiredOptions.push(property._id);
+        }
+      }
+    });
+
+    setMissingRequiredOptions([...scanMissingRequiredOptions]);
+    if(scanMissingRequiredOptions.length > 0) {
+      setAlertMessage("Valeur obligatoire manquante");
+      setAlertType("error");
+      setOpenAlert(true);
+      return;
+    }
+    
     let fromReq = null;
     let toReq = null;
+
     if(selectedBedFromRequest) {
       fromReq = {...selectedBedFromRequest};
       if(selectedFromRequest.type === "section"){
@@ -417,7 +436,6 @@ function StretcherBearerStatus(props) {
     console.log("[handleSendNewRequest] newRequestOptions");
     console.log(newRequestOptions);
     
-
     axios.put("/projetkhiron/bearer/request", {
       from: fromReq,
       to: toReq,
@@ -501,10 +519,11 @@ function StretcherBearerStatus(props) {
     let newRequestOptionsCopyText = [...newRequestOptionsText];
     const selectedPropertyTextValuendex = newRequestOptionsCopyText.findIndex(o => o._id === property._id);
     if(selectedPropertyTextValuendex === -1) { //new
-      setNewRequestOptionsText([...newRequestOptionsCopyText, {_id:property._id, label:property.text, value:label}]);
+      setNewRequestOptionsText([...newRequestOptionsCopyText, {_id:property._id, label:property.text, value:label, valueId:value}]);
     } else { //update
       let copyOption = {...newRequestOptionsCopyText[selectedPropertyTextValuendex]};
       copyOption.value = label;
+      copyOption.valueId = value;
       setNewRequestOptionsText([
         ...newRequestOptionsCopyText.slice(0, selectedPropertyTextValuendex),
         copyOption,
@@ -681,10 +700,12 @@ function StretcherBearerStatus(props) {
               {settings.extra.map((property) => (
                 <Grid item key={property._id}>
                   <PropertySelector 
+                    key={property._id+ "-prop"}
                     label={property.text} 
                     value={getNewRequestValueFor(property)} 
                     onChange={(e) => handleNewRequestPropertyChange(property, e)} 
                     extra={property}
+                    error={(missingRequiredOptions.findIndex(o => o === property._id) !== -1)?true:false}
                     style={{width:200}}/>
                 </Grid>
               ))}
@@ -786,7 +807,7 @@ function StretcherBearerStatus(props) {
               style={{ padding: 20 }}>
           <Grid item>
             <Typography variant="h6" style={{color:'red'}}>
-                  {outOfServiceRequests.length} Demande de brancarderie non completée, hors service qui depassent le niveau de service établit à {settings.serviceLevel}
+                  {outOfServiceRequests.length} Demande de brancarderie en attente, dépassant le délai de réalisation souhaité établit à {settings.serviceLevel}
             </Typography>
           </Grid>
           <Grid item>
