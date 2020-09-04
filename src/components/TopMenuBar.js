@@ -120,18 +120,10 @@ export default function TopMenuBar(props) {
       props.onThemeChange('light');
   }
 
-  let avatarIcon = <Avatar ></Avatar>;
-  if (props.user.role.name === "bearer")
-    avatarIcon = <Avatar ><TransferWithinAStationOutlinedIcon/></Avatar>;
-  else if (props.user.role.name === "cleaner")
-    avatarIcon = <Avatar ><CleaningIcon/></Avatar>;
-  
-  // Auth.currentAuthenticatedUser()
-  // .then(user => {
-  //   console.log(user);
-  //   avatarIcon = <Avatar >LS</Avatar>;
-  // })
-  // .catch(err => console.log(err));
+  const extractInitials = (userInfo) => {
+    return ((userInfo.firstName && userInfo.firstName.length > 1)?userInfo.firstName.charAt(0):'') + ((userInfo.lastName && userInfo.lastName.length > 1)?userInfo.lastName.charAt(0):'');
+  }
+  let avatarIcon = <Avatar>{extractInitials(props.user)}</Avatar>;
 
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
