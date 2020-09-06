@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   }));
 
   
-export default function LoadingLineChart(props) {
+export default function VisitorCountChart(props) {
     const classes = useStyles();
     
     let graph = null;
@@ -27,19 +27,13 @@ export default function LoadingLineChart(props) {
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis yAxisId="left" label={<Label value="Nombre" angle={-90} className={classes.label}/> } />
-              <YAxis yAxisId="right" orientation="right"  label={<Label value="Minutes" angle={-90} className={classes.label} /> }/>
+              <XAxis dataKey="requestedOn" />
+              <YAxis yAxisId="left" />
 
               <Tooltip labelStyle={{color:'black'}}/>
               <Legend />
               
-              <Bar yAxisId="left" type="monotone" name="Demande fait" dataKey="requested" barSize={20} stroke="#3366ff" fill="#3366ff"/>
-              <Line yAxisId="left" type="monotone" name="Demande complété" dataKey="completed" stroke="#009933"  />
-              {props.serviceLevel && props.serviceLevel > 0?
-              <ReferenceLine yAxisId="right" y={props.serviceLevel} label={<Label value="Délai de réalisation souhaité" className={classes.label} /> } stroke="red" strokeDasharray="3 3" />
-              :null}
-              <Area  yAxisId="right" type="monotone" name="Temps moyen pour complété" dataKey="averageTime" stroke="#ffcc66" fill="#ffcc66"/>
+              <Bar yAxisId="left" type="monotone" name="Nombre de visiteurs" dataKey="count" barSize={20} stroke="#3366ff" fill="#3366ff"/>
           </ComposedChart>
     } else {
       graph = <Typography>Aucune donnée</Typography>

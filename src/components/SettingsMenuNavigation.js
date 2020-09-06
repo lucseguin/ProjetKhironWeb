@@ -11,12 +11,14 @@ import FloorConfigurations from "../screens/FloorConfigurations"
 import SettingsCleaning from "../screens/SettingsCleaning"
 import SettingsStretcherBearer from "../screens/SettingsStretcherBearer"
 import GlobalSettings from "../screens/GlobalSettings"
+import SettingsVisitors from "../screens/SettingsVisitors"
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
 import LayersOutlinedIcon from '@material-ui/icons/LayersOutlined';
 import HotelOutlinedIcon from '@material-ui/icons/HotelOutlined';
 import TransferWithinAStationOutlinedIcon from '@material-ui/icons/TransferWithinAStationOutlined';
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
 import CleaningIcon from "./CleaningIcon"
+import WcIcon from '@material-ui/icons/Wc';
 
 function SettingsTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -114,7 +116,8 @@ export default function SettingsMenuNavigation() {
           <LinkTab icon={<HotelOutlinedIcon />} aria-label="beds" {...a11yProps(2)} href="/settings/beds" className={classes.tab}/>
           <LinkTab icon={<CleaningIcon />} aria-label="cleaning" {...a11yProps(3)} href="/settings/cleaning" className={classes.tab}/>
           <LinkTab icon={<TransferWithinAStationOutlinedIcon />} aria-label="bearer" href="/settings/bearer" {...a11yProps(4)} className={classes.tab}/>
-          <LinkTab icon={<SettingsOutlinedIcon />} aria-label="shopping" href="/settings/global" {...a11yProps(5)} className={classes.tab}/>
+          <LinkTab icon={<WcIcon />} aria-label="visitor" href="/settings/visitor" {...a11yProps(5)} className={classes.tab}/>
+          <LinkTab icon={<SettingsOutlinedIcon />} aria-label="shopping" href="/settings/global" {...a11yProps(56)} className={classes.tab}/>
       </Tabs>
       <SettingsTabPanel value={value} index={0}>
          <Users />
@@ -137,6 +140,10 @@ export default function SettingsMenuNavigation() {
         {/* <Route path="/settings/bearer" exact component={SettingsStretcherBearer} /> */}
       </SettingsTabPanel>
       <SettingsTabPanel value={value} index={5}>
+        <SettingsVisitors />
+        {/* <Route path="/settings/bearer" exact component={SettingsStretcherBearer} /> */}
+      </SettingsTabPanel>
+      <SettingsTabPanel value={value} index={6}>
         <GlobalSettings />
         {/* <Route path="/settings/global" exact component={GlobalSettings} /> */}
       </SettingsTabPanel>

@@ -11,7 +11,8 @@ import BedStatus from "../screens/BedStatus";
 import * as AR from '../components/AccessRights'
 import SettingsMenuNavigation from "./SettingsMenuNavigation"
 import Box from '@material-ui/core/Box';
-
+import EventLog from "../screens/EventLog";
+import VisitorRegistration from "../screens/VisitorRegistration";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -89,7 +90,10 @@ export default function TopMenuNavigation(props) {
           {(props.userSettings&&AR.MODULE_BEDS_VIEW)?<LinkTab label="Lits" href="/beds" {...a11yProps(1)} />:null}
           {(props.userSettings&&AR.MODULE_CLEANER_VIEW)?<LinkTab label="Nettoyage" href="/cleaning" {...a11yProps(2)} />:null}
           {(props.userSettings&&AR.MODULE_BEARER_VIEW)?<LinkTab label="Brancarderie" href="/bearer" {...a11yProps(3)} />:null}
-          {props.user.role.name === "admin"?<LinkTab label="Configuration" href="/settings" {...a11yProps(4)} />:null}
+          <LinkTab label="Registre visiteur" href="/visitors" {...a11yProps(4)} />
+          <LinkTab label="Journal" href="/events" {...a11yProps(5)} />
+          
+          {props.user.role.name === "admin"?<LinkTab label="Configuration" href="/settings" {...a11yProps(6)} />:null}
         </Tabs>
       </AppBar>
 
@@ -107,13 +111,23 @@ export default function TopMenuNavigation(props) {
         <CleaningStatus user={props.user} userSettings={props.userSettings}/>
       </TabPanel>
       :null}
+
       {(props.userSettings&&AR.MODULE_BEARER_VIEW)?
       <TabPanel value={value} index={3} >
        <StretcherBearerStatus user={props.user} userSettings={props.userSettings}/>
       </TabPanel>
       :null}
+
+      <TabPanel value={value} index={4} >
+       <VisitorRegistration user={props.user} userSettings={props.userSettings}/>
+      </TabPanel>
+
+      <TabPanel value={value} index={5} >
+       {/* <EventLog user={props.user} userSettings={props.userSettings}/> */}
+      </TabPanel> 
+      
       {props.user.role.name === "admin"?
-      <TabPanel value={value} index={4}>
+      <TabPanel value={value} index={6}>
         <SettingsMenuNavigation user={props.user} userSettings={props.userSettings}/>
       </TabPanel>
       :null}

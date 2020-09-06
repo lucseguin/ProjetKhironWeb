@@ -614,6 +614,12 @@ function UserAccountDetails(props) {
   const [email, setEmail] = useState(props.account.email);
   const [phone, setPhone] = useState(props.account.phone);
 
+  const [missingRequiredOptions, setMissingRequiredOptions] = useState([]);
+
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
+
   useEffect(() => {
     setModified(false);
     setFirstName(props.account.firstName);
@@ -644,9 +650,54 @@ function UserAccountDetails(props) {
     setModified(true);
   };
 
-  console.log("UserAccountDetails account:" + props.account);
+  const handleAccountSave = (event) => {
+    //validation
 
-  return (<Paper><TableContainer><Table className={classes.userDetailSection} size="small" aria-label="caption table">
+    // setAlertMessage("Valeur obligatoire manquante");
+    // setAlertType("error");
+    // setOpenAlert(true);
+
+
+    // var selectedRole = props.roles.find(r => r._id === role);
+
+    // axios.put("/projetkhiron/account", {
+    //   _id: props.account._id,
+    //   firstName:firstName,
+    //   lastName:lastName,
+    //   email:email,
+    //   phone:phone,
+    //   role: {parent:selectedRole._id, name:selectedRole.name, label:selectedRole.label}
+    // })
+    // .then((response) => {
+    //   //console.log(response);
+    //   if (response.status === 200) {
+    //     this.setState({alertMessage:'Compte sauvegarder', alertType:'success', openAlert: true});
+    //   }
+    // }).catch(error => {
+    //   this.setState({alertMessage:JSON.stringify(error), alertType:'error', openAlert: true});
+    //   console.log("ERROR");
+    //   console.log(error);
+    // }).finally(() => {
+
+    // });
+
+
+  }
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenAlert(false);
+  };
+
+  return (<Paper>
+    <Snackbar open={openAlert} autoHideDuration={1000} onClose={handleCloseAlert}>
+      <Alert onClose={handleCloseAlert} severity={alertType}>
+        {alertMessage}
+      </Alert>
+    </Snackbar>
+    <TableContainer><Table className={classes.userDetailSection} size="small" aria-label="caption table">
     <TableHead>
       <TableRow>
         <TableCell className={classes.tableHeaderCell}>Details de compte utilisateur</TableCell>
@@ -694,7 +745,7 @@ function UserAccountDetails(props) {
       <TableRow>
         <TableCell align='right' >
           {isModified ?
-            <Button variant="contained" color="primary" >
+            <Button variant="contained" color="primary" onClick={handleAccountSave}>
               Sauvegarder
             </Button>
             :
@@ -743,6 +794,10 @@ class Users extends Component {
     selectedRole: null,
     loadingAccounts:true,
     loadingRoles:true,
+
+    openAlert:false,
+    alertMessage:'',
+    alertType:''
   };
 
   componentDidMount () {
@@ -766,14 +821,15 @@ class Users extends Component {
   }
 
   handleFilterChange(event) {
+
     this.setState({userFilter: event.target.value})
-    if (!event.target.value || 0 === event.target.value.length)
+    
+    if(event.target.value && event.target.value.length > 0) {
+      var accounts = this.state.allAccounts.filter((item) => { return (item.firstName.toLowerCase().includes(event.target.value.toLowerCase()) || item.lastName.toLowerCase().includes(event.target.value.toLowerCase())) });
+      this.setState({filteredUserAccounts:accounts});
+    } else {
       this.setState({filteredUserAccounts: this.state.allAccounts});
-    else
-      this.setState({filteredUserAccounts:this.state.allUserAccounts.filter((item) => {
-          return item.firstName.includes(event.target.value) || item.lastName.includes(event.target.value);
-        })
-      });
+    }
   }
 
   handleSetAccountToEdit(account) {
@@ -784,6 +840,16 @@ class Users extends Component {
     this.setState({selectedRole: role});
   }
 
+  handleCreateNewUser() {
+    this.setState({selectedAccount: {_id:-1, firstName:'', lastName:'', role:{parent:''}, email:'', extra:[], phone:'' }});
+  }
+
+  handleCloseAlert(event, reason) {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({openAlert: false});
+  }
   render () {
   const { classes } = this.props;
   return (
@@ -808,9 +874,9 @@ class Users extends Component {
                           />
                         </TableCell>
                         <TableCell align="right" style={{ borderBottom: 'none' }}>
-                          <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />}>
+                          <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={this.handleCreateNewUser.bind(this)}>
                             Nouvel utilisateur
-                       </Button>
+                          </Button>
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -875,7 +941,7 @@ class Users extends Component {
                       </TableRow>
                       <TableRow>
                         <TableCell align='right' >
-                          <Button variant="contained" color="primary" disabled >
+                          <Button variant="contained" color="primary" disabled>
                             Sauvegarder
                           </Button>
                         </TableCell>
@@ -1208,6 +1274,11 @@ class Users extends Component {
           </TableBody>
         </Table>
       </TableContainer>
+      <Snackbar open={this.state.openAlert} autoHideDuration={1000} onClose={this.handleCloseAlert.bind(this)}>
+            <Alert onClose={this.handleCloseAlert.bind(this)} severity={this.state.alertType}>
+              {this.state.alertMessage}
+            </Alert>
+          </Snackbar>
     </Paper>
   );
   }
