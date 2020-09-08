@@ -86,7 +86,7 @@ export default function TopMenuNavigation(props) {
           onChange={handleChange}
           aria-label="nav tabs example"
         >
-          <LinkTab label="Acceuil" href="/" {...a11yProps(0)} />
+          <LinkTab label="Accueil" href="/" {...a11yProps(0)} />
           {(props.userSettings&&AR.MODULE_BEDS_VIEW)?<LinkTab label="Lits" href="/beds" {...a11yProps(1)} />:null}
           {(props.userSettings&&AR.MODULE_CLEANER_VIEW)?<LinkTab label="Nettoyage" href="/cleaning" {...a11yProps(2)} />:null}
           {(props.userSettings&&AR.MODULE_BEARER_VIEW)?<LinkTab label="Brancarderie" href="/bearer" {...a11yProps(3)} />:null}
@@ -123,7 +123,7 @@ export default function TopMenuNavigation(props) {
       </TabPanel>
 
       <TabPanel value={value} index={5} >
-       {/* <EventLog user={props.user} userSettings={props.userSettings}/> */}
+        <EventLog user={props.user} userSettings={props.userSettings}/> 
       </TabPanel> 
       
       {props.user.role.name === "admin"?
