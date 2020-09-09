@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Component } from "react";
+import React, { useState, useEffect, Component, useRef,createRef } from "react";
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -26,6 +26,8 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import * as AR from '../components/AccessRights'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import StatusProgress from '../components/StatusProgress'
+import ConfirmDialog from "../components/ConfirmDialog"
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -104,7 +106,7 @@ function UserAccountsTable(props) {
           </IconButton >
         </TableCell>
         <TableCell className={classes.iconTableCell}>
-          <IconButton aria-label="delete" size="small">
+          <IconButton aria-label="delete" size="small"  onClick={() => props.onDeleteAccount(row)}>
             <DeleteIcon />
           </IconButton >
         </TableCell>
@@ -221,7 +223,7 @@ function RoleDetails(props) {
       setAlertMessage(JSON.stringify(error));
       setAlertType("error");
       setOpenAlert(true);
-      console.log("error" + error);
+      //console.log("error" + error);
     }).finally(() => {
       
     });
@@ -608,13 +610,20 @@ function UserAccountDetails(props) {
   const classes = makeStyles(useStyles)();
 
   const [isModified, setModified] = useState(false);
+  const [isSaving, setSaving] = useState(false);
   const [firstName, setFirstName] = useState(props.account.firstName);
   const [lastName, setLastName] = useState(props.account.lastName);
   const [role, setRole] = useState(props.account.role.parent);
   const [email, setEmail] = useState(props.account.email);
   const [phone, setPhone] = useState(props.account.phone);
+  const [tmpPwd, setTmpPwd] = useState('');
+  const [newAccount, setNewAccount] = useState(false);
+  
+  const statusProgressRef = useRef();
+  const [statusTitle, setStatusTitle] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
 
-  const [missingRequiredOptions, setMissingRequiredOptions] = useState([]);
+  const [missingRequiredDetails, setMissingRequiredDetails] = useState([]);
 
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -627,6 +636,13 @@ function UserAccountDetails(props) {
     setRole(props.account.role.parent);
     setEmail(props.account.email);
     setPhone(props.account.phone);
+    if(props.account._id === '-1') {
+      setNewAccount(true);
+    }else{
+      setNewAccount(false);
+    }
+    setTmpPwd('');
+    setMissingRequiredDetails([]);
   }, [props]);
 
   const handleFirstNameChange = (event) => {
@@ -649,39 +665,78 @@ function UserAccountDetails(props) {
     setPhone(event.target.value);
     setModified(true);
   };
+  const handleTmpPwdChange = (event) => {
+    setTmpPwd(event.target.value);
+    setModified(true);
+  };
+  
 
   const handleAccountSave = (event) => {
-    //validation
+    //console.log("[Users] handleAccountSave");
+    var scanMissingRequiredDetails = [];
+    if(firstName === undefined || firstName === null || firstName.trim().length === 0)
+      scanMissingRequiredDetails.push("user-edit-first-name");
+    if(lastName === undefined || lastName === null || lastName.trim().length === 0)
+      scanMissingRequiredDetails.push("user-edit-last-name");
+    if(role === undefined || role === null || role.trim().length === 0)  
+      scanMissingRequiredDetails.push("user-edit-role");
+    if(email === undefined || email === null || email.trim().length === 0)    
+      scanMissingRequiredDetails.push("user-edit-email");
+    if(newAccount && (tmpPwd === undefined || tmpPwd === null || tmpPwd.trim().length === 0))    
+      scanMissingRequiredDetails.push("user-edit-temp-pwd");
 
-    // setAlertMessage("Valeur obligatoire manquante");
-    // setAlertType("error");
-    // setOpenAlert(true);
+    setMissingRequiredDetails([...scanMissingRequiredDetails]);
+    if(scanMissingRequiredDetails.length > 0) {
+      setAlertMessage("Valeur obligatoire manquante");
+      setAlertType("error");
+      setOpenAlert(true);
+      return;
+    }
 
+    setSaving(true);
 
-    // var selectedRole = props.roles.find(r => r._id === role);
+    setStatusTitle("Sauvegarde en court");
+    if(!newAccount)
+      setStatusMessage("Sauvegarde des modification au compte de " + firstName);
+    else
+      setStatusMessage("Ajout du compte de " + firstName);
+    statusProgressRef.current.showStatus();
 
-    // axios.put("/projetkhiron/account", {
-    //   _id: props.account._id,
-    //   firstName:firstName,
-    //   lastName:lastName,
-    //   email:email,
-    //   phone:phone,
-    //   role: {parent:selectedRole._id, name:selectedRole.name, label:selectedRole.label}
-    // })
-    // .then((response) => {
-    //   //console.log(response);
-    //   if (response.status === 200) {
-    //     this.setState({alertMessage:'Compte sauvegarder', alertType:'success', openAlert: true});
-    //   }
-    // }).catch(error => {
-    //   this.setState({alertMessage:JSON.stringify(error), alertType:'error', openAlert: true});
-    //   console.log("ERROR");
-    //   console.log(error);
-    // }).finally(() => {
+    var selectedRole = props.roles.find(r => r._id === role);
+    axios.put("/projetkhiron/account", {
+      _id: props.account._id,
+      firstName:firstName,
+      lastName:lastName,
+      email:email,
+      phone:phone,
+      role: {parent:selectedRole._id, name:selectedRole.name, label:selectedRole.label},
+      tmpPwd:tmpPwd,
+    })
+    .then((response) => {
+      //console.log(response);
+      if (response.status === 200) {
+        if(!newAccount)
+          setAlertMessage("Modification au compte sauvegarder");
+        else
+          setAlertMessage("Nouveau compte ajouter");
 
-    // });
+        setAlertType("success");
+        setOpenAlert(true);
 
-
+        if(props.onChange){
+          props.onChange();
+        }
+      }
+    }).catch(error => {
+      setAlertMessage(JSON.stringify(error))
+      setAlertType("error");
+      setOpenAlert(true);
+      // console.log("ERROR");
+       console.log(error.message);
+    }).finally(() => {
+      setSaving(false);
+      statusProgressRef.current.hideStatus();
+    });
   }
 
   const handleCloseAlert = (event, reason) => {
@@ -697,6 +752,7 @@ function UserAccountDetails(props) {
         {alertMessage}
       </Alert>
     </Snackbar>
+    <StatusProgress ref={statusProgressRef} title={statusTitle} message={statusMessage} />
     <TableContainer><Table className={classes.userDetailSection} size="small" aria-label="caption table">
     <TableHead>
       <TableRow>
@@ -706,12 +762,12 @@ function UserAccountDetails(props) {
     <TableBody>
       <TableRow>
         <TableCell className={classes.userDetailCell}>
-          <TextField id="user-edit-first-name" label="Prénom" value={firstName} onChange={handleFirstNameChange} style={{ width: '100%' }} />
+          <TextField id="user-edit-first-name" label="Prénom" value={firstName} onChange={handleFirstNameChange} required error={(missingRequiredDetails.findIndex(o => o === "user-edit-first-name") !== -1)?true:false} style={{ width: '100%' }} />
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className={classes.userDetailCell}>
-          <TextField id="user-edit-last-name" label="Nom de famille" value={lastName} onChange={handleLastNameChange} style={{ width: '100%' }} />
+          <TextField id="user-edit-last-name" label="Nom de famille" value={lastName} onChange={handleLastNameChange} required error={(missingRequiredDetails.findIndex(o => o === "user-edit-last-name") !== -1)?true:false}  style={{ width: '100%' }} />
         </TableCell>
       </TableRow>
       <TableRow>
@@ -723,6 +779,8 @@ function UserAccountDetails(props) {
             value={role}
             onChange={handleRoleChange}
             style={{ width: '50%' }}
+            required
+            error={(missingRequiredDetails.findIndex(o => o === "user-edit-role") !== -1)?true:false} 
           >
             {props.roles.map((option) => (
               <MenuItem key={option._id} value={option._id}>
@@ -734,28 +792,28 @@ function UserAccountDetails(props) {
       </TableRow>
       <TableRow>
         <TableCell className={classes.userDetailCell}>
-          <TextField id="user-edit-email" label="Courriel" value={email} onChange={handleEmailChange} style={{ width: '100%' }} />
+          <TextField id="user-edit-email" label="Courriel" value={email} onChange={handleEmailChange}  required error={(missingRequiredDetails.findIndex(o => o === "user-edit-email") !== -1)?true:false}  style={{ width: '100%' }} />
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell className={classes.userDetailCell}>
-          <TextField id="standard-required" label="Cellulaire" value={phone} onChange={handlePhoneChange} />
+          <TextField id="user-edit-cell" label="Cellulaire" value={phone} onChange={handlePhoneChange}  />
         </TableCell>
       </TableRow>
+      {newAccount?
+      <TableRow>
+        <TableCell className={classes.userDetailCell}>
+          <TextField id="user-edit-temp-pwd" label="Mot de passe temporaire" required value={tmpPwd} onChange={handleTmpPwdChange} error={(missingRequiredDetails.findIndex(o => o === "user-edit-email") !== -1)?true:false} style={{ width: '100%' }} />
+        </TableCell>
+      </TableRow>:null}
       <TableRow>
         <TableCell align='right' >
-          {isModified ?
-            <Button variant="contained" color="primary" onClick={handleAccountSave}>
+            <Button variant="contained" disabled={!isModified || isSaving} color="primary" onClick={handleAccountSave}>
               Sauvegarder
             </Button>
-            :
-            <Button variant="contained" color="primary" disabled >
-              Sauvegarder
-            </Button>
-          }
         </TableCell>
       </TableRow>
-      <TableRow>
+      {/* <TableRow>
         <TableCell className={classes.userDetailCell}>
           <TextField id="user-edit-temp-pwd" label="Mot de passe temporaire" style={{ width: '100%' }} />
         </TableCell>
@@ -772,7 +830,7 @@ function UserAccountDetails(props) {
             </Button>
           }
         </TableCell>
-      </TableRow>
+      </TableRow> */}
     </TableBody>
   </Table></TableContainer></Paper>
   );
@@ -783,6 +841,7 @@ class Users extends Component {
     super(props);
     //this.classes = makeUseOfStyles();
 
+    this.confirmDlgRef = createRef();
   }
   
   state = {
@@ -791,6 +850,7 @@ class Users extends Component {
     allRoles : [],
     filteredUserAccounts: [],
     selectedAccount: null,
+    selectedAccountForDeletion: null,
     selectedRole: null,
     loadingAccounts:true,
     loadingRoles:true,
@@ -810,13 +870,21 @@ class Users extends Component {
       console.log(error);
     });
 
+    this.loadAccounts();
+  }
+
+  loadAccounts() {
+    //("[Users] loadingAccounts");
+    this.setState({ loadingAccounts:true});
     axios.get("/projetkhiron/accounts")
     .then((response2) => {
       if(response2.status === 200) {
-        this.setState({allAccounts: response2.data, filteredUserAccounts: response2.data, loadingAccounts:false});
+        this.setState({allAccounts: response2.data, filteredUserAccounts: response2.data, selectedAccount: null});
       }
-    }, (error) => {
-      console.log(error);
+    }).catch(error => {
+      console.log("[Users] Failed loading accounts. " + error.message);
+    }).finally(() => {
+      this.setState({ loadingAccounts:false});
     });
   }
 
@@ -836,12 +904,38 @@ class Users extends Component {
     this.setState({selectedAccount: account});
   }
 
+  handleDeleteAccount(account) {
+    console.log("[Users] handleDeleteAccount");
+    this.setState({selectedAccountForDeletion: account});
+    this.confirmDlgRef.current.showDialog();
+  }
+
+  deleteSelectedAccount() {
+    axios.delete("/projetkhiron/account", {
+      params: {
+        _id: this.state.selectedAccountForDeletion._id,
+        cognitoID: this.state.selectedAccountForDeletion.cognitoID
+      }
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        this.setState({alertMessage:"Compte supprimer", alertType:"success", openAlert: true});
+        this.loadAccounts();
+      }
+    }).catch(error => {
+      console.log(error;
+      this.setState({alertMessage:error.message, alertType:"error", openAlert: true});
+      // console.log("ERROR");
+      //console.log(error.message);
+    }).finally(() => {
+    });
+  }
   handleSetRoleToEdit(role) {
     this.setState({selectedRole: role});
   }
 
   handleCreateNewUser() {
-    this.setState({selectedAccount: {_id:-1, firstName:'', lastName:'', role:{parent:''}, email:'', extra:[], phone:'' }});
+    this.setState({selectedAccount: {_id:'-1', firstName:'', lastName:'', role:{parent:''}, email:'', extra:[], phone:'' }});
   }
 
   handleCloseAlert(event, reason) {
@@ -854,6 +948,14 @@ class Users extends Component {
   const { classes } = this.props;
   return (
     <Paper elevation={0} style={{ height: "100%" }}>
+      <ConfirmDialog 
+          ref={this.confirmDlgRef}
+          title="Supprimer compte" 
+          message="Etes-vous certain de vouloir supprimer ce compte?" 
+          cancelLabel="Annuler"
+          confirmLabel="Supprimer"
+          onConfirm={this.deleteSelectedAccount.bind(this)}
+          />
       <TableContainer>
         <Table>
           <TableBody>
@@ -886,11 +988,11 @@ class Users extends Component {
             </TableRow>
             <TableRow>
               <TableCell className={classes.mainUserTableCell} style={{ verticalAlign: 'top' }} >
-                <UserAccountsTable loading={this.state.loadingAccounts} userAccounts={this.state.filteredUserAccounts} roles={this.state.allRoles} onSelectedAccountForEdit={this.handleSetAccountToEdit.bind(this)} />
+                <UserAccountsTable loading={this.state.loadingAccounts} userAccounts={this.state.filteredUserAccounts} roles={this.state.allRoles} onSelectedAccountForEdit={this.handleSetAccountToEdit.bind(this)} onDeleteAccount={this.handleDeleteAccount.bind(this)}/>
               </TableCell>
               <TableCell className={classes.mainUserTableCell} style={{ verticalAlign: 'top' }} >
                 {this.state.selectedAccount ?
-                  <UserAccountDetails account={this.state.selectedAccount} roles={this.state.allRoles}/>
+                  <UserAccountDetails account={this.state.selectedAccount} roles={this.state.allRoles} onChange={this.loadAccounts.bind(this)}/>
                   :
                   <Paper>
                   <TableContainer>
@@ -946,7 +1048,7 @@ class Users extends Component {
                           </Button>
                         </TableCell>
                       </TableRow>
-                      <TableRow>
+                      {/* <TableRow>
                         <TableCell className={classes.userDetailCell}>
                           <TextField id="user-edit-temp-pwd" label="Mot de passe temporaire" disabled style={{ width: '100%' }} />
                         </TableCell>
@@ -957,7 +1059,7 @@ class Users extends Component {
                             Appliquer
                            </Button>
                         </TableCell>
-                      </TableRow>
+                      </TableRow> */}
                     </TableBody>
                   </Table></TableContainer></Paper>
                 }
