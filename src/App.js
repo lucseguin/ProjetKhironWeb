@@ -38,7 +38,7 @@ function App() {
           }
       });
       if (response.status === 200 && response.data.length === 1) {
-        console.log("Did find user!")
+        //console.log("Did find user!")
         setUser(response.data[0]);
         setPaletteType(response.data[0].paletteType);
 

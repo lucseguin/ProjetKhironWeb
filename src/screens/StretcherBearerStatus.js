@@ -111,6 +111,8 @@ function StretcherBearerStatus(props) {
 
   const [serviceLevel, setServiceLevel] = useState(16);
 
+  const [refreshIntervalID, setRefreshIntervalID] = useState();
+
   useEffect(() => {
     setLoadingSettings(true);
     let roleSettingsReq = axios.get("/projetkhiron/roles", {
@@ -180,7 +182,12 @@ function StretcherBearerStatus(props) {
     .finally(() => {
       setLoadingSettings(false);
     });
-}, [])
+
+    const intervalID = setInterval(silentReload8HourData, 30000);
+    return () => {
+      clearInterval(intervalID);
+    }
+  }, []);
 
   const addZero = (i) => {
     if (i < 10) {
@@ -213,21 +220,23 @@ function StretcherBearerStatus(props) {
       //for each bucket, now calculate average completion time
       
       var startHour = moment().subtract(8, 'hours').toDate().getHours();
-      var endHour = new Date().getHours();
-
-
       var i, j;
-      for (i = startHour; i <= endHour; i++) { 
+      for (i = 0; i <= 8; i++) { 
         var hourKey = addZero(i);
         for(j = 0; j <= 45; j+=15) {
           var bucketKey = hourKey+':'+addZero(j);
           var dataPoint = map.get(bucketKey);
           if(dataPoint){
-            dataPoint.averageTime = dataPoint.averageTime/dataPoint.completed; //average the time
+            if(dataPoint.completed > 0)
+              dataPoint.averageTime = dataPoint.averageTime/dataPoint.completed; //average the time
             data.push(dataPoint);
           } else {
             data.push({ name:bucketKey, requested: 0, completed:0, averageTime: 0 });
           }
+        }
+        startHour = startHour + 1;
+        if(startHour >= 24) {
+          startHour = 0;
         }
       }
     }
@@ -238,6 +247,26 @@ function StretcherBearerStatus(props) {
   const loadRequestData = () => {
     loadRequestDataEx(serviceLevel)
   }
+
+  const silentReload8HourData = () => {
+    axios.get("/projetkhiron/bearer/requests", {
+      params: {
+          from: moment().subtract(8, 'hours').toDate()
+        }
+    }).then((response) => {
+      //console.log(response);
+      if(response.status === 200) {
+        setLast8hoursRequests(response.data);
+        setLast8hoursDataPoints(binRequests15MinutesOver8Hours(response.data));
+      }
+    }).catch(error => {
+      console.log("[StretcherBearerStatus] silentReload8HourData Error :" +error.message);
+
+    }).finally(() => {
+
+    });
+  }
+
   const loadRequestDataEx = (sLevel) => {
     setLoadingRequests(true);
 
@@ -433,8 +462,8 @@ function StretcherBearerStatus(props) {
       toReq = selectedToRequest;
     }
 
-    console.log("[handleSendNewRequest] newRequestOptions");
-    console.log(newRequestOptions);
+    // console.log("[handleSendNewRequest] newRequestOptions");
+    // console.log(newRequestOptions);
     
     axios.put("/projetkhiron/bearer/request", {
       from: fromReq,
@@ -457,7 +486,7 @@ function StretcherBearerStatus(props) {
       console.log(error);
 
     }).finally(() => {
-      loadRequestData();
+      silentReload8HourData();
       setShowFromBeds(false);
       setShowToBeds(false);
       setSelectedFromRequest(null);

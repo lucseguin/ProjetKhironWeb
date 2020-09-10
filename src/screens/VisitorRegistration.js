@@ -102,6 +102,8 @@ function VisitorRegistration(props) {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('');
 
+  const [refreshIntervalID, setRefreshIntervalID] = useState();
+
   useEffect(() => {
     setLoadingSettings(true);
 
@@ -110,20 +112,6 @@ function VisitorRegistration(props) {
     let floorList = axios.get("/projetkhiron/floors");
     let visitorSettings = axios.get("/projetkhiron/visitor/settings");
     
-    // , {
-    // })
-    //   .then((response) => {
-    //     console.log(response);
-    //     if (response.status === 200) {
-    //       setSettings(response.data.settings);
-    //     }
-    //   }).catch(error => {
-    //     console.log("error" + error);
-    //     if (error) throw error;
-    //   }).finally(() => {
-    //     setLoadingSettings(false);
-    //   });
-
     axios.all([floorList, visitorSettings])
     .then(
       axios.spread((...responses) => {
@@ -162,7 +150,12 @@ function VisitorRegistration(props) {
     .finally(() => {
       setLoadingSettings(false);
     });
-}, [])
+
+    const intervalID = setInterval(silentReload8HourData, 30000);
+    return () => {
+      clearInterval(intervalID);
+    }
+}, []);
 
 const addZero = (i) => {
   if (i < 10) {
@@ -250,6 +243,24 @@ const binRequests15MinutesOver8Hours = (requests) => {
       });
   }
 
+  const silentReload8HourData = () => {
+    axios.get("/projetkhiron/visitor/requests", {
+      params: {
+          from: moment().subtract(8, 'hours').toDate()
+        }
+    }).then((response) => {
+      //console.log(response);
+      if(response.status === 200) {
+        setLast8hoursRequests(response.data);
+        setLast8hoursDataPoints(binRequests15MinutesOver8Hours(response.data));
+      }
+    }).catch(error => {
+      console.log("[VisitorRegistration] silentReload8HourData Error :" +error.message);
+
+    }).finally(() => {
+
+    });
+  }
 
   const handleSelectedFromRequest = (value) => {
     setSelectedFromRequest(value);
@@ -293,8 +304,6 @@ const binRequests15MinutesOver8Hours = (requests) => {
       setFromBedList([]);
     }
   }
-
-
 
   const handleSendNewRequest = (event) => {
     //confirm that all required filed have been populated in newRequestOptions
@@ -354,7 +363,7 @@ const binRequests15MinutesOver8Hours = (requests) => {
       console.log(error);
 
     }).finally(() => {
-      loadRequestData();
+      silentReload8HourData();
       setShowFromBeds(false);
       setSelectedFromRequest(null);
       setSelectedBedFromRequest(null);

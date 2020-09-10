@@ -842,6 +842,7 @@ class Users extends Component {
     //this.classes = makeUseOfStyles();
 
     this.confirmDlgRef = createRef();
+    this.statusProgressRef = createRef();
   }
   
   state = {
@@ -857,7 +858,10 @@ class Users extends Component {
 
     openAlert:false,
     alertMessage:'',
-    alertType:''
+    alertType:'',
+
+    statusTitle:'',
+    statusMessage:'',
   };
 
   componentDidMount () {
@@ -911,6 +915,9 @@ class Users extends Component {
   }
 
   deleteSelectedAccount() {
+    this.setState({statusTitle:'Supression de compte',statusMessage:"Supression de compte en cours"});
+    this.statusProgressRef.current.showStatus();
+
     axios.delete("/projetkhiron/account", {
       params: {
         _id: this.state.selectedAccountForDeletion._id,
@@ -928,6 +935,7 @@ class Users extends Component {
       // console.log("ERROR");
       //console.log(error.message);
     }).finally(() => {
+      this.statusProgressRef.current.hideStatus();
     });
   }
   handleSetRoleToEdit(role) {
@@ -956,6 +964,7 @@ class Users extends Component {
           confirmLabel="Supprimer"
           onConfirm={this.deleteSelectedAccount.bind(this)}
           />
+      <StatusProgress ref={this.statusProgressRef} title={this.state.statusTitle} message={this.state.statusMessage} />
       <TableContainer>
         <Table>
           <TableBody>

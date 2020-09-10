@@ -110,6 +110,7 @@ function CleaningStatus(props) {
   const [alertType, setAlertType] = useState('');
 
   const [serviceLevel, setServiceLevel] = useState(16);
+  const [refreshIntervalID, setRefreshIntervalID] = useState();
 
   useEffect(() => {
     setLoadingSettings(true);
@@ -181,7 +182,12 @@ function CleaningStatus(props) {
     .finally(() => {
       setLoadingSettings(false);
     });
-}, [])
+
+    const intervalID = setInterval(silentReload8HourData, 30000);
+    return () => {
+      clearInterval(intervalID);
+    }
+}, []);
 
   const addZero = (i) => {
     if (i < 10) {
@@ -214,21 +220,23 @@ function CleaningStatus(props) {
       //for each bucket, now calculate average completion time
       
       var startHour = moment().subtract(8, 'hours').toDate().getHours();
-      var endHour = new Date().getHours();
-
-
       var i, j;
-      for (i = startHour; i <= endHour; i++) { 
+      for (i = 0; i <= 8; i++) { 
         var hourKey = addZero(i);
         for(j = 0; j <= 45; j+=15) {
           var bucketKey = hourKey+':'+addZero(j);
           var dataPoint = map.get(bucketKey);
           if(dataPoint){
-            dataPoint.averageTime = dataPoint.averageTime/dataPoint.completed; //average the time
+            if(dataPoint.completed > 0)
+              dataPoint.averageTime = dataPoint.averageTime/dataPoint.completed; //average the time
             data.push(dataPoint);
           } else {
             data.push({ name:bucketKey, requested: 0, completed:0, averageTime: 0 });
           }
+        }
+        startHour = startHour + 1;
+        if(startHour >= 24) {
+          startHour = 0;
         }
       }
     }
@@ -296,6 +304,25 @@ function CleaningStatus(props) {
       .finally(() => {
         
       });
+  }
+
+  const silentReload8HourData = () => {
+    axios.get("/projetkhiron/cleaner/requests", {
+      params: {
+          from: moment().subtract(8, 'hours').toDate()
+        }
+    }).then((response) => {
+      //console.log(response);
+      if(response.status === 200) {
+        setLast8hoursRequests(response.data);
+        setLast8hoursDataPoints(binRequests15MinutesOver8Hours(response.data));
+      }
+    }).catch(error => {
+      console.log("[CleanerStatus] silentReload8HourData Error :" +error.message);
+
+    }).finally(() => {
+
+    });
   }
 
   const handleSelectedFromRequest = (value) => {
@@ -398,7 +425,7 @@ function CleaningStatus(props) {
       console.log(error);
 
     }).finally(() => {
-      loadRequestData();
+      silentReload8HourData();
       setShowFromBeds(false);
       setSelectedFromRequest(null);
       setSelectedBedFromRequest(null);
