@@ -923,7 +923,7 @@ class Users extends Component {
         this.loadAccounts();
       }
     }).catch(error => {
-      console.log(error;
+      //console.log(error;
       this.setState({alertMessage:error.message, alertType:"error", openAlert: true});
       // console.log("ERROR");
       //console.log(error.message);
