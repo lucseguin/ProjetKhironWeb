@@ -26,6 +26,9 @@ import MuiAlert from '@material-ui/lab/Alert';
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
+
+const APP_VERSION = "v0.9.0-20201007";
+
 export default function GlobalSettings(props) {
   const [globalSettings, setGlobalSettings] = useState({departments:[]});
   const [selectedDepartementListOption, setSelectedDepartementListOption] = useState({_id:'', text:''});
@@ -180,7 +183,7 @@ export default function GlobalSettings(props) {
                   </TableCell>
                   <TableCell align="right">
                     <Typography variant="subtitle1" gutterBottom>
-                      v0.9.0-20200814
+                      {APP_VERSION}
                     </Typography>  
                   </TableCell>
                 </TableRow>

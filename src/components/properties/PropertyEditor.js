@@ -98,6 +98,18 @@ export default function PropertyEditor(props) {
         props.onChange(updatedSelection);
     }
 
+    const handlePropEntityChange = (event) => {
+        let updatedSelection = { ...selectedProperty, entity: event.target.value };
+        setSelectedProperty(updatedSelection);
+        props.onChange(updatedSelection);
+    }
+
+    const handlePropAssistantChange = (event) => {
+        let updatedSelection = { ...selectedProperty, assistant: event.target.value };
+        setSelectedProperty(updatedSelection);
+        props.onChange(updatedSelection);
+    }
+
     const handlePropListMultiChange = (event) => {
         let updatedSelection = { ...selectedProperty, multi: event.target.checked };
         setSelectedProperty(updatedSelection);
@@ -218,7 +230,26 @@ export default function PropertyEditor(props) {
                         </MenuItem>
                     ))}
                 </TextField>
-            ];
+            ]; 
+            if(props.assistant && props.assistant === true) {
+                selectedPropertyElement = [selectedPropertyElement,
+                <TextField
+                    id="user-prop-linreg-ml-algo"
+                    key="user-prop-linreg-ml-algo"
+                    select
+                    label="Assistant - Entité"
+                    style={{ width: '400px' }}
+                    value={selectedProperty.entity}
+                    onChange={handlePropEntityChange}
+                >
+                    <MenuItem value="telephone">Numéro de téléphone</MenuItem>
+                    <MenuItem value="email">Addresse courriel</MenuItem>
+                    <MenuItem value="numeric">Valeur Numérique</MenuItem>
+                    <MenuItem value="name">Nom</MenuItem>
+                    <MenuItem value="yesno">Oui/Non</MenuItem>
+                </TextField>
+                ];
+            }
         } else if (selectedProperty.type === Properties.NUM_PROPERTY) { //numerique
             selectedPropertyElement = [selectedPropertyElement,
                 <TextField id="user-prop-min-val" key="user-prop-min-val" label="Valeur min" value={selectedProperty.min} onChange={handlePropMinChange} style={{ width: '400px' }} />,
@@ -360,7 +391,7 @@ export default function PropertyEditor(props) {
                                 <TableCell align='right' style={{ width: '100%', borderBottom: 'none' }}>
                                     <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} >
                                         Lien additionel
-                      </Button>
+                                    </Button>
                                 </TableCell>
                             </TableRow>
 
@@ -395,6 +426,17 @@ export default function PropertyEditor(props) {
                         </TableBody>
                     </Table>
                 </TableContainer>];
+        }
+
+        if(props.assistant && props.assistant === true) {
+            selectedPropertyElement= [selectedPropertyElement,
+                <TextField id="user-prop-text-char-num" 
+                            key="user-prop-text-char-num" 
+                            label="Assistant - Phrase" 
+                            value={selectedProperty.assistant} 
+                            onChange={handlePropAssistantChange}
+                            style={{ width: '400px' }} />,
+            ];
         }
     } else {
         selectedPropertyElement = <TextField

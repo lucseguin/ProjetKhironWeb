@@ -174,7 +174,7 @@ export default function SettingsVisitors(props) {
 
   const handleNewProperty = () => {
     let settingsCopy = {...settings};
-    settingsCopy.extra = [...settingsCopy.extra , { _id: uuidv4(), text: "Nouvelle Propriétée", type: Properties.TEXT_PROPERTY, max: 0, mandatory: false, mlAlgo: '' }];
+    settingsCopy.extra = [...settingsCopy.extra , { _id: uuidv4(), text: "Nouvelle Propriétée", type: Properties.TEXT_PROPERTY, max: 0, required: false, mlAlgo: '', assistant:'', entity:''}];
     setSettings(settingsCopy); 
     setSettingsModified(true);
   }
@@ -245,7 +245,8 @@ export default function SettingsVisitors(props) {
                   <Grid item xs={4} style={{minWidth: 400}}>
                     <PropertyEditor
                       property={selectedProperty}
-                      onChange={(item) => handlePropertyChange(item)} />
+                      onChange={(item) => handlePropertyChange(item)} 
+                      assistant={true}/>
                   </Grid>
 
                   <Grid item xs={4} style={{minWidth: 400}}>

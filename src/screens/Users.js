@@ -28,6 +28,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import StatusProgress from '../components/StatusProgress'
 import ConfirmDialog from "../components/ConfirmDialog"
+import EventCoordinator from '../components/EventCoordinator';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -865,6 +866,7 @@ class Users extends Component {
   };
 
   componentDidMount () {
+    var user = EventCoordinator.retreive("user");
     axios.get("/projetkhiron/roles")
     .then((response) => {
       if(response.status === 200) {
@@ -879,6 +881,7 @@ class Users extends Component {
 
   loadAccounts() {
     //("[Users] loadingAccounts");
+    var user = EventCoordinator.retreive("user");
     this.setState({ loadingAccounts:true});
     axios.get("/projetkhiron/accounts")
     .then((response2) => {

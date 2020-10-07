@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { BrowserRouter, Redirect } from "react-router-dom";
 import "./icons.js";
 import "./style.css";
@@ -14,6 +14,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Amplify,  { Auth }  from 'aws-amplify';
 import awsconfig from './aws-exports';
 import { withAuthenticator } from '@aws-amplify/ui-react';
+import EventCoordinator from './components/EventCoordinator';
 
 Amplify.configure(awsconfig);
 
@@ -26,7 +27,25 @@ function App() {
   const [userSettings, setUserSettings] = useState(0);
   const [paletteType, setPaletteType] = useState('light');
 
-  //const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  
+  useEffect(() => {
+    EventCoordinator.register('notif', processNotification);
+
+    return () => {
+      EventCoordinator.remove('notif', processNotification);
+    };
+  }, [user]);
+
+  const processNotification = (event) => {
+    var { payload } = event;
+    const { type } = payload;
+    switch (type) {
+      case 'orgChange':
+        setUser({...user, currentOrg:payload.data});
+        break;
+    }
+  }
 
   async function verifyAuthenticatedUser(){
     setVerifyingUser(true);
@@ -40,12 +59,13 @@ function App() {
       if (response.status === 200 && response.data.length === 1) {
         //console.log("Did find user!")
         setUser(response.data[0]);
+        EventCoordinator.store("user", response.data[0]);
         setPaletteType(response.data[0].paletteType);
 
         const r2 = await axios.get("/projetkhiron/roles", {
           params: {
               name: response.data[0].role.name
-            }
+          }
         });
         if (r2.status === 200 && r2.data.length === 1) {
           setUserSettings(r2.data[0].settings);

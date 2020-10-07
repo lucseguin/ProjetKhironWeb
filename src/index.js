@@ -5,6 +5,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import * as axios from "axios";
 import { Auth } from 'aws-amplify';
+import EventCoordinator from './components/EventCoordinator';
 
 require('dotenv').config();
 
@@ -12,12 +13,16 @@ if(process.env.REACT_APP_PK_DB_API_ENDPOINT && process.env.REACT_APP_PK_DB_API_E
   console.log("process.env.REACT_APP_PK_DB_API_ENDPOINT:"+process.env.REACT_APP_PK_DB_API_ENDPOINT);
   axios.defaults.baseURL = process.env.REACT_APP_PK_DB_API_ENDPOINT;
 } else {
-  axios.defaults.baseURL = "https://projetkhiron.com:3000";
+  axios.defaults.baseURL = "https://"+window.location.hostname+":3000";
 }
 
 axios.interceptors.request.use(function (config) {
     return Auth.currentSession()
       .then(session => {
+        var user = EventCoordinator.retreive("user");
+        if(user) {
+          config.headers.Tenant = user.tenant
+        }
         // User is logged in. Set auth header on all requests
         config.headers.Authorization = 'Bearer ' + session.accessToken.jwtToken
         return Promise.resolve(config)

@@ -1,14 +1,14 @@
-import React from 'react';
+import React , {useState,useEffect }from 'react';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
+// import InputBase from '@material-ui/core/InputBase';
 import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-import SearchIcon from '@material-ui/icons/Search';
+// import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -16,13 +16,11 @@ import Avatar from '@material-ui/core/Avatar';
 import { AmplifySignOut } from '@aws-amplify/ui-react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-
-import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
-import LayersOutlinedIcon from '@material-ui/icons/LayersOutlined';
-import HotelOutlinedIcon from '@material-ui/icons/HotelOutlined';
-import TransferWithinAStationOutlinedIcon from '@material-ui/icons/TransferWithinAStationOutlined';
-import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
-import CleaningIcon from "./CleaningIcon"
+import axios from 'axios';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import EventCoordinator from '../components/EventCoordinator';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -96,6 +94,31 @@ export default function TopMenuBar(props) {
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
+  const [globalSettings, setGlobalSettings] = useState({departments:[]});
+  const [loadingSettings, setLoadingSettings]  = useState(false);
+  // const [currentOrg, setCurrentOrg]  = useState();
+  
+
+  useEffect(() => {
+    //setCurrentOrg(props.user.currentOrg);
+    setLoadingSettings(true);
+    axios.get("/projetkhiron/settings", {
+      params: {
+          config: "production"
+      }
+    })
+      .then((response) => {
+        if (response.status === 200 && response.data.length === 1) {
+          setGlobalSettings(response.data[0]);
+        }
+      }).catch(error => {
+        console.log("error" + error);
+        if (error) throw error;
+      }).finally(() => {
+        setLoadingSettings(false);
+    });
+}, [])
+
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -119,6 +142,12 @@ export default function TopMenuBar(props) {
     else
       props.onThemeChange('light');
   }
+
+  // const handleOrgChange = (event) => {
+  //   setCurrentOrg(event.target.value);
+  //   EventCoordinator.store("user", {...EventCoordinator.retreive("user"), currentOrg:event.target.value});
+  //   EventCoordinator.signal('notif', {type:'orgChange', data:event.target.value, message:'Sucessfully signed out through Cognito'});
+  // }
 
   const extractInitials = (userInfo) => {
     return ((userInfo.firstName && userInfo.firstName.length > 1)?userInfo.firstName.charAt(0):'') + ((userInfo.lastName && userInfo.lastName.length > 1)?userInfo.lastName.charAt(0):'');
@@ -149,6 +178,24 @@ export default function TopMenuBar(props) {
         }
         label="Dark Mode"
       /></MenuItem>
+
+      {/* {props.user.org.length>1?
+      <MenuItem>
+      <FormControl className={classes.formControl}>
+        <InputLabel id="org-simple-select-label">Organisation</InputLabel>
+        <Select
+          labelId="org-simple-select-label"
+          id="org-simple-select"
+          value={currentOrg}
+          onChange={handleOrgChange}
+        >
+          {props.user.org.map(org => (
+            <MenuItem key={org.db} value={org.db}>{org.label}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      </MenuItem>:null} */}
+
       <MenuItem><AmplifySignOut /></MenuItem>
 
     </Menu>
@@ -200,9 +247,9 @@ export default function TopMenuBar(props) {
       <AppBar position="static" color="primary">
         <Toolbar>
           <Typography className={classes.title} variant="h6" noWrap>
-            Projet Khiron
+            {globalSettings.name}
           </Typography>
-          <div className={classes.search}>
+          {/* <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
@@ -214,7 +261,7 @@ export default function TopMenuBar(props) {
               }}
               inputProps={{ 'aria-label': 'search' }}
             />
-          </div>
+          </div> */}
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             {/* <IconButton aria-label="show 4 new mails" color="inherit">
