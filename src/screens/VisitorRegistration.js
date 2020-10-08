@@ -65,7 +65,8 @@ const useStyles = makeStyles((theme) => ({
     position: "sticky",
     top: 0,
     zIndex: 10,
-    backgroundColor: "black"
+    backgroundColor:  theme.palette.background.default, 
+    color: theme.palette.text.primary,
   },
   statusIcons: {
     width:24,

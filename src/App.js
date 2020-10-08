@@ -29,31 +29,31 @@ function App() {
 
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   
-  useEffect(() => {
-    EventCoordinator.register('notif', processNotification);
+  // useEffect(() => {
+  //   EventCoordinator.register('notif', processNotification);
 
-    return () => {
-      EventCoordinator.remove('notif', processNotification);
-    };
-  }, [user]);
+  //   return () => {
+  //     EventCoordinator.remove('notif', processNotification);
+  //   };
+  // }, [user]);
 
-  const processNotification = (event) => {
-    var { payload } = event;
-    const { type } = payload;
-    switch (type) {
-      case 'orgChange':
-        setUser({...user, currentOrg:payload.data});
-        break;
-    }
-  }
+  // const processNotification = (event) => {
+  //   var { payload } = event;
+  //   const { type } = payload;
+  //   switch (type) {
+  //     case 'orgChange':
+  //       setUser({...user, currentOrg:payload.data});
+  //       break;
+  //   }
+  // }
 
   async function verifyAuthenticatedUser(){
     setVerifyingUser(true);
     try {
-      let user = await Auth.currentAuthenticatedUser();
+      let cognitoUser = await Auth.currentAuthenticatedUser();
       const response = await axios.get("/projetkhiron/accounts", {
         params: {
-            email: user.attributes.email
+            email: cognitoUser.attributes.email
           }
       });
       if (response.status === 200 && response.data.length === 1) {

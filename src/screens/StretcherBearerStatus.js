@@ -65,7 +65,8 @@ const useStyles = makeStyles((theme) => ({
     position: "sticky",
     top: 0,
     zIndex: 10,
-    backgroundColor: "black"
+    backgroundColor:  theme.palette.background.default, 
+    color: theme.palette.text.primary,
   },
   statusIcons: {
     width:24,
@@ -92,8 +93,8 @@ function StretcherBearerStatus(props) {
   const [outOfServiceRequests, setOutOfServiceRequests] = useState([]);
   const [locationList, setLocationList] = useState([]);
   const [openNewRequest, setOpenNewRequest] = useState(false);
-  const [selectedFromRequest, setSelectedFromRequest] = useState();
-  const [selectedToRequest, setSelectedToRequest] = useState();
+  const [selectedFromRequest, setSelectedFromRequest] = useState(null);
+  const [selectedToRequest, setSelectedToRequest] = useState(null);
 
   const [loadingFromBeds, setLoadingFromBeds] = useState(false);
   const [showFromBeds, setShowFromBeds] = useState(false);
@@ -222,7 +223,8 @@ function StretcherBearerStatus(props) {
       var startHour = moment().subtract(8, 'hours').toDate().getHours();
       var i, j;
       for (i = 0; i <= 8; i++) { 
-        var hourKey = addZero(i);
+        var hourKey = addZero(startHour);
+
         for(j = 0; j <= 45; j+=15) {
           var bucketKey = hourKey+':'+addZero(j);
           var dataPoint = map.get(bucketKey);
@@ -426,7 +428,7 @@ function StretcherBearerStatus(props) {
     });
 
     setMissingRequiredOptions([...scanMissingRequiredOptions]);
-    if(scanMissingRequiredOptions.length > 0) {
+    if(scanMissingRequiredOptions.length > 0 || selectedFromRequest===null || selectedToRequest===null) {
       setAlertMessage("Valeur obligatoire manquante");
       setAlertType("error");
       setOpenAlert(true);

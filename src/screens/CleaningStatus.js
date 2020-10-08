@@ -65,7 +65,8 @@ const useStyles = makeStyles((theme) => ({
     position: "sticky",
     top: 0,
     zIndex: 10,
-    backgroundColor: "black"
+    backgroundColor: theme.palette.background.default, 
+    color: theme.palette.text.primary,
   },
   statusIcons: {
     width:24,
@@ -222,7 +223,7 @@ function CleaningStatus(props) {
       var startHour = moment().subtract(8, 'hours').toDate().getHours();
       var i, j;
       for (i = 0; i <= 8; i++) { 
-        var hourKey = addZero(i);
+        var hourKey = addZero(startHour);
         for(j = 0; j <= 45; j+=15) {
           var bucketKey = hourKey+':'+addZero(j);
           var dataPoint = map.get(bucketKey);
