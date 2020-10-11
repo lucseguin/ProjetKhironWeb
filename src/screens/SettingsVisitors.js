@@ -6,37 +6,22 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import PropertyList from "../components/properties/PropertyList"
 import PropertyEditor from "../components/properties/PropertyEditor"
-import PropertiesAccountDetails from '../components/properties/PropertiesAccountDetails'
-import PropertiesAccountsTable from '../components/properties/PropertiesAccountsTable'
 import axios from 'axios';
-import AvailableAlgos from "../components/AvailableAlgos"
 import * as Properties from '../components/properties/Properties'
 import Button from '@material-ui/core/Button';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { TableHead } from "@material-ui/core";
-import DeleteIcon from '@material-ui/icons/Delete';
-import IconButton from '@material-ui/core/IconButton'
-import PropTypes from 'prop-types';
-import Input from '@material-ui/core/Input';
-import FormControl from '@material-ui/core/FormControl';
-import MaskedInput from 'react-text-mask';
 import ConfirmDialog from "../components/ConfirmDialog"
-import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
-import { exportComponentAsPNG } from "react-component-export-image";
+//import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
+//import { exportComponentAsPNG } from "react-component-export-image";
+//import QRCode from "react-qr-code";
 
 //import ObjectID from 'mongodb'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import QRCode from "react-qr-code";
+
 import { v4 as uuidv4 } from 'uuid';
 
 function Alert(props) {
@@ -92,8 +77,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const PrintableQRCode = React.forwardRef((props, ref) => ( 
-  <div ref={ref}><QRCode level="M" value={"http://"+window.location.hostname+":3000"}/></div>));
+// const PrintableQRCode = React.forwardRef((props, ref) => ( 
+//   <div ref={ref}><QRCode level="M" value={"http://"+window.location.hostname+":3000"}/></div>));
 
 export default function SettingsVisitors(props) {
   const classes = useStyles();
@@ -273,17 +258,16 @@ export default function SettingsVisitors(props) {
                           Sauvegarder
                         </Button>
                       </Grid>
-                      <Grid container
+                      {/* <Grid container
                       direction="column"
                       justify="center"
                       alignItems="center">
                       {console.log("http://"+window.location.hostname+":3000")}
                         <PrintableQRCode ref={qrCodeRef} />
-                        {/* <QRCode level="M" value={"https://"+window.location.hostname}/> */}
                         <Button variant="contained" color="primary" startIcon={<GetAppOutlinedIcon />} onClick={() => exportComponentAsPNG(qrCodeRef)}>
                           Télécharger image
                         </Button>
-                      </Grid>
+                      </Grid> */}
                     </Grid>
                   </Grid>
                 </Grid>
