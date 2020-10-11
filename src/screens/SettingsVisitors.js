@@ -30,10 +30,13 @@ import Input from '@material-ui/core/Input';
 import FormControl from '@material-ui/core/FormControl';
 import MaskedInput from 'react-text-mask';
 import ConfirmDialog from "../components/ConfirmDialog"
+import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
+import { exportComponentAsPNG } from "react-component-export-image";
+
 //import ObjectID from 'mongodb'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-
+import QRCode from "react-qr-code";
 import { v4 as uuidv4 } from 'uuid';
 
 function Alert(props) {
@@ -89,6 +92,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const PrintableQRCode = React.forwardRef((props, ref) => ( 
+  <div ref={ref}><QRCode level="M" value={"http://"+window.location.hostname+":3000"}/></div>));
 
 export default function SettingsVisitors(props) {
   const classes = useStyles();
@@ -103,6 +108,7 @@ export default function SettingsVisitors(props) {
   const [alertMessage, setAlertMessage] = React.useState('');
   const [alertType, setAlertType] = React.useState('');
 
+  const qrCodeRef = useRef();
 
   useEffect(() => {
 
@@ -213,7 +219,7 @@ export default function SettingsVisitors(props) {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell colSpan={3} width='100%'>
+              <TableCell  width='100%'>
                 <TableContainer>
                   <Table style={{ border: 'none', width: '100%' }} size="small">
                     <TableBody style={{ border: 'none' }}>
@@ -228,7 +234,7 @@ export default function SettingsVisitors(props) {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={2} style={{ verticalAlign: 'top' }}>
+              <TableCell style={{ verticalAlign: 'top' }}>
                 <Grid   container
                   direction="row"
                   justify="space-between"
@@ -249,7 +255,6 @@ export default function SettingsVisitors(props) {
                       onChange={(item) => handlePropertyChange(item)} 
                       assistant={true}/>
                   </Grid>
-
                   <Grid item xs={4} style={{minWidth: 400}}>
                     <Grid
                       container
@@ -266,6 +271,17 @@ export default function SettingsVisitors(props) {
                       <Grid item>
                         <Button variant="contained" color="primary" disabled={!settingsModified} onClick={handledSaveSettings}>
                           Sauvegarder
+                        </Button>
+                      </Grid>
+                      <Grid container
+                      direction="column"
+                      justify="center"
+                      alignItems="center">
+                      {console.log("http://"+window.location.hostname+":3000")}
+                        <PrintableQRCode ref={qrCodeRef} />
+                        {/* <QRCode level="M" value={"https://"+window.location.hostname}/> */}
+                        <Button variant="contained" color="primary" startIcon={<GetAppOutlinedIcon />} onClick={() => exportComponentAsPNG(qrCodeRef)}>
+                          Télécharger image
                         </Button>
                       </Grid>
                     </Grid>
