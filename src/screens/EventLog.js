@@ -1,8 +1,8 @@
-import React , {useEffect,useState, useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import axios from 'axios';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -25,18 +25,41 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
+import PropertySelector from "../components/properties/PropertySelector"
+import * as Properties from '../components/properties/Properties'
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import PropTypes from 'prop-types';
+import TableFooter from '@material-ui/core/TableFooter';
+import TablePagination from '@material-ui/core/TablePagination';
+import IconButton from '@material-ui/core/IconButton';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import LastPageIcon from '@material-ui/icons/LastPage';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
+
+const useStyles1 = makeStyles((theme) => ({
+  root: {
+    flexShrink: 0,
+    marginLeft: theme.spacing(2.5),
+  },
+}));
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     //backgroundColor: theme.palette.background.paper,
     display: 'flex',
-    height: '100vh',
-    width:'100%'
+    height: '100%',
+    width: '100%'
   },
   modal: {
     display: 'flex',
@@ -55,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
     color: theme.palette.text.primary,
-    width:'300px',
+    width: '300px',
   },
 
   tableContainer: {
@@ -68,15 +91,76 @@ const useStyles = makeStyles((theme) => ({
     position: "sticky",
     top: 0,
     zIndex: 10,
-    backgroundColor:  theme.palette.background.default, 
+    backgroundColor: theme.palette.background.default,
     color: theme.palette.text.primary,
   },
   statusIcons: {
-    width:24,
-    height:24
-  }  
+    width: 24,
+    height: 24
+  },
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular,
+  },
 }));
 
+function TablePaginationActions(props) {
+  const classes = useStyles1();
+  const theme = useTheme();
+  const { count, page, rowsPerPage, onChangePage } = props;
+
+  const handleFirstPageButtonClick = (event) => {
+    onChangePage(event, 0);
+  };
+
+  const handleBackButtonClick = (event) => {
+    onChangePage(event, page - 1);
+  };
+
+  const handleNextButtonClick = (event) => {
+    onChangePage(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = (event) => {
+    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <div className={classes.root}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton onClick={handleBackButtonClick} disabled={page === 0} aria-label="previous page">
+        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </div>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onChangePage: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
 
 function EventLog(props) {
   const classes = useStyles();
@@ -97,90 +181,141 @@ function EventLog(props) {
   const [showFromBeds, setShowFromBeds] = useState(false);
   const [fromBedList, setFromBedList] = useState([]);
   const [selectedBedFromRequest, setSelectedBedFromRequest] = useState(null);
+  
+  const [visitorSettings, setVisitorSettings] = useState(null);
+  const [bearerSettings, setBearerSettings] = useState(null);
+  const [cleanerSettings, setCleanerSettings] = useState(null);
+  const [searchVisitor, setSearchVisitor] = useState(true);
+  const [searchBearer, setSearchBearer] = useState(true);
+  const [searchCleaner, setSearchCleaner] = useState(true);
 
+  const [bearerRequestOptions, setBearerRequestOptions] = useState([]);
+  const [cleanerRequestOptions, setCleanerRequestOptions] = useState([]);
+  const [visitorRequestOptions, setVisitorRequestOptions] = useState([]);
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
 
+  //const [newRequestOptionsText, setNewRequestOptionsText] = useState([]);
   const [events, setEvents] = useState([]);
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   useEffect(() => {
     setLoading(true);
 
     let floorList = axios.get("/projetkhiron/floors");
-    
-    axios.all([floorList])
-    .then(
-      axios.spread((...responses) => {
-        const floorListRes = responses[0];
-        if (floorListRes.status === 200) {
-          let sectorOptions = [];
-          floorListRes.data.forEach( floor => {
-            sectorOptions.push({label:floor.label, _id:floor._id, type:'floor'});
-            if(floor.sections && floor.sections.length > 0 ) {
-              floor.sections.forEach( section => {
-                sectorOptions.push({label: " " + section.label, _id:section._id, floorID:floor._id, floorLabel:floor.label, type:'section'});
-              });
-            }
-          });
-          setLocationList(sectorOptions);
-        } else {
-          console.log("[VisitorRegistration] Failed retreiving list of floors");
-          console.log(floorListRes);
+    let settingsReq = axios.get("/projetkhiron/settings", {
+      params: {
+          config: "production"
         }
-      }
-    ))
-    .catch(errors => {
-      // react on errors.
-      console.error(errors);
-    })
-    .finally(() => {
-      setLoading(false);
     });
-}, [])
+    let bearerSettingsReq = axios.get("/projetkhiron/roles", {
+      params: {
+          name: "bearer"
+        }
+    });
+    let cleanerSettingsReq = axios.get("/projetkhiron/roles", {
+      params: {
+          name: "cleaner"
+        }
+    });
+    axios.all([floorList, settingsReq, bearerSettingsReq, cleanerSettingsReq])
+      .then(
+        axios.spread((...responses) => {
+          const floorListRes = responses[0];
+          const settingsRes = responses[1];
+          const bearerRes = responses[2];
+          const cleanerRes = responses[3];
 
+          if(bearerRes.status === 200 )
+            setBearerSettings(bearerRes.data[0].settings);
+          
+          if(cleanerRes.status === 200 )
+            setCleanerSettings(cleanerRes.data[0].settings);
+
+          if(settingsRes.status === 200)
+            setVisitorSettings(settingsRes.data[0].visitor.settings);
+
+          if (floorListRes.status === 200) {
+            let sectorOptions = [];
+            floorListRes.data.forEach(floor => {
+              sectorOptions.push({ label: floor.label, _id: floor._id, type: 'floor' });
+              if (floor.sections && floor.sections.length > 0) {
+                floor.sections.forEach(section => {
+                  sectorOptions.push({ label: " " + section.label, _id: section._id, floorID: floor._id, floorLabel: floor.label, type: 'section' });
+                });
+              }
+            });
+
+            setLocationList(sectorOptions);
+          } else {
+            console.log("[VisitorRegistration] Failed retreiving list of floors");
+            console.log(floorListRes);
+          }
+        }
+        ))
+      .catch(errors => {
+        // react on errors.
+        console.error(errors);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [])
 
   const handleSelectedFromRequest = (value) => {
     setSelectedFromRequest(value);
-    if(value && ((value.type === "floor" ) || value.type === "section")) {
+    if (value && ((value.type === "floor") || value.type === "section")) {
       setLoadingFromBeds(true);
       setShowFromBeds(true);
       var getFromFloorID = value._id;
-      if(value.type === "section")
+      if (value.type === "section"){
         getFromFloorID = value.floorID;
-      
+      }
+
       axios.get("/projetkhiron/floor/" + getFromFloorID)
-      .then((response) => {
-        //console.log(response);
-        if(response.status === 200) {
+        .then((response) => {
+          //console.log(response);
+          if (response.status === 200) {
 
-          let beds = [];
-          if(value.type === "floor")
-            beds = response.data.beds;
-          else {
-            let section = response.data.sections.find(o => o._id === value._id);
-            if(section) 
-              beds = section.beds;
+            let beds = [];
+            if (value.type === "floor")
+              beds = response.data.beds;
+            else {
+              let section = response.data.sections.find(o => o._id === value._id);
+              if (section)
+                beds = section.beds;
+            }
+
+            let bedOptions = [];
+            beds.forEach(bed => {
+              bedOptions.push({ label: bed.label, _id: bed._id, type: 'bed' });
+            });
+            setFromBedList(bedOptions);
           }
+          setLoadingFromBeds(false);
+        }).catch(error => {
+          console.log("error" + error);
+          setLoadingFromBeds(false)
+          //if (error) throw error;
+        }).finally(() => {
 
-          let bedOptions = [];
-          beds.forEach( bed => {
-            bedOptions.push({label:bed.label, _id:bed._id, type:'bed'});
-          });
-          setFromBedList(bedOptions);
-        }
-        setLoadingFromBeds(false);        
-      }).catch(error => {
-        console.log("error" +error);
-        setLoadingFromBeds(false)
-        //if (error) throw error;
-      }).finally(() => {
-
-      });
+        });
     } else {
       setShowFromBeds(false);
       setFromBedList([]);
     }
   }
+
   const handleCloseAlert = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -190,7 +325,7 @@ function EventLog(props) {
   const handleSearchRequest = (event) => {
 
     setStatusTitle("Recherche en court");
-    setStatusMessage("Recherche en lien avec lit " + selectedBedFromRequest.label);
+    setStatusMessage("Recherche en court");
     statusProgressRef.current.showStatus();
 
     var tweakedFromDate = new Date(fromDate);
@@ -203,37 +338,129 @@ function EventLog(props) {
     tweakedToDate.setMinutes(59);
     tweakedToDate.setSeconds(59);
 
+    var bedID = null;
+    if(selectedBedFromRequest)
+      bedID = selectedBedFromRequest._id;
+
+    var floorID = null;
+    var sectionID = null;
+    if(selectedFromRequest) {
+      if (selectedFromRequest.type === "floor"){
+        floorID = selectedFromRequest._id;
+      } else if (selectedFromRequest.type === "section"){
+        sectionID = selectedFromRequest._id;
+        floorID = selectedFromRequest.floorID;
+      }
+    }
+
     axios.get("/projetkhiron/requests/search", {
       params: {
-        searchType: "bed",
-        bedID:selectedBedFromRequest._id, 
-        fromDate:tweakedFromDate, 
-        toDate:tweakedToDate
-        }
-    })
-    .then((response) => {
-      console.log(response);
-      if(response.status === 200) {
-        setEvents(response.data);
+        floorID: floorID,
+        sectionID: sectionID,
+        bedID: bedID,
+        visitorOptions: visitorRequestOptions,
+        bearerOptions: bearerRequestOptions,
+        cleanerOptions: cleanerRequestOptions,
+        fromDate: tweakedFromDate,
+        toDate: tweakedToDate,
+        searchVisitor:searchVisitor,
+        searchBearer:searchBearer,
+        searchCleaner:searchCleaner
       }
-    }).catch(error => {
-      console.log("error " +error.message);
+    })
+      .then((response) => {
+        //console.log(response);
+        if (response.status === 200) {
+          setEvents(response.data);
+        }
+      }).catch(error => {
+        console.log("error " + error.message);
 
-      //if (error) throw error;
-    }).finally(() => {
-      statusProgressRef.current.hideStatus();
-    });
-  } 
+        //if (error) throw error;
+      }).finally(() => {
+        statusProgressRef.current.hideStatus();
+      });
+  }
+
+  const getRequestOptionValueFor = (inRequestOptions, option) => {
+    let newReqOption = inRequestOptions.find(item => item._id === option._id);
+    if(newReqOption)
+      return newReqOption.value;
+    else {
+      if(option.type === Properties.NUM_PROPERTY)
+        return 0;
+      else if(option.type === Properties.LIST_PROPERTY && option.multi === true) 
+        return [];
+      else
+        return '';
+    }
+  }
+
+  const inserUpdateRequestOption = (inReqProps, setReqProps, property, value, label) => {
+    let newRequestOptionsCopy = [...inReqProps];
+    const selectedPropertyValuendex = newRequestOptionsCopy.findIndex(o => o._id === property._id);
+    if(selectedPropertyValuendex === -1) { //new
+      setReqProps([...newRequestOptionsCopy, {_id:property._id, type:property.type, label:property.text, value:value}]);
+    } else { //update
+      let copyOption = {...newRequestOptionsCopy[selectedPropertyValuendex]};
+      copyOption.value = value;
+      setReqProps([
+        ...newRequestOptionsCopy.slice(0, selectedPropertyValuendex),
+        copyOption,
+        ...newRequestOptionsCopy.slice(selectedPropertyValuendex + 1)
+      ]);
+    }
+  }
+
+  
+  const removePropertyOption = (inReqProps, setReqProps, property) => {
+    let newRequestOptionsCopy = [...inReqProps];
+    const selectedPropertyValuendex = newRequestOptionsCopy.findIndex(o => o._id === property._id);
+
+    if(selectedPropertyValuendex !== -1) { //new
+      setReqProps([
+        ...newRequestOptionsCopy.slice(0, selectedPropertyValuendex),
+        ...newRequestOptionsCopy.slice(selectedPropertyValuendex + 1)
+      ]);
+    }
+  }
+  
+  const handleRequestPropertyChange = (inReqProps, setReqProps, property, e) => {    
+    if(property.type === Properties.TEXT_PROPERTY) { //text
+      if(e.target.value.trim().length != 0)
+        inserUpdateRequestOption(inReqProps, setReqProps, property, e.target.value, e.target.value);
+      else {
+        removePropertyOption(inReqProps, setReqProps, property);
+      }
+    } else if(property.type === Properties.NUM_PROPERTY) { //numerique
+      inserUpdateRequestOption(inReqProps, setReqProps, property, e.target.value, e.target.value);
+    } else if(property.type === Properties.LIST_PROPERTY) { //liste
+      if(property.multi === false) {
+        const propertyOption = property.items.find(o => o._id === e.target.value);
+        inserUpdateRequestOption(inReqProps, setReqProps, property, e.target.value, propertyOption.text);
+      } else {
+        var textValues = [];
+        e.target.value.forEach((id) => {
+          const propertyOption = property.items.find(o => o._id === id);
+          textValues.push(propertyOption.text);
+        });
+        inserUpdateRequestOption(inReqProps, setReqProps, property, e.target.value, textValues.join(","));
+      }
+    }  else if(props.type===Properties.DB_LINK_PROPERTY) { //DB link (HL7)  
+
+    }
+  }
 
   let fromBedsSelection = null;
-  if(showFromBeds) {
-    if(loadingFromBeds) { 
+  if (showFromBeds) {
+    if (loadingFromBeds) {
       fromBedsSelection = <Skeleton animation="wave" variant="rect" width={300} height={60} />
     } else {
       fromBedsSelection = <Autocomplete
+        key={selectedBedFromRequest}
+        value={selectedBedFromRequest}
         id="fromBedLocation"
         options={fromBedList}
-        
         onChange={(event, value, reason) => setSelectedBedFromRequest(value)}
         getOptionLabel={(option) => option.label}
         style={{ width: 300 }}
@@ -242,145 +469,349 @@ function EventLog(props) {
     }
   }
 
+  let optionalVisitorProperties = null;
+  if (visitorSettings && visitorSettings.extra && visitorSettings.extra.length > 0) {
+    optionalVisitorProperties = <Grid xs item ><Accordion style={{ width: 300 }} disabled={!searchVisitor}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header"
+      >
+        <Typography className={classes.heading}>Filtres données visiteurs</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Grid container>
+      {visitorSettings.extra.map((property) => (
+      <Grid xs item key={property._id}>
+          <PropertySelector
+            key={property._id + "-prop"}
+            label={property.text}
+            value={getRequestOptionValueFor(visitorRequestOptions, property)}
+            onChange={(e) => handleRequestPropertyChange(visitorRequestOptions, setVisitorRequestOptions, property, e)}
+            extra={{ ...property, required: false }}
+            style={{ width: 270 }} />
+        </Grid>
+    ))}
+    </Grid>
+    </AccordionDetails>
+    </Accordion></Grid>
+  }
+
+
+  let optionalBearerProperties = null;
+  if (bearerSettings && bearerSettings.extra && bearerSettings.extra.length > 0) {
+    optionalBearerProperties = <Grid xs item ><Accordion style={{ width: 300 }} disabled={!searchBearer}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header"
+      >
+        <Typography className={classes.heading}>Filtres données brancarderie</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Grid container>
+      {bearerSettings.extra.map((property) => (
+      <Grid xs item key={property._id}>
+          <PropertySelector
+            key={property._id + "-prop"}
+            label={property.text}
+            value={getRequestOptionValueFor(bearerRequestOptions, property)}
+            onChange={(e) => handleRequestPropertyChange(bearerRequestOptions, setBearerRequestOptions,property, e)}
+            extra={{ ...property, required: false }}
+            style={{ width: 270 }} />
+        </Grid>
+    ))}
+    </Grid>
+    </AccordionDetails>
+    </Accordion></Grid>
+  }
+
+  let optionalCleanerProperties = null;
+  if (cleanerSettings && cleanerSettings.extra && cleanerSettings.extra.length > 0) {
+    optionalCleanerProperties = <Grid xs item ><Accordion style={{ width: 300 }} disabled={!searchCleaner}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header"
+      >
+        <Typography className={classes.heading}>Filtres données nettoyage</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Grid container>
+      {cleanerSettings.extra.map((property) => (
+      <Grid xs item key={property._id}>
+          <PropertySelector
+            key={property._id + "-prop"}
+            label={property.text}
+            value={getRequestOptionValueFor(cleanerRequestOptions,property)}
+            onChange={(e) => handleRequestPropertyChange(cleanerRequestOptions, setCleanerRequestOptions, property, e)}
+            extra={{ ...property, required: false }}
+            style={{ width: 270 }} />
+        </Grid>
+    ))}
+    </Grid>
+    </AccordionDetails>
+    </Accordion></Grid>
+  }
+
+  const handleClearSearchAndResuts = () => {
+    setFromDate(new Date())
+    setToDate(new Date());
+    setVisitorRequestOptions([]);
+    setBearerRequestOptions([]);
+    setCleanerRequestOptions([]);
+    setSelectedBedFromRequest(null);
+    setSelectedFromRequest(null);
+    setEvents([]);
+    setShowFromBeds(false);
+  }
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, events.length - page * rowsPerPage);
   return (
-    <div className={classes.root} >
-    <Paper elevation={0} style={{ height: "100%", width:'100%' }} >
+    <div className={classes.root} style={{ height: "100%", width: '100%' }}>
+      <Paper elevation={0} style={{ height: "100%", width: '100%' }} >
 
-    <Snackbar open={openAlert} autoHideDuration={1000} onClose={handleCloseAlert}>
-      <Alert onClose={handleCloseAlert} severity={alertType}>
-        {alertMessage}
-      </Alert>
-    </Snackbar>
+        <Snackbar open={openAlert} autoHideDuration={1000} onClose={handleCloseAlert}>
+          <Alert onClose={handleCloseAlert} severity={alertType}>
+            {alertMessage}
+          </Alert>
+        </Snackbar>
 
-    <StatusProgress ref={statusProgressRef} title={statusTitle} message={statusMessage} />
+        <StatusProgress ref={statusProgressRef} title={statusTitle} message={statusMessage} />
 
-    <TableContainer>
-      <Table size="small">
-        <TableBody>
-          <TableRow>
-            <TableCell colSpan={2} width='100%' >
-              <TableContainer>
-                <Table style={{ border: 'none' }} size="small">
-                  <TableBody style={{ border: 'none' }}>
-                    <TableRow style={{ borderBottom: 'none' }}>
-                      <TableCell className={classes.pageHeader} style={{ borderBottom: 'none' }}>
-                        <Typography variant="h6" gutterBottom>
-                          Recherche d'événement
-                        </Typography>  
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell style={{width:'300px'}} >
-              {loading?
-              <Paper className={classes.paper2}><LinearProgress /></Paper>
-              :
-              <Paper className={classes.paper2}>
-                <MuiPickersUtilsProvider utils={DateFnsUtils} locale={frCA}>
-                  <Grid container
-                  direction="column"
-                  justify="flex-start"
-                  alignItems="flex-start"
-                  style={{ padding: 1, width: '300px' }}
-                  spacing={1} >
-                    <Grid xs item>
-                      <Autocomplete
-                        id="forLocation"
-                        options={locationList}
-                        onChange={(event, value, reason) => handleSelectedFromRequest(value)}
-                        getOptionLabel={(option) => option.label}
-                        style={{ width: '300px' }}
-                        renderInput={(params) => <TextField {...params} label="Pour" variant="outlined" />}
-                      />
-                    </Grid>
-                    <Grid xs item>
-                      {fromBedsSelection}
-                    </Grid>
-                    <Grid xs item>
-                    
-                      <KeyboardDatePicker
-                        disableToolbar
-                        variant="inline"
-                        margin="normal"
-                        format="yyyy-MM-dd"
-                        id="from-date-picker-inline"
-                        label="A partir du"
-                        value={fromDate}
-                        onChange={(date) => setFromDate(date)}
-                        KeyboardButtonProps={{
-                          'aria-label': 'A partir du',
-                        }}
-                      />
-                    </Grid>
-                    <Grid xs item>
-                      <KeyboardDatePicker
-                        disableToolbar
-                        variant="inline"
-                        format="yyyy-MM-dd"
-                        margin="normal"
-                        id="to-date-picker-inline"
-                        label="Jusqu'au"
-                        value={toDate}
-                        onChange={(date) => setToDate(date)}
-                        KeyboardButtonProps={{
-                          'aria-label': "Jusqu'au"
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs >
-                        <Button variant="contained" color="primary" disabled={!selectedBedFromRequest} onClick={handleSearchRequest}>
-                            Rechercher
-                        </Button>
-                    </Grid> 
-                  </Grid> 
-                  </MuiPickersUtilsProvider>
-              </Paper>
-              }
-            </TableCell>
-            <TableCell style={{verticalAlign: 'top', width:'100%'}}>
-              <TableContainer size="small" component={Paper} style={{width:'100%'}}>
-                <Table size="small" aria-label={props.title} style={{width:'100%'}}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell className={classes.tableHeaderCell} style={{width:'150px'}}>Date</TableCell>
-                      <TableCell className={classes.tableHeaderCell} style={{width:'100px'}}>Événement</TableCell>
-                      <TableCell className={classes.tableHeaderCell}>Détails</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {events.map(event => (
-                    <TableRow key={event._id}>
-                      <TableCell style={{width:'150px'}}>{new Date(event.date).toLocaleString('fr-CA', {dateStyle:"short", timeStyle:"short", hour12:false})}</TableCell>
-                      <TableCell style={{width:'100px'}}>{event.type==="visitor"?"Visiteur":event.type==="bearer"?"Brancarderie":event.type==="cleaner"?"Nettoyage":"Inconnu"}</TableCell>
-                    <TableCell >{
-                      <Grid container
-                      direction="column"
-                      justify="flex-start"
-                      alignItems="flex-start"
-                      style={{width:'100%'}}>
-                        {event.options.map(option => (
-                          <Grid container direction="row" key={option._id}
-                          style={{width:'100%'}}>
-                          {option.label} : {option.value}
-                          </Grid>
+        <TableContainer>
+          <Table size="small">
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={2} width='100%' >
+                  <TableContainer>
+                    <Table style={{ border: 'none' }} size="small">
+                      <TableBody style={{ border: 'none' }}>
+                        <TableRow style={{ borderBottom: 'none' }}>
+                          <TableCell className={classes.pageHeader} style={{ borderBottom: 'none' }}>
+                            <Typography variant="h6" gutterBottom>
+                              Recherche d'événement
+                        </Typography>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell style={{ width: '300px', paddingBottom: '15px' , verticalAlign:'top'}} >
+                  {loading ?
+                    <Paper className={classes.paper2}><LinearProgress /></Paper>
+                    :
+                        <Paper className={classes.paper2}>
+                          <MuiPickersUtilsProvider utils={DateFnsUtils} locale={frCA}>
+                            <Grid container
+                              direction="column"
+                              justify="flex-start"
+                              alignItems="flex-start"
+                              style={{ padding: 1, width: '300px' }}
+                              spacing={1} >
+
+                              <Grid xs item>
+                                <Autocomplete
+                                  key={selectedFromRequest}
+                                  value={selectedFromRequest}
+                                  id="forLocation"
+                                  options={locationList}
+                                  onChange={(event, value, reason) => handleSelectedFromRequest(value)}
+                                  getOptionLabel={(option) => option.label}
+                                  style={{ width: '300px' }}
+                                  renderInput={(params) => <TextField {...params} label="Sur l'étage" variant="outlined" />}
+                                />
+                              </Grid>
+                              <Grid xs item>
+                                {fromBedsSelection}
+                              </Grid>
+
+
+                              <Grid xs item>
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      checked={searchVisitor}
+                                      onChange={(event) => setSearchVisitor(event.target.checked)}
+                                      name="checkedSearchVisitors"
+                                      color="primary"
+                                    />
+                                  }
+                                  label="Recherche données visiteurs"
+                                />
+                              </Grid>
+                              {optionalVisitorProperties}
+
+                              <Grid xs item>
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      checked={searchBearer}
+                                      onChange={(event) => setSearchBearer(event.target.checked)}
+                                      name="checkedSearchBearer"
+                                      color="primary"
+                                    />
+                                  }
+                                  label="Recherche données de brancarderie"
+                                />
+                              </Grid>
+                              {optionalBearerProperties}
+
+                              <Grid xs item>
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      checked={searchCleaner}
+                                      onChange={(event) => setSearchCleaner(event.target.checked)}
+                                      name="checkedSearchCleaner"
+                                      color="primary"
+                                    />
+                                  }
+                                  label="Recherche données nettoyage"
+                                />
+                              </Grid>
+                              {optionalCleanerProperties}
+
+                              <Grid xs item>
+                                <KeyboardDatePicker
+                                  disableToolbar
+                                  variant="inline"
+                                  margin="normal"
+                                  format="yyyy-MM-dd"
+                                  id="from-date-picker-inline"
+                                  label="A partir du"
+                                  value={fromDate}
+                                  onChange={(date) => setFromDate(date)}
+                                  KeyboardButtonProps={{
+                                    'aria-label': 'A partir du',
+                                  }}
+                                  style={{width:300}}
+                                />
+                              </Grid>
+                              <Grid xs item>
+                                <KeyboardDatePicker
+                                  disableToolbar
+                                  variant="inline"
+                                  format="yyyy-MM-dd"
+                                  margin="normal"
+                                  id="to-date-picker-inline"
+                                  label="Jusqu'au"
+                                  value={toDate}
+                                  onChange={(date) => setToDate(date)}
+                                  KeyboardButtonProps={{
+                                    'aria-label': "Jusqu'au"
+                                  }}
+                                  style={{width:300}}
+                                />
+                              </Grid>
+
+                              <Grid container justify="space-evenly" alignItems="center">
+                                <Grid item  >
+                                <Button  variant="contained" color="primary"  onClick={handleSearchRequest}>
+                                  Rechercher
+                                </Button>
+                                </Grid>
+                                <Grid item >
+                                <Button  variant="contained" color="secondary" onClick={handleClearSearchAndResuts}>
+                                  Effacer
+                                </Button>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                          </MuiPickersUtilsProvider>
+                        </Paper>
+                  }
+                </TableCell>
+                <TableCell style={{ verticalAlign: 'top', width: '100%'}}>
+                  <TableContainer size="small" component={Paper} style={{ width: '100%' }}>
+                    <Table size="small" aria-label={props.title} style={{ width: '100%' }}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell className={classes.tableHeaderCell} style={{ width: '150px' }}>Date</TableCell>
+                          <TableCell className={classes.tableHeaderCell} style={{ width: '100px' }}>Événement</TableCell>
+                          <TableCell className={classes.tableHeaderCell}>Détails</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {/* {events.map(event => (
+                          <TableRow key={event._id}>
+                            <TableCell style={{ width: '150px' }}>{new Date(event.date).toLocaleString('fr-CA', { dateStyle: "short", timeStyle: "short", hour12: false })}</TableCell>
+                            <TableCell style={{ width: '100px' }}>{event.type === "visitor" ? "Visiteur" : event.type === "bearer" ? "Brancarderie" : event.type === "cleaner" ? "Nettoyage" : "Inconnu"}</TableCell>
+                            <TableCell >{
+                              <Grid container
+                                direction="column"
+                                justify="flex-start"
+                                alignItems="flex-start"
+                                style={{ width: '100%' }}>
+                                {event.options.map(option => (
+                                  <Grid container direction="row" key={option._id}
+                                    style={{ width: '100%' }}>
+                                    {option.label} : {option.value}
+                                  </Grid>
+                                ))}
+                              </Grid>
+                            }</TableCell>
+                          </TableRow>
+                        ))} */}
+                      {(rowsPerPage > 0
+                          ? events.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                          : events
+                        ).map((event) => (
+                          <TableRow key={event._id}>
+                          <TableCell style={{ width: '150px' }}>{new Date(event.date).toLocaleString('fr-CA', { dateStyle: "short", timeStyle: "short", hour12: false })}</TableCell>
+                          <TableCell style={{ width: '100px' }}>{event.type === "visitor" ? "Visiteur" : event.type === "bearer" ? "Brancarderie" : event.type === "cleaner" ? "Nettoyage" : "Inconnu"}</TableCell>
+                          <TableCell >{
+                            <Grid container
+                              direction="column"
+                              justify="flex-start"
+                              alignItems="flex-start"
+                              style={{ width: '100%' }}>
+                              {event.options.map(option => (
+                                <Grid container direction="row" key={option._id}
+                                  style={{ width: '100%' }}>
+                                  {option.label} : {option.value}
+                                </Grid>
+                              ))}
+                            </Grid>
+                          }</TableCell>
+                        </TableRow>
                         ))}
-                      </Grid>
-                    }</TableCell>
-                    </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </Paper></div>);
+
+                        {emptyRows > 0 && (
+                          <TableRow style={{ height: 53 * emptyRows }}>
+                            <TableCell colSpan={6} />
+                          </TableRow>
+                        )}
+
+                      </TableBody>
+                      <TableFooter>
+                      <TableRow>
+                        <TablePagination
+                          rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                          colSpan={3}
+                          count={events.length}
+                          rowsPerPage={rowsPerPage}
+                          page={page}
+                          SelectProps={{
+                            inputProps: { 'aria-label': 'rows per page' },
+                            native: true,
+                          }}
+                          onChangePage={handleChangePage}
+                          onChangeRowsPerPage={handleChangeRowsPerPage}
+                          ActionsComponent={TablePaginationActions}
+                        />
+                      </TableRow>
+                    </TableFooter>
+                    </Table>
+                  </TableContainer>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper></div>);
 }
 
 export default EventLog;
