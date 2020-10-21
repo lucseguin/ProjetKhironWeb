@@ -79,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
 
 // const cryptr = new Cryptr(window._env_.REACT_APP_SALT);
 const PrintableQRCode = React.forwardRef((props, ref) => ( 
-  <div ref={ref}><QRCode level="L" value={"https://"+ window._env_.REACT_APP_HOST_NAME+"/visitor?tenant="+props.tenant}/></div>));
+  <div ref={ref}><QRCode level="L" value={"https://"+ window._env_.REACT_APP_HOST_NAME+"/visitor?site="+props.site}/></div>));
 
 export default function SettingsVisitors(props) {
   const classes = useStyles();
@@ -98,8 +98,8 @@ export default function SettingsVisitors(props) {
 
   const [qrCode, setQrCode] = useState(null);
 
-  const generateQrCode = (genTenant) => {
-      var qCode = <PrintableQRCode ref={qrCodeRef} tenant={genTenant}/>
+  const generateQrCode = (genSite) => {
+      var qCode = <PrintableQRCode ref={qrCodeRef} site={genSite}/>
       setQrCode(qCode);
   }
 
@@ -116,7 +116,7 @@ export default function SettingsVisitors(props) {
           setSettings(response.data.settings);
 
           if(user) {
-            setTimeout(function(){generateQrCode(user.tenant) }, 500);
+            setTimeout(function(){generateQrCode(user.site._id) }, 500);
           }
         }
       }).catch(error => {
@@ -125,7 +125,7 @@ export default function SettingsVisitors(props) {
       }).finally(() => {
         setLoadingSettings(false);
       });
-  }, [])
+  }, [props.user])
 
   const handledSaveSettings = (event) => {
     axios.put("/projetkhiron/visitor/settings", {

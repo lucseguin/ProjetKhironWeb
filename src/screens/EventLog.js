@@ -308,6 +308,7 @@ function EventLog(props) {
   const [searchVisitor, setSearchVisitor] = useState(true);
   const [searchBearer, setSearchBearer] = useState(true);
   const [searchCleaner, setSearchCleaner] = useState(true);
+  const [multiSiteSearch, setMultiSiteSearch] = useState(true);
 
   const [bearerRequestOptions, setBearerRequestOptions] = useState([]);
   const [cleanerRequestOptions, setCleanerRequestOptions] = useState([]);
@@ -401,12 +402,12 @@ function EventLog(props) {
       .finally(() => {
         setLoadingData(false);
       });
-  }, [])
+  }, [props.user])
 
   useEffect(() => {
-    setSearchVisitor((props.user.licence.visitor_module && (props.user.access&AR.ROLE_VISITOR_VIEW)===AR.ROLE_VISITOR_VIEW));
-    setSearchBearer((props.user.licence.bearer_module && (props.user.access&AR.ROLE_BEARER_VIEW)===AR.ROLE_BEARER_VIEW));
-    setSearchCleaner((props.user.licence.cleaner_module && (props.user.access&AR.ROLE_CLEANER_VIEW)===AR.ROLE_CLEANER_VIEW));
+    setSearchVisitor((props.user.licence.visitor_module &&  AR.isEnabled(props.user.access,AR.ROLE_VISITOR_VIEW) ));
+    setSearchBearer((props.user.licence.bearer_module && AR.isEnabled(props.user.access,AR.ROLE_BEARER_VIEW) ));
+    setSearchCleaner((props.user.licence.cleaner_module && AR.isEnabled(props.user.access,AR.ROLE_CLEANER_VIEW) ));
   }, [props.user.licence])
   
 
@@ -607,7 +608,7 @@ function EventLog(props) {
   }
 
   let optionalVisitorProperties = null;
-  if(props.user.licence.visitor_module && (props.user.access&AR.ROLE_VISITOR_VIEW)){
+  if(props.user.licence.visitor_module && AR.isEnabled(props.user.access,AR.ROLE_VISITOR_VIEW)){
     if (visitorSettings && visitorSettings.extra && visitorSettings.extra.length > 0) {
       optionalVisitorProperties = <Grid xs item ><Accordion style={{ width: 300 }} disabled={!searchVisitor}>
         <AccordionSummary
@@ -638,7 +639,7 @@ function EventLog(props) {
 
 
   let optionalBearerProperties = null;
-  if(props.user.licence.bearer_module && (props.user.access&AR.ROLE_BEARER_VIEW)) {
+  if(props.user.licence.bearer_module && AR.isEnabled(props.user.access,AR.ROLE_BEARER_VIEW) ) {
     if (bearerSettings && bearerSettings.extra && bearerSettings.extra.length > 0) {
       optionalBearerProperties = <Grid xs item ><Accordion style={{ width: 300 }} disabled={!searchBearer}>
         <AccordionSummary
@@ -667,7 +668,7 @@ function EventLog(props) {
     }
   }
   let optionalCleanerProperties = null;
-  if(props.user.licence.cleaner_module && (props.user.access&AR.ROLE_CLEANER_VIEW)){
+  if(props.user.licence.cleaner_module && AR.isEnabled(props.user.access,AR.ROLE_CLEANER_VIEW) ){
     if (cleanerSettings && cleanerSettings.extra && cleanerSettings.extra.length > 0) {
       optionalCleanerProperties = <Grid xs item ><Accordion style={{ width: 300 }} disabled={!searchCleaner}>
         <AccordionSummary
@@ -768,7 +769,7 @@ function EventLog(props) {
                                 {fromBedsSelection}
                               </Grid>
 
-                              {props.user.licence.visitor_module && (props.user.access&AR.ROLE_VISITOR_VIEW)?
+                              {props.user.licence.visitor_module && AR.isEnabled(props.user.access,AR.ROLE_VISITOR_VIEW) ?
                               <Grid xs item>
                                 <FormControlLabel
                                   control={
@@ -785,7 +786,7 @@ function EventLog(props) {
                               :null}
                               {optionalVisitorProperties}
                               
-                              {props.user.licence.bearer_module && (props.user.access&AR.ROLE_BEARER_VIEW)?
+                              {props.user.licence.bearer_module && AR.isEnabled(props.user.access,AR.ROLE_BEARER_VIEW) ?
                               <Grid xs item>
                                 <FormControlLabel
                                   control={
@@ -801,7 +802,7 @@ function EventLog(props) {
                               </Grid>:null}
                               {optionalBearerProperties}
 
-                              {props.user.licence.cleaner_module && (props.user.access&AR.ROLE_CLEANER_VIEW)?
+                              {props.user.licence.cleaner_module && AR.isEnabled(props.user.access,AR.ROLE_CLEANER_VIEW) ?
                               <Grid xs item>
                                 <FormControlLabel
                                   control={
@@ -868,7 +869,7 @@ function EventLog(props) {
                   }
                 </TableCell>
                 <TableCell style={{ verticalAlign: 'top', width: '100%'}}>
-                  {!loadingData&&(props.user.access&AR.ROLE_JOURNAL_PDF)?
+                  {!loadingData&&AR.isEnabled(props.user.access,AR.ROLE_JOURNAL_PDF)?
                   <PDFDownloadLink style={{color:theme.palette.text.primary, textDecoration: 'none'}} document={<JournalPDFDocument events={events} translateOptionFnc={translateOptionValue}/>} fileName="journal.pdf">
                     {({ blob, url, loading, error }) => (loading ? 'Chargement du journal...' : 'Télécharger journal')}
                   </PDFDownloadLink>

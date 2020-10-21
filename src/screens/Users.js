@@ -376,7 +376,7 @@ function AdminRoleSetting(props) {
         control={
           <Checkbox
             size="small"
-            checked={((options & AR.ROLE_SETTINGS_MANAGE_ACCOUNTS) === AR.ROLE_SETTINGS_MANAGE_ACCOUNTS)}
+            checked={ ((options & AR.ROLE_SETTINGS_MANAGE_ACCOUNTS) === AR.ROLE_SETTINGS_MANAGE_ACCOUNTS)}
             onChange={(event) => props.onChange((event.target.checked) ? (options | AR.ROLE_SETTINGS_MANAGE_ACCOUNTS) : (options & ~AR.ROLE_SETTINGS_MANAGE_ACCOUNTS)) }
             name="ROLE_SETTINGS_MANAGE_ACCOUNTS"
             color="primary"
@@ -1101,6 +1101,16 @@ class Users extends Component {
   };
 
   componentDidMount () {
+    this.loadAllData();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user !== this.props.user) 
+      this.loadAllData();
+  }
+
+  loadAllData() {
+    this.setState({ loadingRoles:true});
     axios.get("/projetkhiron/roles")
     .then((response) => {
       if(response.status === 200) {
@@ -1203,7 +1213,7 @@ class Users extends Component {
       <TableContainer>
         <Table>
           <TableBody>
-            {(this.props.user.access&AR.ROLE_SETTINGS_MANAGE_ACCOUNTS)?
+            {AR.isEnabled(this.props.user.access,AR.ROLE_SETTINGS_MANAGE_ACCOUNTS)?
             [<TableRow key="new-user-row">
               <TableCell colSpan={2} width='100%'>
                 <TableContainer>
@@ -1312,7 +1322,7 @@ class Users extends Component {
             </TableRow>
             ]:null}
 
-            {(this.props.user.access&AR.ROLE_SETTINGS_MANAGE_ROLES)?
+            {AR.isEnabled(this.props.user.access,AR.ROLE_SETTINGS_MANAGE_ROLES)?
             <TableRow>
               <TableCell colSpan={2}>
                 <Table>

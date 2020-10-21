@@ -31,6 +31,7 @@ import PlayForWorkOutlinedIcon from '@material-ui/icons/PlayForWorkOutlined';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import * as AR from '../components/AccessRights'
 
+
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -113,9 +114,10 @@ function CleaningStatus(props) {
   const [alertType, setAlertType] = useState('');
 
   const [serviceLevel, setServiceLevel] = useState(16);
-  const [refreshIntervalID, setRefreshIntervalID] = useState();
 
   useEffect(() => {
+
+
     setLoadingSettings(true);
     let roleSettingsReq = axios.get("/projetkhiron/roles", {
       params: {
@@ -130,7 +132,6 @@ function CleaningStatus(props) {
     });
 
     let floorList = axios.get("/projetkhiron/floors");
-
   
     axios.all([roleSettingsReq, globalSettingsReq, floorList])
     .then(
@@ -190,7 +191,8 @@ function CleaningStatus(props) {
     return () => {
       clearInterval(intervalID);
     }
-}, []);
+}, [props.user]);
+
 
   const addZero = (i) => {
     if (i < 10) {
@@ -409,7 +411,6 @@ function CleaningStatus(props) {
 
     axios.put("/projetkhiron/cleaner/request", {
       from: fromReq,
-      // to: toReq,
       requestedOn: new Date(),
       options: newRequestOptionsText,
     })
@@ -616,7 +617,6 @@ function CleaningStatus(props) {
                 <Autocomplete
                   id="fromLocation"
                   options={locationList}
-                  
                   onChange={(event, value, reason) => handleSelectedFromRequest(value)}
                   getOptionLabel={(option) => option.label}
                   style={{ width: 300 }}
@@ -689,7 +689,7 @@ function CleaningStatus(props) {
         spacing={3}>
 
         <Grid item xs={7} align="right">
-          {(props.user.access&&AR.ROLE_CLEANER_NEW_REQUEST)?
+          {AR.isEnabled(props.user.access,AR.ROLE_CLEANER_NEW_REQUEST)?
             <Button variant="contained" color="primary" disabled={loadingSettings} startIcon={<AddCircleOutlineIcon />} onClick={() => setOpenNewRequest(true)}>
                 Nouvelle demande
             </Button>

@@ -29,3 +29,8 @@ export const ROLE_VISITOR_CONFIG = 2097152;
 
 export const ROLE_JOURNAL_SEARCH = 4194304;
 export const ROLE_JOURNAL_PDF= 8388608;
+
+export const isEnabled = (userAccess, functionality) => {
+    var t = (userAccess&&functionality);
+    return (t===functionality);
+}

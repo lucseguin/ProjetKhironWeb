@@ -78,7 +78,7 @@ function Visitor(props) {
     const [selectedBedFromRequest, setSelectedBedFromRequest] = useState(null);
     const [globalSettings, setGlobalSettings] = useState({name:''});
 
-    const [tenant, setTenant] = useState('');
+    const [site, setSite] = useState('');
 
     const [allSettingsLoaded, setAllSettingsLoaded] = useState(false);
     const [serviceNotAvailable, setServiceNotAvailable] = useState(false);
@@ -87,21 +87,20 @@ function Visitor(props) {
         setAllSettingsLoaded(false);
         setServiceNotAvailable(false);
 
-        var qsTenant = qs.parse(props.location.search, { ignoreQueryPrefix: true }).tenant;
-        // qsTenant = cryptr.decrypt(qsTenant);
-        setTenant(qsTenant);
+        var qsSite= qs.parse(props.location.search, { ignoreQueryPrefix: true }).site;
+        setSite(qsSite);
 
         let floorList = axios.get("/projetkhiron/floors",{
             headers:{
-                tenant:qsTenant,
+                site:qsSite,
             }});
         let visitorSettings = axios.get("/projetkhiron/visitor/settings",{
             headers:{
-                tenant:qsTenant,
+                site:qsSite,
             }});
         let globalSettingsReq = axios.get("/projetkhiron/settings", {
             headers:{
-                tenant:qsTenant,
+                site:qsSite,
             },
             params: {
                 config: "production"
@@ -165,7 +164,7 @@ function Visitor(props) {
 
             axios.get("/projetkhiron/floor/" + getFromFloorID,{
                 headers:{
-                    tenant:tenant,
+                    site:site,
                 }})
                 .then((response) => {
                     //console.log(response);
@@ -244,7 +243,7 @@ function Visitor(props) {
             options: newRequestOptionsText,
         }, {
             headers:{
-                tenant:tenant,
+                site:site,
             }})
             .then((response) => {
                 //console.log(response);

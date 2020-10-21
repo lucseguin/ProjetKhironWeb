@@ -15,7 +15,7 @@ axios.interceptors.request.use(function (config) {
       .then(session => {
         var user = EventCoordinator.retreive("user");
         if(user) {
-          config.headers.Tenant = user.tenant
+          config.headers.Site = user.site._id
         }
         // User is logged in. Set auth header on all requests
         config.headers.Authorization = session.getIdToken().getJwtToken();

@@ -200,7 +200,7 @@ export default function SettingsCleaning(props) {
         }).finally(() => {
           setLoadingSettings(false);
         });
-  }, [])
+  }, [props.user])
 
   // const areShiftsValid = () => {
 

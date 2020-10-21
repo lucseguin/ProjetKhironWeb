@@ -100,7 +100,7 @@ export default function GlobalSettings(props) {
       }).finally(() => {
         setLoadingSettings(false);
     });
-}, [])
+}, [props.user])
 
   const handleSaveSettings = () => {
     axios.put("/projetkhiron/settings", 

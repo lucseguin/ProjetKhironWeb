@@ -192,6 +192,11 @@ class FloorConfigurations extends Component {
     this.loadFloorList();
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user !== this.props.user)
+      this.loadFloorList();
+  }
+
   showStatusProgress(title, message) {
     this.setState({statusTitle:title,statusMessage:message});
     this.statusProgressRef.current.showStatus();

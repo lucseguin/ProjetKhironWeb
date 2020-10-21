@@ -98,31 +98,31 @@ export default function SettingsMenuNavigation(props) {
   var linkTabArr = [];
   var tabPanelArr = [];
 
-  if(props.user.access&AR.ROLE_SETTINGS_MANAGE_ACCOUNTS || props.user.access&AR.ROLE_SETTINGS_MANAGE_ROLES) {
+  if(AR.isEnabled(props.user.access,AR.ROLE_SETTINGS_MANAGE_ACCOUNTS) || AR.isEnabled(props.user.access,AR.ROLE_SETTINGS_MANAGE_ROLES)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="accounts-config-tab" icon={<AccountCircleOutlinedIcon />} aria-label="accounts" {...a11yProps(tabIdx)} className={classes.tab}/>)
     tabPanelArr.push(<SettingsTabPanel key="accounts-config-tab-panel" value={value} index={tabIdx}><Users user={props.user}/></SettingsTabPanel>);
   }
 
-  if(props.user.access&AR.ROLE_CONFIG_FLOOR) {
+  if(AR.isEnabled(props.user.access,AR.ROLE_CONFIG_FLOOR)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="floors-config-tab" icon={<LayersOutlinedIcon />} aria-label="floors" {...a11yProps(tabIdx)} className={classes.tab}/>)
     tabPanelArr.push(<SettingsTabPanel key="floors-config-tab-panel" value={value} index={tabIdx}><FloorConfigurations user={props.user}/></SettingsTabPanel>);
   }
 
-  if(props.user.licence.cleaner_module && props.user.access&AR.ROLE_CLEANER_CONFIG) {
+  if(props.user.licence.cleaner_module && AR.isEnabled(props.user.access,AR.ROLE_CLEANER_CONFIG) ) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="cleaning-config-tab"  icon={<CleaningIcon />} aria-label="cleaning" {...a11yProps(tabIdx)} className={classes.tab}/>)
     tabPanelArr.push(<SettingsTabPanel key="cleaning-config-tab-panel" value={value} index={tabIdx}><SettingsCleaning user={props.user}/></SettingsTabPanel>);
   }
 
-  if(props.user.licence.bearer_module && props.user.access&AR.ROLE_BEARER_CONFIG) {
+  if(props.user.licence.bearer_module && AR.isEnabled(props.user.access,AR.ROLE_BEARER_CONFIG)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="bearer-config-tab"  icon={<TransferWithinAStationOutlinedIcon />} aria-label="bearer" {...a11yProps(tabIdx)} className={classes.tab}/>)
     tabPanelArr.push(<SettingsTabPanel key="bearer-config-tab-panel"  value={value} index={tabIdx}><SettingsStretcherBearer user={props.user}/></SettingsTabPanel>);
   }
 
-  if(props.user.licence.visitor_module && props.user.access&AR.ROLE_VISITOR_CONFIG) {
+  if(props.user.licence.visitor_module && AR.isEnabled(props.user.access,AR.ROLE_VISITOR_CONFIG)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="visitors-config-tab" icon={<WcIcon />} aria-label="visitor" {...a11yProps(tabIdx)} className={classes.tab}/>)
     tabPanelArr.push(<SettingsTabPanel key="visitors-config-tab-panel" value={value} index={tabIdx}><SettingsVisitors user={props.user}/></SettingsTabPanel>);

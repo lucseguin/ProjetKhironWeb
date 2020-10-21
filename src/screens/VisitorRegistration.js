@@ -153,7 +153,7 @@ function VisitorRegistration(props) {
     return () => {
       clearInterval(intervalID);
     }
-}, []);
+}, [props.user]);
 
 const addZero = (i) => {
   if (i < 10) {
@@ -622,7 +622,7 @@ const binRequests15MinutesOver8Hours = (requests) => {
         spacing={3}>
 
         <Grid item xs={7} align="right">
-          {(props.user.access&AR.ROLE_VISITOR_NEW_REQUEST)?
+          {AR.isEnabled(props.user.access,AR.ROLE_VISITOR_NEW_REQUEST)?
             <Button variant="contained" color="primary" disabled={loadingSettings} startIcon={<AddCircleOutlineIcon />} onClick={() => setOpenNewRequest(true)}>
                 Nouvelle enregistrement
             </Button>

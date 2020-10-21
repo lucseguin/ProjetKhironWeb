@@ -78,32 +78,32 @@ export default function TopMenuNavigation(props) {
   var linkTabArr = [];
   var tabPanelArr = [];
 
-  if(props.user.licence.cleaner_module && (props.user.access&AR.ROLE_CLEANER_VIEW)) {
+  if(props.user.licence.cleaner_module && AR.isEnabled(props.user.access,AR.ROLE_CLEANER_VIEW)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="cleaning-tab" label="Nettoyage" {...a11yProps(tabIdx)} />)
     tabPanelArr.push(<TabPanel key="cleaning-tab-panel" value={value} index={tabIdx} ><CleaningStatus user={props.user} userSettings={props.userSettings}/></TabPanel>);
   }
 
-  if(props.user.licence.bearer_module && (props.user.access&AR.ROLE_BEARER_VIEW)) {
+  if(props.user.licence.bearer_module && AR.isEnabled(props.user.access,AR.ROLE_BEARER_VIEW)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="bearer-tab" label="Brancarderie" {...a11yProps(tabIdx)} />)
     tabPanelArr.push(<TabPanel key="bearer-tab-panel" value={value} index={tabIdx} ><StretcherBearerStatus user={props.user} userSettings={props.userSettings}/></TabPanel>);
   }
 
-  if(props.user.licence.visitor_module && (props.user.access&AR.ROLE_VISITOR_VIEW)) {
+  if(props.user.licence.visitor_module && AR.isEnabled(props.user.access,AR.ROLE_VISITOR_VIEW) ) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="visitors-tab" label="Registre visiteur" {...a11yProps(tabIdx)} />)
     tabPanelArr.push(<TabPanel key="visitors-panel" value={value} index={tabIdx} ><VisitorRegistration user={props.user} userSettings={props.userSettings}/></TabPanel>);
   }
 
-  if((props.user.access&AR.ROLE_JOURNAL_SEARCH)) {
+  if(AR.isEnabled(props.user.access,AR.ROLE_JOURNAL_SEARCH)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="logs-tab" label="Journal" {...a11yProps(tabIdx)} />)
     tabPanelArr.push(<TabPanel key="logs-tab-panel" value={value} index={tabIdx} ><EventLog user={props.user} userSettings={props.userSettings}/></TabPanel>);
   }
 
   if(props.user.role.name === "admin" || 
-    (props.user.access&AR.ROLE_BEARER_CONFIG)) {
+    AR.isEnabled(props.user.access,AR.ROLE_BEARER_CONFIG)) {
     tabIdx = tabIdx + 1;
     linkTabArr.push(<Tab key="config-tab" label="Configuration" {...a11yProps(tabIdx)} />)
     tabPanelArr.push(<TabPanel key="config-tab-panel" value={value} index={tabIdx} ><SettingsMenuNavigation user={props.user} userSettings={props.userSettings}/></TabPanel>);

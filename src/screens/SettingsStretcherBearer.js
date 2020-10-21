@@ -200,7 +200,7 @@ export default function SettingsStretcherBearer(props) {
         }).finally(() => {
           setLoadingSettings(false);
         });
-  }, [])
+  }, [props.user])
 
   // const areShiftsValid = () => {
 

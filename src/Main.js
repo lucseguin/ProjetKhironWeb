@@ -98,31 +98,35 @@ function Main() {
         EventCoordinator.signal('auth', {type:'signOut', data:null, message:'Failed user verification, kicking out.'});
       }
 
-      const response = await axios.get("/projetkhiron/accounts", {
+      const response = await axios.get("/projetkhiron/account", {
         params: {
             email: cognitoUser.attributes.email
           }
       });
 
       if (response.status === 200 && response.data.length === 1) {
-        EventCoordinator.store("user", response.data[0]); //after this, all axios call will be tenant aware
+        var tmpUser = {...response.data[0], site:response.data[0].sites[0]}; //set first site has default
+
+        EventCoordinator.store("user", tmpUser); //after this, all axios call will be site aware
         
         const licenceRes = await axios.post("/projetkhiron/settings/licence", {config: "production"});
         var licence = {};
         if(licenceRes.data) 
           licence = licenceRes.data
       
-        var tmpUser = {...response.data[0], licence:licence};
+        tmpUser = {...tmpUser, licence:licence};
 
         const r2 = await axios.get("/projetkhiron/roles", {
           params: {
               name: response.data[0].role.name
           }
         });
-
         if (r2.status === 200 && r2.data.length === 1) {
           setUserSettings(r2.data[0].settings);
           tmpUser = {...tmpUser, access:r2.data[0].settings.options };
+        } else {
+          console.log("Failed getting role details");
+          console.log(r2);
         }
 
         setUser(tmpUser);
@@ -143,6 +147,11 @@ function Main() {
     }
   }
 
+  const handleUserSiteChange = (newSiteValue) =>{
+    var copyUser = {...user, site:newSiteValue};
+    setUser(copyUser);
+    EventCoordinator.store("user", copyUser);
+  }
   if(!verificationCompleted && !verifyingUser) {
     verifyAuthenticatedUser();
   }
@@ -208,7 +217,7 @@ function Main() {
         style={{width:'100%'}}
       >
         <Grid item style={{width:'100%'}}>
-          <TopMenuBar user={user} userSettings={userSettings} paletteType={paletteType} onThemeChange={(newPalette) => setPaletteType(newPalette)}/>
+          <TopMenuBar user={user} onSiteChange={handleUserSiteChange} userSettings={userSettings} paletteType={paletteType} onThemeChange={(newPalette) => setPaletteType(newPalette)}/>
         </Grid>
         <Grid item style={{width:'100%'}}>
           <TopMenuNavigation user={user} userSettings={userSettings}/>

@@ -23,6 +23,7 @@ import EventCoordinator from '../components/EventCoordinator';
 import Button from '@material-ui/core/Button';
 import { logoutUser } from '../components/Authentication';
 
+
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
@@ -99,7 +100,6 @@ export default function TopMenuBar(props) {
   const [loadingSettings, setLoadingSettings]  = useState(false);
   // const [currentOrg, setCurrentOrg]  = useState();
   
-
   useEffect(() => {
     //setCurrentOrg(props.user.currentOrg);
     setLoadingSettings(true);
@@ -245,13 +245,30 @@ export default function TopMenuBar(props) {
     </Menu>
   );
 
+  var siteLabel = props.user.sites[0].label;
   return (
     <div className={classes.grow}>
       <AppBar position="static" color="primary">
         <Toolbar>
-          <Typography className={classes.title} variant="h6" noWrap>
-            {globalSettings.name}
-          </Typography>
+
+
+        {props.user.sites.length > 1? 
+              <Select
+                labelId="select-site-label"
+                id="site-select"
+                value={props.user.site}
+                onChange={(e) => props.onSiteChange(e.target.value)}
+                style={{fontSize:'150%'}}
+              >
+                {props.user.sites.map(site => (
+                  <MenuItem key={site._id} value={site}>{site.label}</MenuItem>
+                ))}
+              </Select>
+          :<Typography className={classes.title} variant="h6" noWrap>
+          {siteLabel}
+        </Typography>}
+
+
           {/* <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
